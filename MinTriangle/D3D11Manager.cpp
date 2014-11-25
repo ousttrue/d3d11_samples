@@ -15,8 +15,6 @@ class RenderTarget
 {
     ResPtr<ID3D11RenderTargetView> m_pRenderTargetView;
 	D3D11_TEXTURE2D_DESC m_colorDesc;
-    ResPtr<ID3D11Texture2D> m_pDepthStencil;
-    ResPtr<ID3D11DepthStencilView> m_pDepthStencilView;
 
 public:
     bool IsInitialized()const{ return m_pRenderTargetView ? true : false; }
@@ -31,43 +29,13 @@ public:
             return false;
         }
 
-        // デプステクスチャの作成
-        D3D11_TEXTURE2D_DESC depthDesc;
-        ZeroMemory(&depthDesc, sizeof(depthDesc));
-        depthDesc.Width = m_colorDesc.Width;
-        depthDesc.Height = m_colorDesc.Height;
-        depthDesc.MipLevels = 1;
-        depthDesc.ArraySize = 1;
-        depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-        depthDesc.SampleDesc.Count = 1;
-        depthDesc.SampleDesc.Quality = 0;
-        depthDesc.Usage = D3D11_USAGE_DEFAULT;
-        depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-        depthDesc.CPUAccessFlags = 0;
-        depthDesc.MiscFlags = 0;
-        hr = pDevice->CreateTexture2D(&depthDesc, NULL, &m_pDepthStencil);
-        if (FAILED(hr)){
-            return false;
-        }
-
-        // DepthStencilViewの作成
-        D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-        ZeroMemory(&dsvDesc, sizeof(dsvDesc));
-        dsvDesc.Format = depthDesc.Format;
-        dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-        dsvDesc.Texture2D.MipSlice = 0;
-        hr = pDevice->CreateDepthStencilView(m_pDepthStencil, &dsvDesc, &m_pDepthStencilView);
-        if (FAILED(hr)){
-            return false;
-        }
-
         return true;
     }
 
     void SetAndClear(ID3D11DeviceContext *pDeviceContext)
     {
         // Output-Merger stage
-        pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+        pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
 
         if(m_pRenderTargetView){
             // clear
@@ -83,11 +51,6 @@ public:
             vp.TopLeftX = 0;
             vp.TopLeftY = 0;
             pDeviceContext->RSSetViewports(1, &vp);
-        }
-        if(m_pDepthStencilView){
-            // clear
-            pDeviceContext->ClearDepthStencilView(m_pDepthStencilView,
-                    D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
         }
     }
 };
