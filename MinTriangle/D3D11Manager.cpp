@@ -98,8 +98,6 @@ class Shader
     ResPtr<ID3D11VertexShader> m_pVsh;
     ResPtr<ID3D11PixelShader> m_pPsh;
     ResPtr<ID3D11InputLayout> m_pInputLayout;
-    ResPtr<ID3D11RasterizerState> m_pRS;
-    ResPtr<ID3D11DepthStencilState> m_pDS;
 
 public:
     bool Initialize(ID3D11Device *pDevice, const std::wstring &shaderFile)
@@ -107,25 +105,6 @@ public:
         if(!createShaders(pDevice, shaderFile, "vsMain", "psMain")){
             return false;
         }
-
-		// render state
-		D3D11_RASTERIZER_DESC rsDesc;
-		ZeroMemory(&rsDesc, sizeof(D3D11_RASTERIZER_DESC));
-		rsDesc.CullMode = D3D11_CULL_BACK;
-		rsDesc.FillMode = D3D11_FILL_SOLID;
-		rsDesc.DepthClipEnable = TRUE;
-		if (FAILED(pDevice->CreateRasterizerState(&rsDesc, &m_pRS)))
-			return false;
-
-		// depth stencil state
-		D3D11_DEPTH_STENCIL_DESC dsDesc;
-		ZeroMemory(&dsDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-		dsDesc.DepthEnable = TRUE;
-		dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
-		dsDesc.StencilEnable = FALSE;
-		if (FAILED(pDevice->CreateDepthStencilState(&dsDesc, &m_pDS)))
-			return false;
 
         return true;
     }
@@ -135,10 +114,6 @@ public:
         // Shaderのセットアップ
         pDeviceContext->VSSetShader(m_pVsh, NULL, 0);
         pDeviceContext->PSSetShader(m_pPsh, NULL, 0);
-
-        // Stateの設定
-        pDeviceContext->RSSetState(m_pRS);
-        pDeviceContext->OMSetDepthStencilState(m_pDS, 0);
 
         // ILのセット
         pDeviceContext->IASetInputLayout(m_pInputLayout);
