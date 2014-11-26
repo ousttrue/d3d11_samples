@@ -11,10 +11,15 @@ struct VS_OUTPUT
     float4 Color      : COLOR;
 };
 
+cbuffer c0
+{
+	float4x4 ModelMatrix;
+};
+
 VS_OUTPUT vsMain( VS_INPUT In )
 {
     VS_OUTPUT Output;
-    Output.Position = In.Position;
+	Output.Position = mul(In.Position, ModelMatrix);
     Output.Color    = In.Color;
     return Output;    
 }

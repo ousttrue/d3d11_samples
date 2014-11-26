@@ -71,8 +71,10 @@ int WINAPI WinMain(
         wcex.hIconSm = NULL;
         RegisterClassEx(&wcex);
     }
-    HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, &d3d11);
+    HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW
+		, CW_USEDEFAULT, CW_USEDEFAULT
+		, 320, 320
+		, NULL, NULL, hInstance, &d3d11);
     if (!hWnd)
     {
         return 1;

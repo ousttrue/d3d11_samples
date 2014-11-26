@@ -1,6 +1,5 @@
 #include "D3D11Manager.h"
 #include "CompileShaderFromFile.h"
-#include <DirectXMath.h>
 
 
 // input-assembler
@@ -214,6 +213,9 @@ private:
 };
 
 
+
+
+
 //////////////////////////////////////////////////////////////////////////////
 // D3D11Manager
 //////////////////////////////////////////////////////////////////////////////
@@ -221,6 +223,7 @@ D3D11Manager::D3D11Manager()
     : m_renderTarget(new RenderTarget)
     , m_shader(new Shader)
     , m_IASource(new InputAssemblerSource)
+	, m_constant(new ConstantBuffer<TriangleVariables>)
 {
 }
 
@@ -285,6 +288,11 @@ bool D3D11Manager::Initialize(HWND hWnd, const std::wstring &shaderFile)
         return false;
     }
 
+	// constant buffer
+	if (!m_constant->Initialize(m_pDevice)){
+		return false;
+	}
+
     return true;
 }
 
@@ -318,14 +326,28 @@ void D3D11Manager::Render()
             return;
         }
     }
-    m_renderTarget->SetAndClear(m_pDeviceContext);
+	m_renderTarget->SetAndClear(m_pDeviceContext);
 
-    // shader
-    m_shader->Setup(m_pDeviceContext);
+	// •`‰æ
+	{
+		// shader
+		m_shader->Setup(m_pDeviceContext);
 
-    // •`‰æ
-    // vertex buffer(Input-Assembler stage)
-    m_IASource->Draw(m_pDeviceContext);
+		static float angleRadians = 0;
+		const auto DELTA = DirectX::XMConvertToRadians(0.1f);
+		angleRadians += DELTA;
+
+		//auto m = DirectX::XMMatrixIdentity();
+		auto m = DirectX::XMMatrixRotationZ(angleRadians);
+
+		DirectX::XMStoreFloat4x4(&m_constant->Buffer.Model, m);
+		 
+		m_constant->Update(m_pDeviceContext);
+		m_constant->Set(m_pDeviceContext);
+
+		// vertex buffer(Input-Assembler stage)
+		m_IASource->Draw(m_pDeviceContext);
+	}
 
     // render target‚Ö‚Ì•`‰æ
     m_pDeviceContext->Flush();
@@ -333,4 +355,3 @@ void D3D11Manager::Render()
     // •`‰æÏ‚Ý‚Ìrender target‚ðƒ‚ƒjƒ^‚Éo—Í
     m_pSwapChain->Present(NULL, NULL);
 }
-

@@ -9,7 +9,7 @@ class ResPtr
 public:
     typedef ResPtr<T>	self_t;
 
-    ResPtr() : mPtr(NULL){ }
+    ResPtr() : mPtr(nullptr){ }
     ResPtr(const ResPtr &inPtr)
 		: mPtr(NULL)
     {
