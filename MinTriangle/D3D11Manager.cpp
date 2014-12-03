@@ -1,7 +1,8 @@
 #include "D3D11Manager.h"
 #include "CompileShaderFromFile.h"
 #include <DirectXMath.h>
-
+#include <d3dcompiler.h>
+#include <vector>
 
 // input-assembler
 struct Vertex
@@ -83,38 +84,108 @@ public:
     }
 
 private:
-    bool createShaders(ID3D11Device *pDevice
+	DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type, BYTE mask)
+	{
+		if (mask & 0x0F)
+		{
+			// xyzw
+			switch (type)
+			{
+			case D3D10_REGISTER_COMPONENT_FLOAT32:
+				return DXGI_FORMAT_R32G32B32A32_FLOAT;
+			}
+		}
+
+		if (mask & 0x07)
+		{
+			// xyz
+			switch (type)
+			{
+			case D3D10_REGISTER_COMPONENT_FLOAT32:
+				return DXGI_FORMAT_R32G32B32_FLOAT;
+			}
+		}
+
+		if (mask & 0x3)
+		{
+			// xy
+			switch (type)
+			{
+			case D3D10_REGISTER_COMPONENT_FLOAT32:
+				return DXGI_FORMAT_R32G32_FLOAT;
+			}
+		}
+
+		if (mask & 0x1)
+		{
+			// x
+			switch (type)
+			{
+			case D3D10_REGISTER_COMPONENT_FLOAT32:
+				return DXGI_FORMAT_R32_FLOAT;
+			}
+		}
+
+		return DXGI_FORMAT_UNKNOWN;
+	}
+
+
+	bool createShaders(ID3D11Device *pDevice
 		, const std::wstring &shaderFile, const std::string &vsFunc, const std::string &psFunc)
-    {
-        // vertex shader
-        ResPtr<ID3DBlob> vblob;
-        HRESULT hr = CompileShaderFromFile(shaderFile.c_str(), vsFunc.c_str(), "vs_4_0_level_9_1", &vblob);
-        if (FAILED(hr))
-            return false;
-        hr = pDevice->CreateVertexShader(vblob->GetBufferPointer(), vblob->GetBufferSize(), NULL, &m_pVsh);
-        if (FAILED(hr))
-            return false;
+	{
+		// vertex shader
+		ResPtr<ID3DBlob> vblob;
+		HRESULT hr = CompileShaderFromFile(shaderFile.c_str(), vsFunc.c_str(), "vs_4_0_level_9_1", &vblob);
+		if (FAILED(hr))
+			return false;
+		hr = pDevice->CreateVertexShader(vblob->GetBufferPointer(), vblob->GetBufferSize(), NULL, &m_pVsh);
+		if (FAILED(hr))
+			return false;
 
-        // pixel shader
-        ResPtr<ID3DBlob> pblob;
-        hr = CompileShaderFromFile(shaderFile.c_str(), psFunc.c_str(), "ps_4_0_level_9_1", &pblob);
-        if (FAILED(hr))
-            return false;
-        hr = pDevice->CreatePixelShader(pblob->GetBufferPointer(), pblob->GetBufferSize(), NULL, &m_pPsh);
-        if (FAILED(hr))
-            return false;
+		// pixel shader
+		ResPtr<ID3DBlob> pblob;
+		hr = CompileShaderFromFile(shaderFile.c_str(), psFunc.c_str(), "ps_4_0_level_9_1", &pblob);
+		if (FAILED(hr))
+			return false;
+		hr = pDevice->CreatePixelShader(pblob->GetBufferPointer(), pblob->GetBufferSize(), NULL, &m_pPsh);
+		if (FAILED(hr))
+			return false;
 
-        // Create InputLayout
-        D3D11_INPUT_ELEMENT_DESC vbElement[] =
-        {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-        };
+		// vertex shader reflection
+		ResPtr<ID3D11ShaderReflection> pReflector;
+		hr = D3DReflect(vblob->GetBufferPointer(), vblob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector);
+		if (FAILED(hr))
+			return false;
 
-        hr = pDevice->CreateInputLayout(vbElement, sizeof(vbElement) / sizeof(D3D11_INPUT_ELEMENT_DESC),
-                vblob->GetBufferPointer(), vblob->GetBufferSize(), &m_pInputLayout);
-        if (FAILED(hr))
-            return false;
+		D3D11_SHADER_DESC shaderdesc;
+		pReflector->GetDesc(&shaderdesc);
+
+		// Create InputLayout
+		std::vector<D3D11_INPUT_ELEMENT_DESC> vbElement;
+		for (int i = 0; i < shaderdesc.InputParameters; ++i){
+			D3D11_SIGNATURE_PARAMETER_DESC sigdesc;
+			pReflector->GetInputParameterDesc(i, &sigdesc);
+
+			auto format = GetDxgiFormat(sigdesc.ComponentType, sigdesc.Mask);
+
+			D3D11_INPUT_ELEMENT_DESC eledesc = {
+				sigdesc.SemanticName
+				, sigdesc.SemanticIndex
+				, format
+				, 0 // Œˆ‚ß‘Å‚¿
+				, D3D11_APPEND_ALIGNED_ELEMENT // Œˆ‚ß‘Å‚¿
+				, D3D11_INPUT_PER_VERTEX_DATA // Œˆ‚ß‘Å‚¿
+				, 0 // Œˆ‚ß‘Å‚¿
+			};
+			vbElement.push_back(eledesc);
+		}
+
+		if (!vbElement.empty()){
+			hr = pDevice->CreateInputLayout(&vbElement[0], vbElement.size(),
+				vblob->GetBufferPointer(), vblob->GetBufferSize(), &m_pInputLayout);
+			if (FAILED(hr))
+				return false;
+		}
 
         return true;
     }
