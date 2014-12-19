@@ -27,5 +27,6 @@ libdirs {
 links {
     "d3d11",
     "d3dcompiler",
+    "dxguid",
 }
 
