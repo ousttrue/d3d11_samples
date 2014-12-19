@@ -129,6 +129,26 @@ private:
 		return DXGI_FORMAT_UNKNOWN;
 	}
 
+	void parseConstantBuffer(const ResPtr<ID3D11ShaderReflection> &pReflector)
+	{
+		D3D11_SHADER_DESC shaderdesc;
+		pReflector->GetDesc(&shaderdesc);
+
+		// analize constant buffer
+		for (int i = 0; i < shaderdesc.ConstantBuffers; ++i){
+			auto cb = pReflector->GetConstantBufferByIndex(i);
+			D3D11_SHADER_BUFFER_DESC desc;
+			cb->GetDesc(&desc);
+
+			for (int j = 0; j < desc.Variables; ++j){
+				auto v = cb->GetVariableByIndex(j);
+				D3D11_SHADER_VARIABLE_DESC vdesc;
+				v->GetDesc(&vdesc);
+
+				int a = 0;
+			}
+		}
+	}
 
 	bool createShaders(ID3D11Device *pDevice
 		, const std::wstring &shaderFile, const std::string &vsFunc, const std::string &psFunc)
@@ -148,6 +168,8 @@ private:
 			hr = D3DReflect(vblob->GetBufferPointer(), vblob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector);
 			if (FAILED(hr))
 				return false;
+
+			parseConstantBuffer(pReflector);
 
 			D3D11_SHADER_DESC shaderdesc;
 			pReflector->GetDesc(&shaderdesc);
@@ -189,6 +211,14 @@ private:
 			hr = pDevice->CreatePixelShader(pblob->GetBufferPointer(), pblob->GetBufferSize(), NULL, &m_pPsh);
 			if (FAILED(hr))
 				return false;
+
+			// pixel shader reflection
+			ResPtr<ID3D11ShaderReflection> pReflector;
+			hr = D3DReflect(pblob->GetBufferPointer(), pblob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector);
+			if (FAILED(hr))
+				return false;
+
+			parseConstantBuffer(pReflector);
 		}
 
         return true;
