@@ -134,55 +134,59 @@ private:
 		, const std::wstring &shaderFile, const std::string &vsFunc, const std::string &psFunc)
 	{
 		// vertex shader
-		ResPtr<ID3DBlob> vblob;
-		HRESULT hr = CompileShaderFromFile(shaderFile.c_str(), vsFunc.c_str(), "vs_4_0_level_9_1", &vblob);
-		if (FAILED(hr))
-			return false;
-		hr = pDevice->CreateVertexShader(vblob->GetBufferPointer(), vblob->GetBufferSize(), NULL, &m_pVsh);
-		if (FAILED(hr))
-			return false;
+		{
+			ResPtr<ID3DBlob> vblob;
+			HRESULT hr = CompileShaderFromFile(shaderFile.c_str(), vsFunc.c_str(), "vs_4_0_level_9_1", &vblob);
+			if (FAILED(hr))
+				return false;
+			hr = pDevice->CreateVertexShader(vblob->GetBufferPointer(), vblob->GetBufferSize(), NULL, &m_pVsh);
+			if (FAILED(hr))
+				return false;
 
-		// pixel shader
-		ResPtr<ID3DBlob> pblob;
-		hr = CompileShaderFromFile(shaderFile.c_str(), psFunc.c_str(), "ps_4_0_level_9_1", &pblob);
-		if (FAILED(hr))
-			return false;
-		hr = pDevice->CreatePixelShader(pblob->GetBufferPointer(), pblob->GetBufferSize(), NULL, &m_pPsh);
-		if (FAILED(hr))
-			return false;
+			// vertex shader reflection
+			ResPtr<ID3D11ShaderReflection> pReflector;
+			hr = D3DReflect(vblob->GetBufferPointer(), vblob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector);
+			if (FAILED(hr))
+				return false;
 
-		// vertex shader reflection
-		ResPtr<ID3D11ShaderReflection> pReflector;
-		hr = D3DReflect(vblob->GetBufferPointer(), vblob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector);
-		if (FAILED(hr))
-			return false;
+			D3D11_SHADER_DESC shaderdesc;
+			pReflector->GetDesc(&shaderdesc);
 
-		D3D11_SHADER_DESC shaderdesc;
-		pReflector->GetDesc(&shaderdesc);
+			// Create InputLayout
+			std::vector<D3D11_INPUT_ELEMENT_DESC> vbElement;
+			for (int i = 0; i < shaderdesc.InputParameters; ++i){
+				D3D11_SIGNATURE_PARAMETER_DESC sigdesc;
+				pReflector->GetInputParameterDesc(i, &sigdesc);
 
-		// Create InputLayout
-		std::vector<D3D11_INPUT_ELEMENT_DESC> vbElement;
-		for (int i = 0; i < shaderdesc.InputParameters; ++i){
-			D3D11_SIGNATURE_PARAMETER_DESC sigdesc;
-			pReflector->GetInputParameterDesc(i, &sigdesc);
+				auto format = GetDxgiFormat(sigdesc.ComponentType, sigdesc.Mask);
 
-			auto format = GetDxgiFormat(sigdesc.ComponentType, sigdesc.Mask);
+				D3D11_INPUT_ELEMENT_DESC eledesc = {
+					sigdesc.SemanticName
+					, sigdesc.SemanticIndex
+					, format
+					, 0 // Œˆ‚ß‘Å‚¿
+					, D3D11_APPEND_ALIGNED_ELEMENT // Œˆ‚ß‘Å‚¿
+					, D3D11_INPUT_PER_VERTEX_DATA // Œˆ‚ß‘Å‚¿
+					, 0 // Œˆ‚ß‘Å‚¿
+				};
+				vbElement.push_back(eledesc);
+			}
 
-			D3D11_INPUT_ELEMENT_DESC eledesc = {
-				sigdesc.SemanticName
-				, sigdesc.SemanticIndex
-				, format
-				, 0 // Œˆ‚ß‘Å‚¿
-				, D3D11_APPEND_ALIGNED_ELEMENT // Œˆ‚ß‘Å‚¿
-				, D3D11_INPUT_PER_VERTEX_DATA // Œˆ‚ß‘Å‚¿
-				, 0 // Œˆ‚ß‘Å‚¿
-			};
-			vbElement.push_back(eledesc);
+			if (!vbElement.empty()){
+				hr = pDevice->CreateInputLayout(&vbElement[0], vbElement.size(),
+					vblob->GetBufferPointer(), vblob->GetBufferSize(), &m_pInputLayout);
+				if (FAILED(hr))
+					return false;
+			}
 		}
 
-		if (!vbElement.empty()){
-			hr = pDevice->CreateInputLayout(&vbElement[0], vbElement.size(),
-				vblob->GetBufferPointer(), vblob->GetBufferSize(), &m_pInputLayout);
+		// pixel shader
+		{
+			ResPtr<ID3DBlob> pblob;
+			auto hr = CompileShaderFromFile(shaderFile.c_str(), psFunc.c_str(), "ps_4_0_level_9_1", &pblob);
+			if (FAILED(hr))
+				return false;
+			hr = pDevice->CreatePixelShader(pblob->GetBufferPointer(), pblob->GetBufferSize(), NULL, &m_pPsh);
 			if (FAILED(hr))
 				return false;
 		}
