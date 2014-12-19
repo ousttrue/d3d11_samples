@@ -1,19 +1,18 @@
-#include "ResPtr.h"
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <string>
 #include <memory>
-
+#include <wrl/client.h>
 
 template<typename T>
 class ConstantBuffer
 {
-	ResPtr<ID3D11Buffer> m_pBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_pBuffer;
 
 public:
 	T Buffer;
 
-	bool Initialize(ID3D11Device *pDevice)
+	bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
 	{
 		D3D11_BUFFER_DESC desc = { 0 };
 
@@ -29,14 +28,17 @@ public:
 		return true;
 	}
 
-	void Update(ID3D11DeviceContext *pDeviceContext)
+	void Update(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
 	{
-		pDeviceContext->UpdateSubresource(m_pBuffer, 0, NULL, &Buffer, 0, 0);
+		if (!m_pBuffer){
+			return;
+		}
+		pDeviceContext->UpdateSubresource(m_pBuffer.Get(), 0, NULL, &Buffer, 0, 0);
 	}
 
-	void Set(ID3D11DeviceContext *pDeviceContext)
+	void Set(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
 	{
-		pDeviceContext->VSSetConstantBuffers(0, 1, &m_pBuffer);
+		pDeviceContext->VSSetConstantBuffers(0, 1, m_pBuffer.GetAddressOf());
 	}
 };
 
@@ -49,9 +51,9 @@ struct TriangleVariables
 
 class D3D11Manager
 {
-    ResPtr<IDXGISwapChain> m_pSwapChain;
-    ResPtr<ID3D11Device> m_pDevice;
-    ResPtr<ID3D11DeviceContext> m_pDeviceContext;
+    Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;
+    Microsoft::WRL::ComPtr<ID3D11Device> m_pDevice;
+    Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
 
     std::shared_ptr<class RenderTarget> m_renderTarget;
     std::shared_ptr<class Shader> m_shader;

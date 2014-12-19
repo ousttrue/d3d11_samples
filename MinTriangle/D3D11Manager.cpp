@@ -14,18 +14,19 @@ struct Vertex
 
 class RenderTarget
 {
-    ResPtr<ID3D11RenderTargetView> m_pRenderTargetView;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
 	D3D11_TEXTURE2D_DESC m_colorDesc;
 
 public:
     bool IsInitialized()const{ return m_pRenderTargetView ? true : false; }
 
-    bool Initialize(ID3D11Device *pDevice, ID3D11Texture2D *pTexture)
+	bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
+		, const Microsoft::WRL::ComPtr<ID3D11Texture2D> &pTexture)
     {
 		pTexture->GetDesc(&m_colorDesc);
 
         // RenderTargetViewの作成
-        HRESULT hr = pDevice->CreateRenderTargetView(pTexture, NULL, &m_pRenderTargetView);
+        HRESULT hr = pDevice->CreateRenderTargetView(pTexture.Get(), NULL, &m_pRenderTargetView);
         if (FAILED(hr)){
             return false;
         }
@@ -33,15 +34,15 @@ public:
         return true;
     }
 
-    void SetAndClear(ID3D11DeviceContext *pDeviceContext)
+    void SetAndClear(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
     {
         // Output-Merger stage
-        pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
+        pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
         if(m_pRenderTargetView){
             // clear
             float clearColor[] = { 0.0f, 0.0f, 1.0f, 0.0f };
-            pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
+            pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 
             // Rasterizer stage
             D3D11_VIEWPORT vp;
@@ -59,12 +60,12 @@ public:
 
 class Shader
 {
-    ResPtr<ID3D11VertexShader> m_pVsh;
-    ResPtr<ID3D11PixelShader> m_pPsh;
-    ResPtr<ID3D11InputLayout> m_pInputLayout;
+    Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pVsh;
+    Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pPsh;
+    Microsoft::WRL::ComPtr<ID3D11InputLayout> m_pInputLayout;
 
 public:
-    bool Initialize(ID3D11Device *pDevice, const std::wstring &shaderFile)
+    bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice, const std::wstring &shaderFile)
     {
         if(!createShaders(pDevice, shaderFile, "vsMain", "psMain")){
             return false;
@@ -73,14 +74,14 @@ public:
         return true;
     }
 
-    void Setup(ID3D11DeviceContext *pDeviceContext)
+	void Setup(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
     {
         // Shaderのセットアップ
-        pDeviceContext->VSSetShader(m_pVsh, NULL, 0);
-        pDeviceContext->PSSetShader(m_pPsh, NULL, 0);
+        pDeviceContext->VSSetShader(m_pVsh.Get(), NULL, 0);
+		pDeviceContext->PSSetShader(m_pPsh.Get(), NULL, 0);
 
         // ILのセット
-        pDeviceContext->IASetInputLayout(m_pInputLayout);
+		pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
     }
 
 private:
@@ -129,18 +130,18 @@ private:
 		return DXGI_FORMAT_UNKNOWN;
 	}
 
-	void parseConstantBuffer(const ResPtr<ID3D11ShaderReflection> &pReflector)
+	void parseConstantBuffer(const Microsoft::WRL::ComPtr<ID3D11ShaderReflection> &pReflector)
 	{
 		D3D11_SHADER_DESC shaderdesc;
 		pReflector->GetDesc(&shaderdesc);
 
 		// analize constant buffer
-		for (int i = 0; i < shaderdesc.ConstantBuffers; ++i){
+		for (size_t i = 0; i < shaderdesc.ConstantBuffers; ++i){
 			auto cb = pReflector->GetConstantBufferByIndex(i);
 			D3D11_SHADER_BUFFER_DESC desc;
 			cb->GetDesc(&desc);
 
-			for (int j = 0; j < desc.Variables; ++j){
+			for (size_t j = 0; j < desc.Variables; ++j){
 				auto v = cb->GetVariableByIndex(j);
 				D3D11_SHADER_VARIABLE_DESC vdesc;
 				v->GetDesc(&vdesc);
@@ -150,12 +151,12 @@ private:
 		}
 	}
 
-	bool createShaders(ID3D11Device *pDevice
+	bool createShaders(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
 		, const std::wstring &shaderFile, const std::string &vsFunc, const std::string &psFunc)
 	{
 		// vertex shader
 		{
-			ResPtr<ID3DBlob> vblob;
+			Microsoft::WRL::ComPtr<ID3DBlob> vblob;
 			HRESULT hr = CompileShaderFromFile(shaderFile.c_str(), vsFunc.c_str(), "vs_4_0_level_9_1", &vblob);
 			if (FAILED(hr))
 				return false;
@@ -164,8 +165,8 @@ private:
 				return false;
 
 			// vertex shader reflection
-			ResPtr<ID3D11ShaderReflection> pReflector;
-			hr = D3DReflect(vblob->GetBufferPointer(), vblob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector);
+			Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pReflector;
+			hr = D3DReflect(vblob->GetBufferPointer(), vblob->GetBufferSize(), IID_ID3D11ShaderReflection, &pReflector);
 			if (FAILED(hr))
 				return false;
 
@@ -176,7 +177,7 @@ private:
 
 			// Create InputLayout
 			std::vector<D3D11_INPUT_ELEMENT_DESC> vbElement;
-			for (int i = 0; i < shaderdesc.InputParameters; ++i){
+			for (size_t i = 0; i < shaderdesc.InputParameters; ++i){
 				D3D11_SIGNATURE_PARAMETER_DESC sigdesc;
 				pReflector->GetInputParameterDesc(i, &sigdesc);
 
@@ -204,7 +205,7 @@ private:
 
 		// pixel shader
 		{
-			ResPtr<ID3DBlob> pblob;
+			Microsoft::WRL::ComPtr<ID3DBlob> pblob;
 			auto hr = CompileShaderFromFile(shaderFile.c_str(), psFunc.c_str(), "ps_4_0_level_9_1", &pblob);
 			if (FAILED(hr))
 				return false;
@@ -213,8 +214,9 @@ private:
 				return false;
 
 			// pixel shader reflection
-			ResPtr<ID3D11ShaderReflection> pReflector;
-			hr = D3DReflect(pblob->GetBufferPointer(), pblob->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector);
+			Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pReflector;
+			hr = D3DReflect(pblob->GetBufferPointer(), pblob->GetBufferSize(), IID_ID3D11ShaderReflection, 
+				&pReflector);
 			if (FAILED(hr))
 				return false;
 
@@ -228,11 +230,11 @@ private:
 
 class InputAssemblerSource
 {
-    ResPtr<ID3D11Buffer> m_pVertexBuf;
-    ResPtr<ID3D11Buffer> m_pIndexBuf;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuf;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> m_pIndexBuf;
 public:
 
-    bool Initialize(ID3D11Device *pDevice)
+    bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
     {
         if(!createVB(pDevice)){
             return false;
@@ -243,15 +245,15 @@ public:
         return true;
     }
 
-    void Draw(ID3D11DeviceContext *pDeviceContext)
+	void Draw(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
     {
         // VBのセット
-        ID3D11Buffer* pBufferTbl[] = { m_pVertexBuf };
+        ID3D11Buffer* pBufferTbl[] = { m_pVertexBuf.Get() };
         UINT SizeTbl[] = { sizeof(Vertex) };
         UINT OffsetTbl[] = { 0 };
         pDeviceContext->IASetVertexBuffers(0, 1, pBufferTbl, SizeTbl, OffsetTbl);
         // IBのセット
-        pDeviceContext->IASetIndexBuffer(m_pIndexBuf, DXGI_FORMAT_R32_UINT, 0);
+        pDeviceContext->IASetIndexBuffer(m_pIndexBuf.Get(), DXGI_FORMAT_R32_UINT, 0);
         // プリミティブタイプのセット
         pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
@@ -260,7 +262,7 @@ public:
     }
 
 private:
-    bool createVB(ID3D11Device *pDevice)
+    bool createVB(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
     {
         // Create VB
         Vertex pVertices[] =
@@ -282,7 +284,7 @@ private:
         ZeroMemory(&vertexData, sizeof(vertexData));
         vertexData.pSysMem = pVertices;
 
-        HRESULT hr = pDevice->CreateBuffer(&vdesc, &vertexData, &m_pVertexBuf);
+        HRESULT hr = pDevice->CreateBuffer(&vdesc, &vertexData, m_pVertexBuf.GetAddressOf());
         if (FAILED(hr)){
             return false;
         }
@@ -290,7 +292,7 @@ private:
         return true;
     }
 
-	bool createIB(ID3D11Device *pDevice)
+	bool createIB(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
     {
         unsigned int pIndices[] =
         {
@@ -309,7 +311,7 @@ private:
 		ZeroMemory(&indexData, sizeof(indexData));
 		indexData.pSysMem = pIndices;
 
-        HRESULT hr = pDevice->CreateBuffer(&idesc, &indexData, &m_pIndexBuf);
+        HRESULT hr = pDevice->CreateBuffer(&idesc, &indexData, m_pIndexBuf.GetAddressOf());
 		if (FAILED(hr)){
 			return false;
 		}
@@ -424,9 +426,8 @@ void D3D11Manager::Render()
 {
     if(!m_renderTarget->IsInitialized()){
         // バックバッファの取得
-        ResPtr<ID3D11Texture2D> pBackBuffer;
-        m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
-                reinterpret_cast<void**>(&pBackBuffer));
+        Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
+        m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackBuffer);
 
         if(!m_renderTarget->Initialize(m_pDevice, pBackBuffer)){
             return;
