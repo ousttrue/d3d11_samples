@@ -11,10 +11,10 @@ struct VS_OUTPUT
     float4 Color      : COLOR;
 };
 
-cbuffer c0
-{
+//cbuffer c0
+//{
 	float4x4 ModelMatrix;
-};
+//};
 
 VS_OUTPUT vsMain( VS_INPUT In )
 {

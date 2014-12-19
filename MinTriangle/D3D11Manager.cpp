@@ -57,6 +57,15 @@ public:
     }
 };
 
+static void OutputDebugPrintfA(LPCSTR pszFormat, ...)
+{
+	va_list	argp;
+	char pszBuf[256];
+	va_start(argp, pszFormat);
+	vsprintf(pszBuf, pszFormat, argp);
+	va_end(argp);
+	OutputDebugStringA(pszBuf);
+}
 
 class Shader
 {
@@ -140,13 +149,13 @@ private:
 			auto cb = pReflector->GetConstantBufferByIndex(i);
 			D3D11_SHADER_BUFFER_DESC desc;
 			cb->GetDesc(&desc);
+			OutputDebugPrintfA("[%d: %s]\n", i, desc.Name);
 
 			for (size_t j = 0; j < desc.Variables; ++j){
 				auto v = cb->GetVariableByIndex(j);
 				D3D11_SHADER_VARIABLE_DESC vdesc;
 				v->GetDesc(&vdesc);
-
-				int a = 0;
+				OutputDebugPrintfA("(%d) %s %d\n", j, vdesc.Name, vdesc.StartOffset);
 			}
 		}
 	}
@@ -170,6 +179,7 @@ private:
 			if (FAILED(hr))
 				return false;
 
+			OutputDebugPrintfA("#### VertexShader ####\n");
 			parseConstantBuffer(pReflector);
 
 			D3D11_SHADER_DESC shaderdesc;
@@ -220,6 +230,7 @@ private:
 			if (FAILED(hr))
 				return false;
 
+			OutputDebugPrintfA("#### PixelShader ####\n");
 			parseConstantBuffer(pReflector);
 		}
 
