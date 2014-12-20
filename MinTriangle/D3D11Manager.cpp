@@ -2,6 +2,7 @@
 #include "CompileShaderFromFile.h"
 #include <d3dcompiler.h>
 #include <vector>
+#include "imageutil.h"
 
 
 // input-assembler
@@ -9,6 +10,7 @@ struct Vertex
 {
     DirectX::XMFLOAT4 pos;
     DirectX::XMFLOAT4 color;
+	DirectX::XMFLOAT2 tex;
 };
 
 
@@ -97,7 +99,7 @@ public:
 		// プリミティブタイプのセット
 		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-		pDeviceContext->DrawIndexed(3 // index count
+		pDeviceContext->DrawIndexed(4 // index count
 			, 0, 0);
 	}
 
@@ -105,11 +107,14 @@ private:
 	bool createVB(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
 	{
 		// Create VB
+		auto size = 0.5f;
 		Vertex pVertices[] =
 		{
-			{ DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-			{ DirectX::XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-			{ DirectX::XMFLOAT4(0.5f, -0.5f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }
+			{ DirectX::XMFLOAT4(-size, -size, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1) },
+			{ DirectX::XMFLOAT4(-size, size, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0) },
+			{ DirectX::XMFLOAT4(size, -size, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 1) },
+			{ DirectX::XMFLOAT4(size, size, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 0) },
+
 		};
 		unsigned int vsize = sizeof(pVertices);
 
@@ -136,7 +141,7 @@ private:
 	{
 		unsigned int pIndices[] =
 		{
-			0, 1, 2
+			0, 1, 2, 3
 		};
 		unsigned int isize = sizeof(pIndices);
 
@@ -205,35 +210,121 @@ struct TriangleVariables
 };
 
 
+class Texture
+{
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_texture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_srv;
+    Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampler;
+
+public:
+	bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &device
+            , const std::shared_ptr<imageutil::Image> &image)
+	{
+		D3D11_TEXTURE2D_DESC desc;
+		desc.Width = image->Width();
+		desc.Height = image->Height();
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA initData;
+		initData.pSysMem = image->Pointer();
+		initData.SysMemPitch = image->Stride();
+		initData.SysMemSlicePitch = image->Size();
+
+		auto hr = device->CreateTexture2D(&desc, &initData, &m_texture);
+		if (FAILED(hr)){
+			return false;
+		}
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
+		SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Texture2D.MipLevels = 1;
+
+		hr = device->CreateShaderResourceView(m_texture.Get(), &SRVDesc, &m_srv);
+		if (FAILED(hr))
+		{
+			return false;
+		}
+
+        D3D11_SAMPLER_DESC samplerDesc;
+        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.MipLODBias = 0.0f;
+        samplerDesc.MaxAnisotropy = 1;
+        samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+        samplerDesc.BorderColor[0] = 0;
+        samplerDesc.BorderColor[1] = 0;
+        samplerDesc.BorderColor[2] = 0;
+        samplerDesc.BorderColor[3] = 0;
+        samplerDesc.MinLOD = 0;
+        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+        // Create the texture sampler state.
+        hr = device->CreateSamplerState(&samplerDesc, &m_sampler);
+        if(FAILED(hr))
+        {
+            return false;
+        }
+
+		return true;
+	}
+
+    void Set(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &deviceContext)
+    {
+        deviceContext->PSSetShaderResources(0, 1, m_srv.GetAddressOf());
+        //deviceContext->PSSetSamplers(0, 1, m_sampler.GetAddressOf());
+    }
+};
+
+
 class Shader
 {
     Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pVsh;
     Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pPsh;
     Microsoft::WRL::ComPtr<ID3D11InputLayout> m_pInputLayout;
-	std::shared_ptr<class InputAssemblerSource> m_IASource;
+	std::shared_ptr<InputAssemblerSource> m_IASource;
 	std::shared_ptr<ConstantBuffer<TriangleVariables>> m_constant;
+	std::shared_ptr<Texture> m_texture;
 
 public:
 	Shader()
 		: m_IASource(new InputAssemblerSource)
 		, m_constant(new ConstantBuffer<TriangleVariables>)
+		, m_texture(new Texture)
 	{}
 
-    bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice, const std::wstring &shaderFile)
+    bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
+            , const std::wstring &shaderFile, const std::wstring &textureFile)
     {
         if(!createShaders(pDevice, shaderFile, "vsMain", "psMain")){
             return false;
         }
 
-		// vertex buffer
 		if (!m_IASource->Initialize(pDevice)){
 			return false;
 		}
 
-		// constant buffer
 		if (!m_constant->Initialize(pDevice)){
 			return false;
 		}
+
+		auto wicFactory = std::make_shared<imageutil::Factory>();
+        auto image=wicFactory->Load(textureFile);
+        if(image){
+            if (!m_texture->Initialize(pDevice, image)){
+                return false;
+            }
+        }
 
         return true;
     }
@@ -248,6 +339,8 @@ public:
 
 		// PS
 		pDeviceContext->PSSetShader(m_pPsh.Get(), NULL, 0);
+        // Texture
+        m_texture->Set(pDeviceContext);
 
         // IA InputLayout
 		pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
@@ -257,7 +350,7 @@ public:
 	void Animation()
 	{
 		static float angleRadians = 0;
-		const auto DELTA = DirectX::XMConvertToRadians(0.1f);
+		const auto DELTA = DirectX::XMConvertToRadians(0.01f);
 		angleRadians += DELTA;
 
 		//auto m = DirectX::XMMatrixIdentity();
@@ -269,7 +362,7 @@ public:
 private:
 	DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type, BYTE mask)
 	{
-		if (mask & 0x0F)
+		if ((mask & 0x0F)==0x0F)
 		{
 			// xyzw
 			switch (type)
@@ -279,7 +372,7 @@ private:
 			}
 		}
 
-		if (mask & 0x07)
+		if ((mask & 0x07)==0x07)
 		{
 			// xyz
 			switch (type)
@@ -289,7 +382,7 @@ private:
 			}
 		}
 
-		if (mask & 0x3)
+		if ((mask & 0x03)==0x03)
 		{
 			// xy
 			switch (type)
@@ -299,7 +392,7 @@ private:
 			}
 		}
 
-		if (mask & 0x1)
+		if ((mask & 0x1)==0x1)
 		{
 			// x
 			switch (type)
@@ -425,7 +518,8 @@ D3D11Manager::~D3D11Manager()
 {
 }
 
-bool D3D11Manager::Initialize(HWND hWnd, const std::wstring &shaderFile)
+bool D3D11Manager::Initialize(HWND hWnd
+        , const std::wstring &shaderFile, const std::wstring &textureFile)
 {
     D3D_DRIVER_TYPE dtype = D3D_DRIVER_TYPE_HARDWARE;
     UINT flags = 0;
@@ -473,7 +567,7 @@ bool D3D11Manager::Initialize(HWND hWnd, const std::wstring &shaderFile)
     }
 
     // shader 
-    if(!m_shader->Initialize(m_pDevice, shaderFile)){
+    if(!m_shader->Initialize(m_pDevice, shaderFile, textureFile)){
         return false;
     }
 

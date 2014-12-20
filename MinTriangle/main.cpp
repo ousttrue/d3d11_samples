@@ -2,7 +2,8 @@
 
 auto szTitle = L"MinTriangle";
 auto szWindowClass = L"MinTriangle";
-auto szShaderFile = L"../MinTriangle/MinTriangle.fx";
+auto shaderFile = L"../MinTriangle/MinTriangle.fx";
+auto textureFile = L"../MinTriangle/texture.png";
 
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -83,7 +84,7 @@ int WINAPI WinMain(
     UpdateWindow(hWnd);
 
     // d3d
-    if (!d3d11.Initialize(hWnd, szShaderFile)){
+    if (!d3d11.Initialize(hWnd, shaderFile, textureFile)){
         return 2;
     }
 
