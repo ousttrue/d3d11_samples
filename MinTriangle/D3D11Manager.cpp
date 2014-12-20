@@ -67,31 +67,204 @@ static void OutputDebugPrintfA(LPCSTR pszFormat, ...)
 	OutputDebugStringA(pszBuf);
 }
 
+
+class InputAssemblerSource
+{
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuf;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_pIndexBuf;
+public:
+
+	bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
+	{
+		if (!createVB(pDevice)){
+			return false;
+		}
+		if (!createIB(pDevice)){
+			return false;
+		}
+		return true;
+	}
+
+	void Draw(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
+	{
+		// VBのセット
+		ID3D11Buffer* pBufferTbl[] = { m_pVertexBuf.Get() };
+		UINT SizeTbl[] = { sizeof(Vertex) };
+		UINT OffsetTbl[] = { 0 };
+		pDeviceContext->IASetVertexBuffers(0, 1, pBufferTbl, SizeTbl, OffsetTbl);
+		// IBのセット
+		pDeviceContext->IASetIndexBuffer(m_pIndexBuf.Get(), DXGI_FORMAT_R32_UINT, 0);
+		// プリミティブタイプのセット
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+		pDeviceContext->DrawIndexed(3 // index count
+			, 0, 0);
+	}
+
+private:
+	bool createVB(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
+	{
+		// Create VB
+		Vertex pVertices[] =
+		{
+			{ DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
+			{ DirectX::XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+			{ DirectX::XMFLOAT4(0.5f, -0.5f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }
+		};
+		unsigned int vsize = sizeof(pVertices);
+
+		D3D11_BUFFER_DESC vdesc;
+		ZeroMemory(&vdesc, sizeof(vdesc));
+		vdesc.ByteWidth = vsize;
+		vdesc.Usage = D3D11_USAGE_DEFAULT;
+		vdesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vdesc.CPUAccessFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA vertexData;
+		ZeroMemory(&vertexData, sizeof(vertexData));
+		vertexData.pSysMem = pVertices;
+
+		HRESULT hr = pDevice->CreateBuffer(&vdesc, &vertexData, m_pVertexBuf.GetAddressOf());
+		if (FAILED(hr)){
+			return false;
+		}
+
+		return true;
+	}
+
+	bool createIB(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
+	{
+		unsigned int pIndices[] =
+		{
+			0, 1, 2
+		};
+		unsigned int isize = sizeof(pIndices);
+
+		D3D11_BUFFER_DESC idesc;
+		ZeroMemory(&idesc, sizeof(idesc));
+		idesc.ByteWidth = isize;
+		idesc.Usage = D3D11_USAGE_DEFAULT;
+		idesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		idesc.CPUAccessFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA indexData;
+		ZeroMemory(&indexData, sizeof(indexData));
+		indexData.pSysMem = pIndices;
+
+		HRESULT hr = pDevice->CreateBuffer(&idesc, &indexData, m_pIndexBuf.GetAddressOf());
+		if (FAILED(hr)){
+			return false;
+		}
+
+		return true;
+	}
+};
+
+
+template<typename T>
+class ConstantBuffer
+{
+	Microsoft::WRL::ComPtr<ID3D11Buffer> m_pBuffer;
+
+public:
+	T Buffer;
+
+	bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
+	{
+		D3D11_BUFFER_DESC desc = { 0 };
+
+		desc.ByteWidth = sizeof(DirectX::XMMATRIX);
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+		HRESULT hr = pDevice->CreateBuffer(&desc, nullptr, &m_pBuffer);
+		if (FAILED(hr)){
+			return false;
+		}
+
+		return true;
+	}
+
+	void Update(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
+	{
+		if (!m_pBuffer){
+			return;
+		}
+		pDeviceContext->UpdateSubresource(m_pBuffer.Get(), 0, NULL, &Buffer, 0, 0);
+	}
+
+	void Set(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
+	{
+		pDeviceContext->VSSetConstantBuffers(0, 1, m_pBuffer.GetAddressOf());
+	}
+};
+
+struct TriangleVariables
+{
+	DirectX::XMFLOAT4X4 Model;
+};
+
+
 class Shader
 {
     Microsoft::WRL::ComPtr<ID3D11VertexShader> m_pVsh;
     Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pPsh;
     Microsoft::WRL::ComPtr<ID3D11InputLayout> m_pInputLayout;
+	std::shared_ptr<class InputAssemblerSource> m_IASource;
+	std::shared_ptr<ConstantBuffer<TriangleVariables>> m_constant;
 
 public:
+	Shader()
+		: m_IASource(new InputAssemblerSource)
+		, m_constant(new ConstantBuffer<TriangleVariables>)
+	{}
+
     bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice, const std::wstring &shaderFile)
     {
         if(!createShaders(pDevice, shaderFile, "vsMain", "psMain")){
             return false;
         }
 
+		// vertex buffer
+		if (!m_IASource->Initialize(pDevice)){
+			return false;
+		}
+
+		// constant buffer
+		if (!m_constant->Initialize(pDevice)){
+			return false;
+		}
+
         return true;
     }
 
-	void Setup(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
+	void Draw(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
     {
-        // Shaderのセットアップ
+        // VS
         pDeviceContext->VSSetShader(m_pVsh.Get(), NULL, 0);
+		// 定数バッファ
+		m_constant->Update(pDeviceContext);
+		m_constant->Set(pDeviceContext);
+
+		// PS
 		pDeviceContext->PSSetShader(m_pPsh.Get(), NULL, 0);
 
-        // ILのセット
+        // IA InputLayout
 		pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
+		m_IASource->Draw(pDeviceContext);
     }
+
+	void Animation()
+	{
+		static float angleRadians = 0;
+		const auto DELTA = DirectX::XMConvertToRadians(0.1f);
+		angleRadians += DELTA;
+
+		//auto m = DirectX::XMMatrixIdentity();
+		auto m = DirectX::XMMatrixRotationZ(angleRadians);
+
+		DirectX::XMStoreFloat4x4(&m_constant->Buffer.Model, m);
+	}
 
 private:
 	DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type, BYTE mask)
@@ -239,110 +412,12 @@ private:
 };
 
 
-class InputAssemblerSource
-{
-    Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuf;
-    Microsoft::WRL::ComPtr<ID3D11Buffer> m_pIndexBuf;
-public:
-
-    bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
-    {
-        if(!createVB(pDevice)){
-            return false;
-        }
-        if(!createIB(pDevice)){
-            return false;
-        }
-        return true;
-    }
-
-	void Draw(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
-    {
-        // VBのセット
-        ID3D11Buffer* pBufferTbl[] = { m_pVertexBuf.Get() };
-        UINT SizeTbl[] = { sizeof(Vertex) };
-        UINT OffsetTbl[] = { 0 };
-        pDeviceContext->IASetVertexBuffers(0, 1, pBufferTbl, SizeTbl, OffsetTbl);
-        // IBのセット
-        pDeviceContext->IASetIndexBuffer(m_pIndexBuf.Get(), DXGI_FORMAT_R32_UINT, 0);
-        // プリミティブタイプのセット
-        pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-        pDeviceContext->DrawIndexed(3 // index count
-                , 0, 0);
-    }
-
-private:
-    bool createVB(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
-    {
-        // Create VB
-        Vertex pVertices[] =
-        {
-            { DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-            { DirectX::XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { DirectX::XMFLOAT4(0.5f, -0.5f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }
-        };
-        unsigned int vsize = sizeof(pVertices);
-
-        D3D11_BUFFER_DESC vdesc;
-        ZeroMemory(&vdesc, sizeof(vdesc));
-        vdesc.ByteWidth = vsize;
-        vdesc.Usage = D3D11_USAGE_DEFAULT;
-        vdesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        vdesc.CPUAccessFlags = 0;
-
-        D3D11_SUBRESOURCE_DATA vertexData;
-        ZeroMemory(&vertexData, sizeof(vertexData));
-        vertexData.pSysMem = pVertices;
-
-        HRESULT hr = pDevice->CreateBuffer(&vdesc, &vertexData, m_pVertexBuf.GetAddressOf());
-        if (FAILED(hr)){
-            return false;
-        }
-
-        return true;
-    }
-
-	bool createIB(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
-    {
-        unsigned int pIndices[] =
-        {
-            0, 1, 2
-        };
-        unsigned int isize = sizeof(pIndices);
-
-        D3D11_BUFFER_DESC idesc;
-        ZeroMemory(&idesc, sizeof(idesc));
-        idesc.ByteWidth = isize;
-        idesc.Usage = D3D11_USAGE_DEFAULT;
-        idesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        idesc.CPUAccessFlags = 0;
-
-		D3D11_SUBRESOURCE_DATA indexData;
-		ZeroMemory(&indexData, sizeof(indexData));
-		indexData.pSysMem = pIndices;
-
-        HRESULT hr = pDevice->CreateBuffer(&idesc, &indexData, m_pIndexBuf.GetAddressOf());
-		if (FAILED(hr)){
-			return false;
-		}
-
-        return true;
-    }
-};
-
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////
 // D3D11Manager
 //////////////////////////////////////////////////////////////////////////////
 D3D11Manager::D3D11Manager()
     : m_renderTarget(new RenderTarget)
     , m_shader(new Shader)
-    , m_IASource(new InputAssemblerSource)
-	, m_constant(new ConstantBuffer<TriangleVariables>)
 {
 }
 
@@ -402,16 +477,6 @@ bool D3D11Manager::Initialize(HWND hWnd, const std::wstring &shaderFile)
         return false;
     }
 
-    // vertex buffer
-    if(!m_IASource->Initialize(m_pDevice)){
-        return false;
-    }
-
-	// constant buffer
-	if (!m_constant->Initialize(m_pDevice)){
-		return false;
-	}
-
     return true;
 }
 
@@ -436,10 +501,10 @@ void D3D11Manager::Resize(int w, int h)
 void D3D11Manager::Render()
 {
     if(!m_renderTarget->IsInitialized()){
-        // バックバッファの取得
+        // SwapChainからバックバッファを取得
         Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
         m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackBuffer);
-
+		// Create RTV
         if(!m_renderTarget->Initialize(m_pDevice, pBackBuffer)){
             return;
         }
@@ -447,25 +512,8 @@ void D3D11Manager::Render()
 	m_renderTarget->SetAndClear(m_pDeviceContext);
 
 	// 描画
-	{
-		// shader
-		m_shader->Setup(m_pDeviceContext);
-
-		static float angleRadians = 0;
-		const auto DELTA = DirectX::XMConvertToRadians(0.1f);
-		angleRadians += DELTA;
-
-		//auto m = DirectX::XMMatrixIdentity();
-		auto m = DirectX::XMMatrixRotationZ(angleRadians);
-
-		DirectX::XMStoreFloat4x4(&m_constant->Buffer.Model, m);
-		 
-		m_constant->Update(m_pDeviceContext);
-		m_constant->Set(m_pDeviceContext);
-
-		// vertex buffer(Input-Assembler stage)
-		m_IASource->Draw(m_pDeviceContext);
-	}
+	m_shader->Animation();
+	m_shader->Draw(m_pDeviceContext);
 
     // render targetへの描画
     m_pDeviceContext->Flush();
@@ -473,4 +521,3 @@ void D3D11Manager::Render()
     // 描画済みのrender targetをモニタに出力
     m_pSwapChain->Present(NULL, NULL);
 }
-
