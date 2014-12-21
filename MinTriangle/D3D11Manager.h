@@ -1,5 +1,3 @@
-#include <d3d11.h>
-#include <DirectXMath.h>
 #include <string>
 #include <memory>
 #include <wrl/client.h>
@@ -7,9 +5,9 @@
 
 class D3D11Manager
 {
-    Microsoft::WRL::ComPtr<IDXGISwapChain> m_pSwapChain;
-    Microsoft::WRL::ComPtr<ID3D11Device> m_pDevice;
-    Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pDeviceContext;
+    Microsoft::WRL::ComPtr<struct IDXGISwapChain> m_pSwapChain;
+    Microsoft::WRL::ComPtr<struct ID3D11Device> m_pDevice;
+    Microsoft::WRL::ComPtr<struct ID3D11DeviceContext> m_pDeviceContext;
 
     std::shared_ptr<class RenderTarget> m_renderTarget;
     std::shared_ptr<class Shader> m_shader;
