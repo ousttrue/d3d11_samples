@@ -1,5 +1,7 @@
-Texture2D diffuseTexture: register(t0);
-SamplerState diffuseTextureSampler: register(s0);
+Texture2D t0;
+Texture2D diffuseTexture;
+Texture2D t2;
+SamplerState diffuseTextureSampler;
 
 struct VS_IN
 {

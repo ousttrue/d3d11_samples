@@ -152,6 +152,9 @@ class Texture
     Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampler;
 
 public:
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetSRV()const{ return m_srv; }
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> GetSampler()const{ return m_sampler; }
+
 	bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &device
             , const std::shared_ptr<imageutil::Image> &image)
 	{
@@ -253,14 +256,23 @@ void Shader::Draw(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceCont
 {
     // VS
     pDeviceContext->VSSetShader(m_pVsh.Get(), NULL, 0);
-    // 定数バッファ
-    m_constant->Update(pDeviceContext);
-    m_constant->Set(pDeviceContext);
 
     // PS
     pDeviceContext->PSSetShader(m_pPsh.Get(), NULL, 0);
-    // Texture
-    m_texture->Set(pDeviceContext);
+
+	// 定数バッファ
+	m_constant->UpdateCB(pDeviceContext);
+	m_constant->SetCB(pDeviceContext);
+
+	// Texture
+	{
+		auto v = m_constant->GetSRV("diffuseTexture");
+		m_constant->SetSRV(pDeviceContext, v, m_texture->GetSRV());
+	}
+	{
+		auto v = m_constant->GetSampler("diffuseTextureSampler");
+		m_constant->SetSampler(pDeviceContext, v, m_texture->GetSampler());
+	}
 
     // IA InputLayout
     pDeviceContext->IASetInputLayout(m_pInputLayout.Get());
@@ -296,8 +308,8 @@ void Shader::Animation()
 
 		DirectX::XMFLOAT4X4 matrix;
 		DirectX::XMStoreFloat4x4(&matrix, m);
-		auto v = m_constant->GetVariable("ModelMatrix");
-		m_constant->SetValue(v, matrix);
+		auto v = m_constant->GetCBVariable("ModelMatrix");
+		m_constant->SetCBValue(v, matrix);
 	}
 
 	{
@@ -308,16 +320,16 @@ void Shader::Animation()
 
 		DirectX::XMFLOAT4X4 matrix;
 		DirectX::XMStoreFloat4x4(&matrix, m);
-		auto v = m_constant->GetVariable("ViewMatrix");
-		m_constant->SetValue(v, matrix);
+		auto v = m_constant->GetCBVariable("ViewMatrix");
+		m_constant->SetCBValue(v, matrix);
 	}
 
 	{
 		auto m = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(45.0f), 1.0f, 1.0f, 1000.0f);
 		DirectX::XMFLOAT4X4 matrix;
 		DirectX::XMStoreFloat4x4(&matrix, m);
-		auto v = m_constant->GetVariable("ProjectionMatrix");
-		m_constant->SetValue(v, matrix);
+		auto v = m_constant->GetCBVariable("ProjectionMatrix");
+		m_constant->SetCBValue(v, matrix);
 	}
 }
 
@@ -446,4 +458,3 @@ bool Shader::createShaders(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
 
     return true;
 }
-

@@ -31,17 +31,20 @@ struct ConstantBufferSlot
 	}
 };
 
-class ConstantBufferByStage
+
+class VariablesByStage
 {
 public:
 	SHADERSTAGE Stage;
-	std::vector<ConstantBufferSlot> Slots;
+	std::vector<ConstantBufferSlot> CBSlots;
+	std::vector<ShaderResourceSlot> SRVSlots;
+	std::vector<ShaderResourceSlot> SamplerSlots;
 
-	ConstantBufferByStage(SHADERSTAGE stage)
+	VariablesByStage(SHADERSTAGE stage)
 		: Stage(stage)
 	{}
 
-    void AddSlot(const Microsoft::WRL::ComPtr<ID3D11Device> &device, size_t size)
+    void AddCBSlot(const Microsoft::WRL::ComPtr<ID3D11Device> &device, size_t size)
     {
 		D3D11_BUFFER_DESC desc = { 0 };
 		desc.ByteWidth = size;
@@ -50,22 +53,22 @@ public:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
 		HRESULT hr = device->CreateBuffer(&desc, nullptr, &pBuffer);
 
-		Slots.push_back(ConstantBufferSlot(pBuffer, size));
+		CBSlots.push_back(ConstantBufferSlot(pBuffer, size));
     }
 
-    void AddVariable(size_t slotIndex, D3D11_SHADER_VARIABLE_DESC &desc)
+    void AddCBVariable(size_t slotIndex, D3D11_SHADER_VARIABLE_DESC &desc)
     {
-		if (slotIndex >= Slots.size()){
+		if (slotIndex >= CBSlots.size()){
 			return;
 		}
-		auto &slot = Slots[slotIndex];
+		auto &slot = CBSlots[slotIndex];
 		slot.Variables.push_back(ConstantVariable(Stage
 			, slotIndex, desc));
     }
 
-    bool GetVariable(const std::string &name, ConstantVariable *pOut)
+    bool GetCBVariable(const std::string &name, ConstantVariable *pOut)
     {
-		for (auto &slot : Slots)
+		for (auto &slot : CBSlots)
 		{
 			for (auto &v : slot.Variables){
 				if (name == v.Name)
@@ -79,6 +82,16 @@ public:
 		}
 		return false;
     }
+
+	void AddSRVSlot(const D3D11_SHADER_INPUT_BIND_DESC &desc)
+	{
+		SRVSlots.push_back(ShaderResourceSlot{Stage, desc.Name, desc});
+	}
+
+	void AddSamplerSlot(const D3D11_SHADER_INPUT_BIND_DESC &desc)
+	{
+		SamplerSlots.push_back(ShaderResourceSlot{Stage, desc.Name, desc });
+	}
 };
 
 
@@ -87,7 +100,7 @@ bool ConstantBuffer::Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDev
         , const Microsoft::WRL::ComPtr<struct ID3D11ShaderReflection> &pReflector)
 {
 	assert(!m_constants[stage]);
-    auto impl = std::make_shared<ConstantBufferByStage>(stage);
+    auto impl = std::make_shared<VariablesByStage>(stage);
 	m_constants[stage] = impl;
 
     D3D11_SHADER_DESC shaderdesc;
@@ -99,34 +112,49 @@ bool ConstantBuffer::Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDev
         D3D11_SHADER_BUFFER_DESC desc;
         cb->GetDesc(&desc);
         OutputDebugPrintfA("[%d: %s]\n", i, desc.Name);
-        impl->AddSlot(pDevice, desc.Size);
+        impl->AddCBSlot(pDevice, desc.Size);
         for (size_t j = 0; j < desc.Variables; ++j){
             auto v = cb->GetVariableByIndex(j);
             D3D11_SHADER_VARIABLE_DESC vdesc;
             v->GetDesc(&vdesc);
             OutputDebugPrintfA("(%d) %s %d\n", j, vdesc.Name, vdesc.StartOffset);
-            impl->AddVariable(i, vdesc);
+            impl->AddCBVariable(i, vdesc);
         }
     }
+
+	for (size_t i = 0; i < shaderdesc.BoundResources; ++i){
+		D3D11_SHADER_INPUT_BIND_DESC desc;
+		pReflector->GetResourceBindingDesc(i, &desc);
+		switch (desc.Type)
+		{
+			case D3D_SIT_TEXTURE:
+			impl->AddSRVSlot(desc);
+			break;
+
+		case D3D_SIT_SAMPLER:
+			impl->AddSamplerSlot(desc);
+			break;
+		}
+	}
 
     return true;
 }
 
-void ConstantBuffer::Update(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
+void ConstantBuffer::UpdateCB(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
 {
 	for (auto stage : m_constants){
-		for (auto &slot : stage->Slots){
+		for (auto &slot : stage->CBSlots){
 			pDeviceContext->UpdateSubresource(slot.Buffer.Get(), 0, nullptr
 				, &slot.BackingStore[0], 0, 0);
 		}
 	}
 }
 
-void ConstantBuffer::Set(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
+void ConstantBuffer::SetCB(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
 {
 	for (auto stage : m_constants){
 		UINT slotIndex = 0;
-		for (auto &slot : stage->Slots){
+		for (auto &slot : stage->CBSlots){
 			switch (stage->Stage){
 			case SHADERSTAGE_VERTEX:
 				pDeviceContext->VSSetConstantBuffers(slotIndex, 1, slot.Buffer.GetAddressOf());
@@ -145,13 +173,13 @@ void ConstantBuffer::Set(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDev
 	}
 }
 
-ConstantVariable ConstantBuffer::GetVariable(const std::string &name)
+ConstantVariable ConstantBuffer::GetCBVariable(const std::string &name)
 {
 	ConstantVariable v;
 	for (auto stage : m_constants)
 	{
 		if (stage){
-			if (stage->GetVariable(name, &v)){
+			if (stage->GetCBVariable(name, &v)){
 				break;
 			}
 		}
@@ -159,9 +187,71 @@ ConstantVariable ConstantBuffer::GetVariable(const std::string &name)
 	return v;
 }
 
-bool ConstantBuffer::SetValue(const ConstantVariable &v, const DirectX::XMFLOAT4X4 &m)
+bool ConstantBuffer::SetCBValue(const ConstantVariable &v, const DirectX::XMFLOAT4X4 &m)
 {
-	m_constants[v.Stage]->Slots[v.Slot].SetValue(
+	m_constants[v.Stage]->CBSlots[v.Slot].SetValue(
 		v.Desc.StartOffset, v.Desc.Size, (const unsigned char*)&m);
 	return true;
+}
+
+ShaderResourceSlot ConstantBuffer::GetSRV(const std::string &name)const
+{
+	for (auto stage : m_constants)
+	{
+		if (stage){
+			for (auto &slot : stage->SRVSlots){
+				if (slot.Name == name){
+					return slot;
+				}
+			}
+		}
+	}
+	return ShaderResourceSlot();
+}
+
+void ConstantBuffer::SetSRV(const Microsoft::WRL::ComPtr<struct ID3D11DeviceContext> &pDeviceContext
+	, const ShaderResourceSlot &slot
+	, const Microsoft::WRL::ComPtr<struct ID3D11ShaderResourceView> &srv)
+{
+	switch (slot.Stage)
+	{
+	case SHADERSTAGE_VERTEX:
+		pDeviceContext->VSSetShaderResources(slot.Desc.BindPoint, slot.Desc.BindCount, srv.GetAddressOf());
+		break;
+
+	case SHADERSTAGE_PIXEL:
+		pDeviceContext->PSSetShaderResources(slot.Desc.BindPoint, slot.Desc.BindCount, srv.GetAddressOf());
+		break;
+	}
+}
+
+ShaderResourceSlot ConstantBuffer::GetSampler(const std::string &name)const
+{
+	for (auto stage : m_constants)
+	{
+		if (stage){
+			for (auto &slot : stage->SamplerSlots){
+				if (slot.Name == name){
+					return slot;
+				}
+			}
+		}
+	}
+	return ShaderResourceSlot();
+}
+
+void ConstantBuffer::SetSampler(const Microsoft::WRL::ComPtr<struct ID3D11DeviceContext> &pDeviceContext
+	, const ShaderResourceSlot &slot
+	, const Microsoft::WRL::ComPtr<struct ID3D11SamplerState> &sampler)
+{
+	switch (slot.Stage)
+	{
+	case SHADERSTAGE_VERTEX:
+		pDeviceContext->VSSetSamplers(slot.Desc.BindPoint, slot.Desc.BindCount, sampler.GetAddressOf());
+		break;
+
+	case SHADERSTAGE_PIXEL:
+		pDeviceContext->PSSetSamplers(slot.Desc.BindPoint, slot.Desc.BindCount, sampler.GetAddressOf());
+		break;
+	}
 }
