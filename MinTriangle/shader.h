@@ -23,8 +23,6 @@ public:
 	void Animation();
 
 private:
-	void parseConstantBuffer(
-            const Microsoft::WRL::ComPtr<struct ID3D11ShaderReflection> &pReflector);
 	bool createShaders(
             const Microsoft::WRL::ComPtr<struct ID3D11Device> &pDevice
 		, const std::wstring &shaderFile, const std::string &vsFunc, const std::string &psFunc);

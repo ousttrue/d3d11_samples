@@ -2,6 +2,8 @@
 #include <DirectXMath.h>
 #include "imageutil.h"
 #include "CompileShaderFromFile.h"
+#include "constantbuffer.h"
+#include "debugprint.h"
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
@@ -15,21 +17,11 @@ struct Vertex
 };
 
 
-static void OutputDebugPrintfA(LPCSTR pszFormat, ...)
-{
-	va_list	argp;
-	char pszBuf[256];
-	va_start(argp, pszFormat);
-	vsprintf(pszBuf, pszFormat, argp);
-	va_end(argp);
-	OutputDebugStringA(pszBuf);
-}
-
-
 class InputAssemblerSource
 {
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_pVertexBuf;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_pIndexBuf;
+	int m_indices;
 public:
 
 	bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
@@ -53,9 +45,9 @@ public:
 		// IBのセット
 		pDeviceContext->IASetIndexBuffer(m_pIndexBuf.Get(), DXGI_FORMAT_R32_UINT, 0);
 		// プリミティブタイプのセット
-		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		pDeviceContext->DrawIndexed(4 // index count
+		pDeviceContext->DrawIndexed(m_indices // index count
 			, 0, 0);
 	}
 
@@ -66,11 +58,36 @@ private:
 		auto size = 0.5f;
 		Vertex pVertices[] =
 		{
-			{ DirectX::XMFLOAT4(-size, -size, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1) },
-			{ DirectX::XMFLOAT4(-size, size, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0) },
-			{ DirectX::XMFLOAT4(size, -size, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 1) },
-			{ DirectX::XMFLOAT4(size, size, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 0) },
+			// x
+			{ DirectX::XMFLOAT4(-size, -size, -size, 1.0f), DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1) },
+			{ DirectX::XMFLOAT4(-size, -size, size, 1.0f), DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0) },
+			{ DirectX::XMFLOAT4(-size, size, size, 1.0f), DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0) },
+			{ DirectX::XMFLOAT4(-size, size, -size, 1.0f), DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1) },
 
+			{ DirectX::XMFLOAT4(size, -size, -size, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1) },
+			{ DirectX::XMFLOAT4(size, size, -size, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1) },
+			{ DirectX::XMFLOAT4(size, size, size, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0) },
+			{ DirectX::XMFLOAT4(size, -size, size, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0) },
+			// y
+			{ DirectX::XMFLOAT4(-size, size, -size, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1) },
+			{ DirectX::XMFLOAT4(-size, size, size, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0) },
+			{ DirectX::XMFLOAT4(size, size, size, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0) },
+			{ DirectX::XMFLOAT4(size, size, -size, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1) },
+
+			{ DirectX::XMFLOAT4(-size, -size, -size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1) },
+			{ DirectX::XMFLOAT4(size, -size, -size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1) },
+			{ DirectX::XMFLOAT4(size, -size, size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0) },
+			{ DirectX::XMFLOAT4(-size, -size, size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0) },
+			// z
+			{ DirectX::XMFLOAT4(-size, -size, -size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(0, 1) },
+			{ DirectX::XMFLOAT4(-size, size, -size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(0, 0) },
+			{ DirectX::XMFLOAT4(size, size, -size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(1, 0) },
+			{ DirectX::XMFLOAT4(size, -size, -size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(1, 1) },
+
+			{ DirectX::XMFLOAT4(-size, -size, size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0, 1) },
+			{ DirectX::XMFLOAT4(size, -size, size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 1) },
+			{ DirectX::XMFLOAT4(size, size, size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 0) },
+			{ DirectX::XMFLOAT4(-size, size, size, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0, 0) },
 		};
 		unsigned int vsize = sizeof(pVertices);
 
@@ -97,9 +114,15 @@ private:
 	{
 		unsigned int pIndices[] =
 		{
-			0, 1, 2, 3
+			0, 1, 2, 2, 3, 0,
+			4, 5, 6, 6, 7, 4,
+			8, 9, 10, 10, 11, 8,
+			12, 13, 14, 14, 15, 12,
+			16, 17, 18, 18, 19, 16,
+			20, 21, 22, 22, 23, 20,
 		};
 		unsigned int isize = sizeof(pIndices);
+		m_indices = isize / sizeof(pIndices[0]);
 
 		D3D11_BUFFER_DESC idesc;
 		ZeroMemory(&idesc, sizeof(idesc));
@@ -118,48 +141,6 @@ private:
 		}
 
 		return true;
-	}
-};
-
-
-class ConstantBuffer
-{
-	Microsoft::WRL::ComPtr<ID3D11Buffer> m_pBuffer;
-
-public:
-    struct T
-    {
-        DirectX::XMFLOAT4X4 Model;
-    };
-	T Buffer;
-
-	bool Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice)
-	{
-		D3D11_BUFFER_DESC desc = { 0 };
-
-		desc.ByteWidth = sizeof(DirectX::XMMATRIX);
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
-		HRESULT hr = pDevice->CreateBuffer(&desc, nullptr, &m_pBuffer);
-		if (FAILED(hr)){
-			return false;
-		}
-
-		return true;
-	}
-
-	void Update(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
-	{
-		if (!m_pBuffer){
-			return;
-		}
-		pDeviceContext->UpdateSubresource(m_pBuffer.Get(), 0, NULL, &Buffer, 0, 0);
-	}
-
-	void Set(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
-	{
-		pDeviceContext->VSSetConstantBuffers(0, 1, m_pBuffer.GetAddressOf());
 	}
 };
 
@@ -257,10 +238,6 @@ bool Shader::Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
         return false;
     }
 
-    if (!m_constant->Initialize(pDevice)){
-        return false;
-    }
-
     auto wicFactory = std::make_shared<imageutil::Factory>();
     auto image=wicFactory->Load(textureFile);
     if(image){
@@ -292,14 +269,56 @@ void Shader::Draw(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceCont
 
 void Shader::Animation()
 {
-    static float angleRadians = 0;
-    const auto DELTA = DirectX::XMConvertToRadians(0.01f);
-    angleRadians += DELTA;
+	{
+		static float angleRadiansX = 0;
+		{
+			const auto DELTA = DirectX::XMConvertToRadians(0.01f);
+			angleRadiansX += DELTA;
+		}
+		auto mx = DirectX::XMMatrixRotationZ(angleRadiansX);
 
-    //auto m = DirectX::XMMatrixIdentity();
-    auto m = DirectX::XMMatrixRotationZ(angleRadians);
+		static float angleRadiansY = 0;
+		{
+			const auto DELTA = DirectX::XMConvertToRadians(0.02f);
+			angleRadiansY += DELTA;
+		}
+		auto my = DirectX::XMMatrixRotationZ(angleRadiansY);
 
-    DirectX::XMStoreFloat4x4(&m_constant->Buffer.Model, m);
+		static float angleRadiansZ = 0;
+		{
+			const auto DELTA = DirectX::XMConvertToRadians(0.03f);
+			angleRadiansZ += DELTA;
+		}
+		auto mz = DirectX::XMMatrixRotationZ(angleRadiansZ);
+
+		//auto m = DirectX::XMMatrixIdentity();
+		auto m = DirectX::XMMatrixRotationRollPitchYaw(angleRadiansX, angleRadiansY, angleRadiansZ);
+
+		DirectX::XMFLOAT4X4 matrix;
+		DirectX::XMStoreFloat4x4(&matrix, m);
+		auto v = m_constant->GetVariable("ModelMatrix");
+		m_constant->SetValue(v, matrix);
+	}
+
+	{
+		auto hEye = DirectX::XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f);
+		auto hAt = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+		auto hUp = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+		auto m = DirectX::XMMatrixLookAtLH(hEye, hAt, hUp);
+
+		DirectX::XMFLOAT4X4 matrix;
+		DirectX::XMStoreFloat4x4(&matrix, m);
+		auto v = m_constant->GetVariable("ViewMatrix");
+		m_constant->SetValue(v, matrix);
+	}
+
+	{
+		auto m = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(45.0f), 1.0f, 1.0f, 1000.0f);
+		DirectX::XMFLOAT4X4 matrix;
+		DirectX::XMStoreFloat4x4(&matrix, m);
+		auto v = m_constant->GetVariable("ProjectionMatrix");
+		m_constant->SetValue(v, matrix);
+	}
 }
 
 static DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type, BYTE mask)
@@ -347,27 +366,6 @@ static DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type, BYTE mask)
     return DXGI_FORMAT_UNKNOWN;
 }
 
-void Shader::parseConstantBuffer(const Microsoft::WRL::ComPtr<ID3D11ShaderReflection> &pReflector)
-{
-    D3D11_SHADER_DESC shaderdesc;
-    pReflector->GetDesc(&shaderdesc);
-
-    // analize constant buffer
-    for (size_t i = 0; i < shaderdesc.ConstantBuffers; ++i){
-        auto cb = pReflector->GetConstantBufferByIndex(i);
-        D3D11_SHADER_BUFFER_DESC desc;
-        cb->GetDesc(&desc);
-        OutputDebugPrintfA("[%d: %s]\n", i, desc.Name);
-
-        for (size_t j = 0; j < desc.Variables; ++j){
-            auto v = cb->GetVariableByIndex(j);
-            D3D11_SHADER_VARIABLE_DESC vdesc;
-            v->GetDesc(&vdesc);
-            OutputDebugPrintfA("(%d) %s %d\n", j, vdesc.Name, vdesc.StartOffset);
-        }
-    }
-}
-
 bool Shader::createShaders(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
     , const std::wstring &shaderFile, const std::string &vsFunc, const std::string &psFunc)
 {
@@ -388,7 +386,9 @@ bool Shader::createShaders(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
             return false;
 
         OutputDebugPrintfA("#### VertexShader ####\n");
-        parseConstantBuffer(pReflector);
+		if (!m_constant->Initialize(pDevice, SHADERSTAGE_VERTEX, pReflector)){
+			return false;
+		}
 
         D3D11_SHADER_DESC shaderdesc;
         pReflector->GetDesc(&shaderdesc);
@@ -439,7 +439,9 @@ bool Shader::createShaders(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
             return false;
 
         OutputDebugPrintfA("#### PixelShader ####\n");
-        parseConstantBuffer(pReflector);
+		if (!m_constant->Initialize(pDevice, SHADERSTAGE_PIXEL, pReflector)){
+			return false;
+		}
     }
 
     return true;

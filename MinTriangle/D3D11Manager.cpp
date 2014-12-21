@@ -8,6 +8,9 @@ class RenderTarget
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_pRenderTargetView;
 	D3D11_TEXTURE2D_DESC m_colorDesc;
 
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_depthStencil;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_depthStencilView;
+
 public:
     bool IsInitialized()const{ return m_pRenderTargetView ? true : false; }
 
@@ -22,18 +25,54 @@ public:
             return false;
         }
 
+		D3D11_TEXTURE2D_DESC tdesc;
+		pTexture->GetDesc(&tdesc);
+
+		// デプステクスチャの作成
+		D3D11_TEXTURE2D_DESC depthDesc;
+		ZeroMemory(&depthDesc, sizeof(depthDesc));
+		depthDesc.Width = tdesc.Width;
+		depthDesc.Height = tdesc.Height;
+		depthDesc.MipLevels = 1;
+		depthDesc.ArraySize = 1;
+		depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthDesc.SampleDesc.Count = 1;
+		depthDesc.SampleDesc.Quality = 0;
+		depthDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthDesc.CPUAccessFlags = 0;
+		depthDesc.MiscFlags = 0;
+		hr=pDevice->CreateTexture2D(&depthDesc, NULL, &m_depthStencil);
+		if (FAILED(hr)){
+			return false;
+		}
+
+		// DepthStencilViewの作成
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+		ZeroMemory(&dsvDesc, sizeof(dsvDesc));
+		dsvDesc.Format = depthDesc.Format;
+		dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+		dsvDesc.Texture2D.MipSlice = 0;
+		hr=pDevice->CreateDepthStencilView(m_depthStencil.Get(), &dsvDesc, &m_depthStencilView);
+		if (FAILED(hr)){
+			return false;
+		}
+
         return true;
     }
 
     void SetAndClear(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
     {
         // Output-Merger stage
-        pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
+        pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_depthStencilView.Get());
 
         if(m_pRenderTargetView){
             // clear
-            float clearColor[] = { 0.0f, 0.0f, 1.0f, 0.0f };
+            float clearColor[] = { 0.2f, 0.2f, 0.4f, 1.0f };
             pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
+			float clearDepth = 1.0f;
+			pDeviceContext->ClearDepthStencilView(m_depthStencilView.Get()
+				, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, clearDepth, 0);
 
             // Rasterizer stage
             D3D11_VIEWPORT vp;

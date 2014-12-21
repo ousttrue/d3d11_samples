@@ -17,15 +17,23 @@ struct VS_OUT
 
 typedef VS_OUT PS_IN;
 
-//cbuffer c0
-//{
-	float4x4 ModelMatrix;
-//};
+cbuffer cb0
+{
+	row_major matrix ModelMatrix;
+}
+cbuffer cb1
+{
+	row_major matrix ViewMatrix;
+}
+cbuffer cb2
+{
+	row_major matrix ProjectionMatrix;
+};
 
 VS_OUT vsMain(VS_IN input)
 {
     VS_OUT Output;
-	Output.Position = mul(input.Position, ModelMatrix);
+	Output.Position = mul(input.Position, mul(ModelMatrix, mul(ViewMatrix, ProjectionMatrix)));
     Output.Color = input.Color;
     Output.Tex = input.Tex;
     return Output;    
