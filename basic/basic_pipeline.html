@@ -52,19 +52,19 @@
 <p>空の頂点バッファからダミーの Point Primitive を入力して、GeometryShader で 三角形を出力する。</p>
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/main.cpp</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span>  <span class="kt">void</span> <span class="nf">draw</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">context</span><span class="o">-&gt;</span><span class="n">VSSetShader</span><span class="p">(</span><span class="n">_vs</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="k">nullptr</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">_gs</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">context</span><span class="o">-&gt;</span><span class="n">GSSetShader</span><span class="p">(</span><span class="n">_gs</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="k">nullptr</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-      <span class="n">context</span><span class="o">-&gt;</span><span class="n">GSSetShader</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span>      <span class="n">swapchain</span><span class="o">-&gt;</span><span class="n">ResizeBuffers</span><span class="p">(</span><span class="n">desc</span><span class="p">.</span><span class="n">BufferCount</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">desc</span><span class="p">.</span><span class="n">BufferDesc</span><span class="p">.</span><span class="n">Format</span><span class="p">,</span>
+                               <span class="n">desc</span><span class="p">.</span><span class="n">Flags</span><span class="p">);</span>
     <span class="p">}</span>
-    <span class="n">context</span><span class="o">-&gt;</span><span class="n">PSSetShader</span><span class="p">(</span><span class="n">_ps</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="k">nullptr</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 
-    <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetVertexBuffers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">);</span>
-    <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetPrimitiveTopology</span><span class="p">(</span><span class="n">D3D11_PRIMITIVE_TOPOLOGY_POINTLIST</span><span class="p">);</span>
-    <span class="n">context</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-  <span class="p">}</span>
+    <span class="c1">// ensure create backbuffer</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">render_target</span><span class="p">.</span><span class="n">get</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Texture2D</span><span class="o">&gt;</span> <span class="n">backbuffer</span><span class="p">;</span>
+      <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">swapchain</span><span class="o">-&gt;</span><span class="n">GetBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">IID_PPV_ARGS</span><span class="p">(</span><span class="o">&amp;</span><span class="n">backbuffer</span><span class="p">));</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">assert</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">render_target</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">backbuffer</span><span class="p">,</span> <span class="nb">false</span><span class="p">))</span> <span class="p">{</span>
 </pre></div>
 </div>
 </div>
