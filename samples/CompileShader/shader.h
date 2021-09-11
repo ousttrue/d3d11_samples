@@ -29,4 +29,6 @@ compile_gs(const char *name, std::string_view source, const char *entry_point,
   return compile_shader(name, source, entry_point, "gs_4_0", define);
 }
 
+std::string read_file(std::string_view path);
+
 } // namespace swtk

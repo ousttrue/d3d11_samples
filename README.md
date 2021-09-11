@@ -2,13 +2,8 @@
 
 <http://ousttrue.github.io/d3d11_samples/>
 
-* d3d11 の sample コードと簡単な説明
-
-## update
-
-### 20210911
 * 履歴を破棄して作り直し
-* [x] sphinx4 で gh-pages に記事作ってみる(myst)
+* d3d11 の sample コードと簡単な説明
 
 ## sphinx
 

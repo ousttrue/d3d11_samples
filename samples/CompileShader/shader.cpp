@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <d3dcompiler.h>
-#include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 #include <string_view>
 #include <tuple>
 #include <wrl/client.h>
@@ -21,6 +23,18 @@ compile_shader(const char *name, std::string_view source,
     return {nullptr, err};
   }
   return {ret, err};
+}
+
+std::string read_file(std::string_view src) {
+  std::filesystem::path path = src;
+  std::ifstream in((path), std::ios_base::binary);
+  if (!in) {
+    return {};
+  }
+
+  std::stringstream buffer;
+  buffer << in.rdbuf();
+  return buffer.str();
 }
 
 } // namespace swtk

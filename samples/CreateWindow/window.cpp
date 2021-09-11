@@ -48,7 +48,7 @@ LRESULT Window::proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 HWND Window::create(HINSTANCE instance, const char *class_name,
-                    const char *window_title) {
+                    const char *window_title, int width, int height) {
 
   WNDCLASSEXA windowClass = {0};
   windowClass.cbSize = (UINT)sizeof(WNDCLASSEXW);
@@ -61,12 +61,21 @@ HWND Window::create(HINSTANCE instance, const char *class_name,
     return nullptr;
   }
 
-  _hwnd =
-      CreateWindowA(class_name, window_title, WS_OVERLAPPEDWINDOW,
-                    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                    nullptr, // We have no parent window.
-                    nullptr, // We aren't using menus.
-                    instance, this);
+  if (width && height) {
+    RECT windowRect = {0, 0, width, height};
+    AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+    width = windowRect.right - windowRect.left;
+    height = windowRect.bottom - windowRect.top;
+  } else {
+    width = CW_USEDEFAULT;
+    height = CW_USEDEFAULT;
+  }
+
+  _hwnd = CreateWindowA(class_name, window_title, WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT, width, height,
+                        nullptr, // We have no parent window.
+                        nullptr, // We aren't using menus.
+                        instance, this);
   return _hwnd;
 }
 

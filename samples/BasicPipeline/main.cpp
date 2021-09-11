@@ -8,46 +8,6 @@
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-constexpr const char shader[] = R"(
-  void vsMain()
-  {
-  }
-
-  struct DummyInput {};
-  struct GS_OUTPUT
-  {
-    float4 position: SV_POSITION;
-    float4 color: COLOR0;
-  };    
-
-  [maxvertexcount(3)]
-  void gsMain(
-    point DummyInput input[1] : POSITION,
-    inout TriangleStream< GS_OUTPUT > output
-  ){
-    GS_OUTPUT element;
-
-    // 0
-    element.position = float4(-1, -1, 0, 1);
-    element.color = float4(1, 0, 0, 1);
-    output.Append(element);
-    // 1
-    element.position = float4(-1, 1, 0, 1);
-    element.color = float4(0, 1, 0, 1);
-    output.Append(element);
-    // 2
-    element.position = float4(1, 1, 0, 1);
-    element.color = float4(0, 0, 1, 1);
-    output.Append(element);
-    output.RestartStrip();
-  }  
-
-	float4 psMain(GS_OUTPUT V): SV_Target
-  {
-    return V.color;
-  }
-)";
-
 class Pipeline {
   ComPtr<ID3D11VertexShader> _vs;
   ComPtr<ID3D11GeometryShader> _gs;
@@ -107,7 +67,6 @@ public:
   }
 
   void draw(const ComPtr<ID3D11DeviceContext> &context) {
-
     context->VSSetShader(_vs.Get(), nullptr, 0);
     if (_gs) {
       context->GSSetShader(_gs.Get(), nullptr, 0);
@@ -115,9 +74,7 @@ public:
       context->GSSetShader(0, nullptr, 0);
     }
     context->PSSetShader(_ps.Get(), nullptr, 0);
-    // context->OMSetBlendState(nullptr, nullptr, 0xffffffff);
-    // context->OMSetDepthStencilState(nullptr, 0);
-    // context->RSSetState(m_rasterizerState.Get());
+
     context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
     context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
     context->Draw(1, 0);
@@ -127,10 +84,14 @@ public:
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
-  UNREFERENCED_PARAMETER(lpCmdLine);
+
+  std::string shader = swtk::read_file(lpCmdLine);
+  if (shader.empty()) {
+    return 7;
+  }
 
   swtk::Window window;
-  auto hwnd = window.create(hInstance, "CLASS_NAME", "BasicPipeline");
+  auto hwnd = window.create(hInstance, "CLASS_NAME", "BasicPipeline", 320, 320);
   if (!hwnd) {
     return 1;
   }

@@ -14,7 +14,8 @@ public:
   ~Window();
   LRESULT proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
   HWND create(HINSTANCE instance, const char *class_name,
-              const char *window_title);
+              const char *window_title, int width = 0,
+              int height = 0);
   bool process_messages();
 };
 

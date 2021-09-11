@@ -50,7 +50,9 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/BasicPipeline.exe",
-            "args": [],
+            "args": [
+                "samples/BasicPipeline/basic.hlsl"
+            ],
         }
     ]
 }
