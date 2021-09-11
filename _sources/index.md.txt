@@ -6,6 +6,9 @@ d3d11 の備忘録。
 * vc2019
 * CMake
 * `c++17`
+* clang-format オプションなし
+* class name: UpperCamel
+* other: snake_case
 
 で記述する。
 
