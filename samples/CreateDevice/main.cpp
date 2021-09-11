@@ -1,9 +1,6 @@
 #include "device.h"
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                   LPSTR lpCmdLine, int nCmdShow) {
-  UNREFERENCED_PARAMETER(hPrevInstance);
-  UNREFERENCED_PARAMETER(lpCmdLine);
+int main(int argc, char **argv) {
 
   auto device = swtk::create_device();
 

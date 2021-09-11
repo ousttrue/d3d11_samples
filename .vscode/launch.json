@@ -35,6 +35,22 @@
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/BackBuffer.exe",
             "args": [],
+        },
+        {
+            "name": "CompileShader",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/CompileShader.exe",
+            "args": [],
+        },
+        {
+            "name": "BasicPipeline",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/BasicPipeline.exe",
+            "args": [],
         }
     ]
 }
