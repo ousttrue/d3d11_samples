@@ -1,22 +1,29 @@
 
-<!DOCTYPE html>
+
+<!doctype html>
 
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>d3d11 samples &#8212; d3d11 samples  ドキュメント</title>
+    <title>Root &#8212; d3d11 samples  ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/groundwork.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
+    
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/translations.js"></script>
+    <script src="_static/bizstyle.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
-    <link rel="next" title="CreateDevice" href="create_device.html" /> 
+    <link rel="next" title="CreateWindow" href="basic/create_window.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>ナビゲーション</h3>
@@ -25,10 +32,10 @@
           <a href="genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="create_device.html" title="CreateDevice"
+          <a href="basic/create_window.html" title="CreateWindow"
              accesskey="N">次へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">d3d11 samples  ドキュメント</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">d3d11 samples</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Root</a></li> 
       </ul>
     </div>  
 
@@ -37,8 +44,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section class="tex2jax_ignore mathjax_ignore" id="d3d11-samples">
-<h1>d3d11 samples<a class="headerlink" href="#d3d11-samples" title="このヘッドラインへのパーマリンク">¶</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="root">
+<h1>Root<a class="headerlink" href="#root" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>d3d11 の備忘録。</p>
 <ul class="simple">
 <li><p>Windows10</p></li>
@@ -50,67 +57,18 @@
 <li><p>other: snake_case</p></li>
 </ul>
 <p>で記述する。</p>
+<section id="basic">
+<h2>Basic<a class="headerlink" href="#basic" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="create_device.html">CreateDevice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic/create_window.html">CreateWindow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic/create_device.html">CreateDevice</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic/create_swapchain.html">CreateSwapChain</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic/backbuffer.html">BackBuffer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic/compile_shader.html">CompileShader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic/basic_pipeline.html">Basic Pipeline</a></li>
 </ul>
 </div>
-<section id="old">
-<h2>old<a class="headerlink" href="#old" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>D3D11(vs2013)による三角形描画サンプル。</p>
-</section>
-</section>
-<section class="tex2jax_ignore mathjax_ignore" id="id1">
-<h1>更新<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<ul class="simple">
-<li><p>20180531 CMakeに書き換える</p></li>
-</ul>
-<p>#Tutorial</p>
-<section id="x-01-createdevice-clearrendertarget">
-<h2>[x]01.CreateDevice &amp; ClearRenderTarget<a class="headerlink" href="#x-01-createdevice-clearrendertarget" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>ID3D11Deviceを生成してWindowを単色でクリアするまで。</p>
-</section>
-<section id="d2d-hud">
-<h2>[ ]02.D2D_HUD<a class="headerlink" href="#d2d-hud" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>D2Dで文字情報を描画する。</p>
-<section id="todo">
-<h3>ToDo<a class="headerlink" href="#todo" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<ul class="simple">
-<li><p>ロガーのHUD表示</p></li>
-<li><p>HUDの簡易UI</p></li>
-</ul>
-</section>
-</section>
-<section id="x-03-minshaderpipeline">
-<h2>[x]03.MinShaderPipeline<a class="headerlink" href="#x-03-minshaderpipeline" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>シェーダーパイプライン事始め。</p>
-<p>##[ ]04.Texture
-テクスチャの導入。</p>
-</section>
-<section id="geometryshader">
-<h2>[ ]05.GeometryShader<a class="headerlink" href="#geometryshader" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>GeometryShaderの導入。</p>
-</section>
-<section id="constantsbuffer">
-<h2>[ ]06.ConstantsBuffer<a class="headerlink" href="#constantsbuffer" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>定数バッファの導入。</p>
-</section>
-<section id="id2">
-<h2>[ ]07.ConstantsBuffer<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>定数バッファを更新してアニメーションする。</p>
-</section>
-<section id="projection">
-<h2>[ ]08.Projection<a class="headerlink" href="#projection" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>投影を取り入れて立体になる。</p>
-</section>
-<section id="camera-depthstencil">
-<h2>[ ]09.Camera &amp; DepthStencil<a class="headerlink" href="#camera-depthstencil" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>カメラを取り入れる。
-深度バッファ。</p>
-</section>
-<section id="pmdmodel">
-<h2>[ ]10.PmdModel<a class="headerlink" href="#pmdmodel" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>まとめとしてPmdモデルから頂点バッファを入力する。</p>
 </section>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="indices-and-tables">
@@ -131,31 +89,16 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">目次</a></h3>
   <ul>
-<li><a class="reference internal" href="#">d3d11 samples</a><ul>
-<li><a class="reference internal" href="#old">old</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id1">更新</a><ul>
-<li><a class="reference internal" href="#x-01-createdevice-clearrendertarget">[x]01.CreateDevice &amp; ClearRenderTarget</a></li>
-<li><a class="reference internal" href="#d2d-hud">[ ]02.D2D_HUD</a><ul>
-<li><a class="reference internal" href="#todo">ToDo</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#x-03-minshaderpipeline">[x]03.MinShaderPipeline</a></li>
-<li><a class="reference internal" href="#geometryshader">[ ]05.GeometryShader</a></li>
-<li><a class="reference internal" href="#constantsbuffer">[ ]06.ConstantsBuffer</a></li>
-<li><a class="reference internal" href="#id2">[ ]07.ConstantsBuffer</a></li>
-<li><a class="reference internal" href="#projection">[ ]08.Projection</a></li>
-<li><a class="reference internal" href="#camera-depthstencil">[ ]09.Camera &amp; DepthStencil</a></li>
-<li><a class="reference internal" href="#pmdmodel">[ ]10.PmdModel</a></li>
+<li><a class="reference internal" href="#">Root</a><ul>
+<li><a class="reference internal" href="#basic">Basic</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
   <h4>次のトピックへ</h4>
-  <p class="topless"><a href="create_device.html"
-                        title="次の章へ">CreateDevice</a></p>
+  <p class="topless"><a href="basic/create_window.html"
+                        title="次の章へ">CreateWindow</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
@@ -184,10 +127,10 @@
           <a href="genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="create_device.html" title="CreateDevice"
+          <a href="basic/create_window.html" title="CreateWindow"
              >次へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">d3d11 samples  ドキュメント</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">d3d11 samples</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Root</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

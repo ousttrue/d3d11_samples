@@ -1,0 +1,155 @@
+
+
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>CompileShader &#8212; d3d11 samples  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <script src="../_static/bizstyle.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="Basic Pipeline" href="basic_pipeline.html" />
+    <link rel="prev" title="BackBuffer" href="backbuffer.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="basic_pipeline.html" title="Basic Pipeline"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="backbuffer.html" title="BackBuffer"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CompileShader</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="compileshader">
+<h1>CompileShader<a class="headerlink" href="#compileshader" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">../../samples/CompileShader/shader.cpp</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;d3dcompiler.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;filesystem&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;sstream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;string_view&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;tuple&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;wrl/client.h&gt;</span><span class="cp"></span>
+
+<span class="k">namespace</span> <span class="n">swtk</span> <span class="p">{</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">ComPtr</span> <span class="o">=</span> <span class="n">Microsoft</span><span class="o">::</span><span class="n">WRL</span><span class="o">::</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;&gt;</span>
+<span class="n">compile_shader</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">source</span><span class="p">,</span>
+               <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">entry_point</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span>
+               <span class="k">const</span> <span class="n">D3D_SHADER_MACRO</span> <span class="o">*</span><span class="n">define</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">UINT</span> <span class="n">flags</span> <span class="o">=</span> <span class="n">D3DCOMPILE_ENABLE_STRICTNESS</span><span class="p">;</span>
+  <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="n">err</span><span class="p">;</span>
+  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">D3DCompile</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">source</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">name</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span>
+                       <span class="n">entry_point</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">err</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span><span class="k">nullptr</span><span class="p">,</span> <span class="n">err</span><span class="p">};</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="p">{</span><span class="n">ret</span><span class="p">,</span> <span class="n">err</span><span class="p">};</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">read_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">path</span> <span class="n">path</span> <span class="o">=</span> <span class="n">src</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">in</span><span class="p">((</span><span class="n">path</span><span class="p">),</span> <span class="n">std</span><span class="o">::</span><span class="n">ios_base</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">buffer</span><span class="p">;</span>
+  <span class="n">buffer</span> <span class="o">&lt;&lt;</span> <span class="n">in</span><span class="p">.</span><span class="n">rdbuf</span><span class="p">();</span>
+  <span class="k">return</span> <span class="n">buffer</span><span class="p">.</span><span class="n">str</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="p">}</span> <span class="c1">// namespace swtk</span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="backbuffer.html"
+                        title="前の章へ">BackBuffer</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="basic_pipeline.html"
+                        title="次の章へ">Basic Pipeline</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/basic/compile_shader.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="basic_pipeline.html" title="Basic Pipeline"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="backbuffer.html" title="BackBuffer"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CompileShader</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+    </div>
+  </body>
+</html>
