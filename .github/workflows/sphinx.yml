@@ -13,8 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: pip install sphinx
-      - run: cd docs
-      - run: sphinx-build . ../public
+      - name: sphinx build
+        working-directory: ./docs
+        run: sphinx-build . ../public
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
