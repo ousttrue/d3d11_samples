@@ -2,15 +2,11 @@
 
 d3d11 の備忘録。
 
-* Windows10
-* vc2019
-* CMake
-* `c++17`
-* clang-format オプションなし
-* class name: UpperCamel
-* other: snake_case
+## Source
 
-で記述する。
+```{toctree}
+source
+```
 
 ## Basic
 

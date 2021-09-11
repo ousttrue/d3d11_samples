@@ -1,7 +1,7 @@
-Texture2D t0;
-Texture2D diffuseTexture;
-Texture2D t2;
-SamplerState diffuseTextureSampler;
+// Texture2D t0;
+// Texture2D diffuseTexture;
+// Texture2D t2;
+// SamplerState diffuseTextureSampler;
 
 struct VS_IN
 {
@@ -19,23 +19,23 @@ struct VS_OUT
 
 typedef VS_OUT PS_IN;
 
-cbuffer cb0
-{
-	row_major matrix ModelMatrix;
-}
-cbuffer cb1
-{
-	row_major matrix ViewMatrix;
-}
-cbuffer cb2
-{
-	row_major matrix ProjectionMatrix;
-};
+// cbuffer cb0
+// {
+// 	row_major matrix ModelMatrix;
+// }
+// cbuffer cb1
+// {
+// 	row_major matrix ViewMatrix;
+// }
+// cbuffer cb2
+// {
+// 	row_major matrix ProjectionMatrix;
+// };
 
 VS_OUT vsMain(VS_IN input)
 {
     VS_OUT Output;
-	Output.Position = mul(input.Position, mul(ModelMatrix, mul(ViewMatrix, ProjectionMatrix)));
+	Output.Position = input.Position; // mul(input.Position, mul(ModelMatrix, mul(ViewMatrix, ProjectionMatrix)));
     Output.Color = input.Color;
     Output.Tex = input.Tex;
     return Output;    
@@ -43,6 +43,6 @@ VS_OUT vsMain(VS_IN input)
 
 float4 psMain(PS_IN input) : SV_TARGET
 {
-	float4 texel = diffuseTexture.Sample(diffuseTextureSampler, input.Tex);
-    return input.Color * texel;
+	// float4 texel = diffuseTexture.Sample(diffuseTextureSampler, input.Tex);
+    return float4(1, 1, 1, 1); // input.Color; // * texel;
 }

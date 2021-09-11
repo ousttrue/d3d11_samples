@@ -5,4 +5,6 @@ subdirs(
   BackBuffer
   CompileShader
   BasicPipeline
-  MinTriangle)
+  InputLayout
+  MinTriangle
+  )

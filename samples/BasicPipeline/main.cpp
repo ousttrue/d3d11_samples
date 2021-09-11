@@ -1,85 +1,14 @@
+#include "pipeline.h"
 #include "swapchain.h"
 #include <DirectXMath.h>
 #include <assert.h>
 #include <device.h>
 #include <iostream>
+#include <render_target.h>
 #include <shader.h>
 #include <window.h>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-
-class Pipeline {
-  ComPtr<ID3D11VertexShader> _vs;
-  ComPtr<ID3D11GeometryShader> _gs;
-  ComPtr<ID3D11PixelShader> _ps;
-
-public:
-  bool compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
-                  std::string_view source, const char *entry_point) {
-    auto [compiled, error] = swtk::compile_vs(name, source, entry_point);
-    if (!compiled) {
-      if (error) {
-        std::cerr << (const char *)error->GetBufferPointer() << std::endl;
-      }
-      return false;
-    }
-    auto hr =
-        device->CreateVertexShader((DWORD *)compiled->GetBufferPointer(),
-                                   compiled->GetBufferSize(), nullptr, &_vs);
-    if (FAILED(hr)) {
-      return false;
-    }
-    return true;
-  }
-  bool compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
-                  std::string_view source, const char *entry_point) {
-    auto [compiled, error] = swtk::compile_gs(name, source, entry_point);
-    if (!compiled) {
-      if (error) {
-        std::cerr << (const char *)error->GetBufferPointer() << std::endl;
-      }
-      return false;
-    }
-    auto hr =
-        device->CreateGeometryShader((DWORD *)compiled->GetBufferPointer(),
-                                     compiled->GetBufferSize(), nullptr, &_gs);
-    if (FAILED(hr)) {
-      return false;
-    }
-    return true;
-  }
-  bool compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
-                  std::string_view source, const char *entry_point) {
-    auto [compiled, error] = swtk::compile_ps(name, source, entry_point);
-    if (!compiled) {
-      if (error) {
-        std::cerr << (const char *)error->GetBufferPointer() << std::endl;
-      }
-      return false;
-    }
-    auto hr =
-        device->CreatePixelShader((DWORD *)compiled->GetBufferPointer(),
-                                  compiled->GetBufferSize(), nullptr, &_ps);
-    if (FAILED(hr)) {
-      return false;
-    }
-    return true;
-  }
-
-  void draw(const ComPtr<ID3D11DeviceContext> &context) {
-    context->VSSetShader(_vs.Get(), nullptr, 0);
-    if (_gs) {
-      context->GSSetShader(_gs.Get(), nullptr, 0);
-    } else {
-      context->GSSetShader(0, nullptr, 0);
-    }
-    context->PSSetShader(_ps.Get(), nullptr, 0);
-
-    context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-    context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-    context->Draw(1, 0);
-  }
-};
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
@@ -112,7 +41,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   // setup pipeline
-  Pipeline pipeline;
+  swtk::Pipeline pipeline;
   if (!pipeline.compile_vs(device, "vs", shader, "vsMain")) {
     return 4;
   }
@@ -126,7 +55,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   // main loop
   DXGI_SWAP_CHAIN_DESC desc;
   swapchain->GetDesc(&desc);
-  ComPtr<ID3D11RenderTargetView> rtv;
+  swtk::RenderTarget render_target;
   for (UINT frame_count = 0; window.process_messages(); ++frame_count) {
 
     RECT rect;
@@ -135,22 +64,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     int h = rect.bottom - rect.top;
     if (w != desc.BufferDesc.Width || h != desc.BufferDesc.Height) {
       // clear backbuffer reference
-      rtv.Reset();
+      render_target.release();
       // resize swapchain
       swapchain->ResizeBuffers(desc.BufferCount, w, h, desc.BufferDesc.Format,
                                desc.Flags);
     }
 
     // ensure create backbuffer
-    if (!rtv) {
+    if (!render_target.get()) {
       ComPtr<ID3D11Texture2D> backbuffer;
       auto hr = swapchain->GetBuffer(0, IID_PPV_ARGS(&backbuffer));
       if (FAILED(hr)) {
         assert(false);
       }
 
-      hr = device->CreateRenderTargetView(backbuffer.Get(), nullptr, &rtv);
-      if (FAILED(hr)) {
+      if (!render_target.create(device, backbuffer, false)) {
         assert(false);
       }
     }
@@ -160,21 +88,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         (static_cast<float>(sin(frame_count / 180.0f * DirectX::XM_PI)) + 1) *
         0.5f;
     float clear[] = {0.5, v, 0.5, 1.0f};
-    context->ClearRenderTargetView(rtv.Get(), clear);
+    render_target.clear(context, clear);
+    render_target.setup(context, w, h);
 
-    // set backbuffer & depthbuffer
-    ID3D11RenderTargetView *rtv_list[] = {rtv.Get()};
-    context->OMSetRenderTargets(1, rtv_list, nullptr);
-    D3D11_VIEWPORT viewports[1] = {{0}};
-    viewports[0].TopLeftX = 0;
-    viewports[0].TopLeftY = 0;
-    viewports[0].Width = (float)w;
-    viewports[0].Height = (float)h;
-    viewports[0].MinDepth = 0;
-    viewports[0].MaxDepth = 1.0f;
-    context->RSSetViewports(_countof(viewports), viewports);
-
-    pipeline.draw(context);
+    pipeline.setup(context);
+    pipeline.draw_empty(context);
 
     // vsync
     swapchain->Present(1, 0);

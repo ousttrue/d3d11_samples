@@ -1,128 +1,248 @@
-#include "D3D11Manager.h"
-#include "resource.h"
+#include <DirectXMath.h>
+#include <assert.h>
+#include <device.h>
+#include <input_layout.h>
+#include <pipeline.h>
+#include <render_target.h>
+#include <shader.h>
+#include <swapchain.h>
+#include <window.h>
 
-auto szTitle = L"MinTriangle";
-auto szWindowClass = L"MinTriangle";
-auto textureFile = L"../MinTriangle/texture.png";
+template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+// auto textureFile = L"../MinTriangle/texture.png";
 
-static std::string GetShader(HINSTANCE hInst)
-{
-	HRSRC hRes = FindResource(hInst, MAKEINTRESOURCE(ID_SHADERSOURCE), L"SHADERSOURCE");
-	HGLOBAL hMem = LoadResource(hInst, hRes);
-	DWORD size = SizeofResource(hInst, hRes);
-	char* resText = (char*)LockResource(hMem);
-	char* text = (char*)malloc(size + 1);
-	memcpy(text, resText, size);
-	text[size] = 0;
-	std::string s(text);
-	free(text);
-	FreeResource(hMem);
-	return s;
-}
+namespace swtk {
+class InputAssembler {
+  ComPtr<ID3D11InputLayout> _input_layout;
+  ComPtr<ID3D11Buffer> _pVertexBuf;
+  UINT _strides[1] = {0};
 
+  ComPtr<ID3D11Buffer> _pIndexBuf;
+  UINT _index_count = 0;
+  DXGI_FORMAT _index_format = DXGI_FORMAT_R32_UINT;
 
-static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    auto d3d = (D3D11Manager*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-
-    switch (message)
+public:
+  bool create(const ComPtr<ID3D11Device> &pDevice,
+              const ComPtr<ID3D11InputLayout> &input_layout,
+              const void *vertices, UINT vertices_size, UINT stride,
+              const void *indices, UINT indices_size, UINT index_count) {
     {
-        case WM_CREATE:
-            {
-                auto d3d = (D3D11Manager*)((LPCREATESTRUCT)lParam)->lpCreateParams;
-                SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)d3d);
-                break;
-            }
-
-        case WM_ERASEBKGND:
-            return 0;
-
-        case WM_SIZE:
-            d3d->Resize(LOWORD(wParam), HIWORD(wParam));
-            return 0;
-
-        case WM_PAINT:
-            {
-                PAINTSTRUCT ps;
-                HDC hdc = BeginPaint(hWnd, &ps);
-                EndPaint(hWnd, &ps);
-            }
-            return 0;
-
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
+      D3D11_BUFFER_DESC vdesc = {0};
+      vdesc.ByteWidth = vertices_size;
+      vdesc.Usage = D3D11_USAGE_DEFAULT;
+      vdesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+      vdesc.CPUAccessFlags = 0;
+      D3D11_SUBRESOURCE_DATA vertexData = {0};
+      vertexData.pSysMem = vertices;
+      HRESULT hr = pDevice->CreateBuffer(&vdesc, &vertexData, &_pVertexBuf);
+      if (FAILED(hr)) {
+        return false;
+      }
+      _input_layout = input_layout;
+      _strides[0] = stride;
     }
-
-    return DefWindowProc(hWnd, message, wParam, lParam);
-}
-
-
-int WINAPI WinMain(
-        HINSTANCE hInstance,
-        HINSTANCE hPrevInstance,
-        LPSTR lpCmdLine,
-        int nCmdShow
-        )
-{
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
-
-    D3D11Manager d3d11;
-
-    // create window
     {
-        WNDCLASSEX wcex;
-        wcex.cbSize = sizeof(WNDCLASSEX);
-        wcex.style = CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = WndProc;
-        wcex.cbClsExtra = 0;
-        wcex.cbWndExtra = 0;
-        wcex.hInstance = hInstance;
-        wcex.hIcon = NULL;
-        wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-        wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-        wcex.lpszMenuName = NULL;//MAKEINTRESOURCE(IDC_D3D11SAMPLE);
-        wcex.lpszClassName = szWindowClass;
-        wcex.hIconSm = NULL;
-        RegisterClassEx(&wcex);
+      D3D11_BUFFER_DESC idesc = {0};
+      idesc.ByteWidth = indices_size;
+      idesc.Usage = D3D11_USAGE_DEFAULT;
+      idesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+      idesc.CPUAccessFlags = 0;
+      D3D11_SUBRESOURCE_DATA indexData = {0};
+      indexData.pSysMem = indices;
+      HRESULT hr = pDevice->CreateBuffer(&idesc, &indexData, &_pIndexBuf);
+      if (FAILED(hr)) {
+        return false;
+      }
+      _index_count = index_count;
     }
-    HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW
-		, CW_USEDEFAULT, CW_USEDEFAULT
-		, 320, 320
-		, NULL, NULL, hInstance, &d3d11);
-    if (!hWnd)
-    {
-        return 1;
-    }
-    ShowWindow(hWnd, nCmdShow);
-    UpdateWindow(hWnd);
+    return true;
+  }
 
-    auto shaderSource=GetShader(hInstance);
-    if(shaderSource.empty()){
-        return 5;
+  void draw(const ComPtr<ID3D11DeviceContext> &pDeviceContext) {
+    pDeviceContext->IASetInputLayout(_input_layout.Get());
+
+    // set vertexbuffer
+    ID3D11Buffer *pBufferTbl[] = {_pVertexBuf.Get()};
+    UINT OffsetTbl[] = {0};
+    pDeviceContext->IASetVertexBuffers(0, 1, pBufferTbl, _strides, OffsetTbl);
+    // set indexbuffer
+    pDeviceContext->IASetIndexBuffer(_pIndexBuf.Get(), _index_format, 0);
+    pDeviceContext->IASetPrimitiveTopology(
+        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    pDeviceContext->DrawIndexed(_index_count, 0, 0);
+  }
+};
+
+} // namespace swtk
+
+struct Vertex {
+  DirectX::XMFLOAT4 pos;
+  DirectX::XMFLOAT4 color;
+  DirectX::XMFLOAT2 tex;
+};
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                   LPSTR lpCmdLine, int nCmdShow) {
+  UNREFERENCED_PARAMETER(hPrevInstance);
+  UNREFERENCED_PARAMETER(lpCmdLine);
+
+  std::string shader = swtk::read_file(lpCmdLine);
+  if (shader.empty()) {
+    return 7;
+  }
+
+  swtk::Window window;
+  auto hwnd = window.create(hInstance, "MinTriangle", "MinTriangle", 320, 320);
+  if (!hwnd) {
+    return 1;
+  }
+
+  ShowWindow(hwnd, nCmdShow);
+  UpdateWindow(hwnd);
+
+  auto device = swtk::create_device();
+  if (!device) {
+    return 2;
+  }
+  ComPtr<ID3D11DeviceContext> context;
+  device->GetImmediateContext(&context);
+
+  auto swapchain = swtk::create_swapchain(device, hwnd);
+  if (!swapchain) {
+    return 3;
+  }
+
+  // setup pipeline
+  swtk::Pipeline pipeline;
+  auto compiled = pipeline.compile_vs(device, "vs", shader, "vsMain");
+  if (!compiled) {
+    return 4;
+  }
+  auto input_layout = swtk::create_input_layout(device, compiled);
+  if (!input_layout) {
+    return 9;
+  }
+  if (!pipeline.compile_ps(device, "ps", shader, "psMain")) {
+    return 6;
+  }
+
+  swtk::InputAssembler ia;
+  auto size = 0.4f;
+  Vertex pVertices[] = {
+      // x
+      {DirectX::XMFLOAT4(-size, -size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
+      {DirectX::XMFLOAT4(-size, -size, size, 1.0f),
+       DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
+      {DirectX::XMFLOAT4(-size, size, size, 1.0f),
+       DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
+      {DirectX::XMFLOAT4(-size, size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
+
+      {DirectX::XMFLOAT4(size, -size, -size, 1.0f),
+       DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
+      {DirectX::XMFLOAT4(size, size, -size, 1.0f),
+       DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
+      {DirectX::XMFLOAT4(size, size, size, 1.0f),
+       DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
+      {DirectX::XMFLOAT4(size, -size, size, 1.0f),
+       DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
+      // y
+      {DirectX::XMFLOAT4(-size, size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
+      {DirectX::XMFLOAT4(-size, size, size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
+      {DirectX::XMFLOAT4(size, size, size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
+      {DirectX::XMFLOAT4(size, size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
+
+      {DirectX::XMFLOAT4(-size, -size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
+      {DirectX::XMFLOAT4(size, -size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
+      {DirectX::XMFLOAT4(size, -size, size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
+      {DirectX::XMFLOAT4(-size, -size, size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
+      // z
+      {DirectX::XMFLOAT4(-size, -size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(0, 1)},
+      {DirectX::XMFLOAT4(-size, size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(0, 0)},
+      {DirectX::XMFLOAT4(size, size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(1, 0)},
+      {DirectX::XMFLOAT4(size, -size, -size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(1, 1)},
+
+      {DirectX::XMFLOAT4(-size, -size, size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
+      {DirectX::XMFLOAT4(size, -size, size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
+      {DirectX::XMFLOAT4(size, size, size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
+      {DirectX::XMFLOAT4(-size, size, size, 1.0f),
+       DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
+  };
+  unsigned int vsize = sizeof(pVertices);
+  unsigned int pIndices[] = {
+      0,  1,  2,  2,  3,  0,  4,  5,  6,  6,  7,  4,  8,  9,  10, 10, 11, 8,
+      12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20,
+  };
+  unsigned int isize = sizeof(pIndices);
+  unsigned int index_count = isize / sizeof(pIndices[0]);
+  if (!ia.create(device, input_layout, pVertices, vsize, sizeof(Vertex),
+                 pIndices, isize, index_count)) {
+    return 8;
+  }
+
+  // main loop
+  DXGI_SWAP_CHAIN_DESC desc;
+  swapchain->GetDesc(&desc);
+  swtk::RenderTarget render_target;
+  for (UINT frame_count = 0; window.process_messages(); ++frame_count) {
+
+    RECT rect;
+    GetClientRect(hwnd, &rect);
+    int w = rect.right - rect.left;
+    int h = rect.bottom - rect.top;
+    if (w != desc.BufferDesc.Width || h != desc.BufferDesc.Height) {
+      // clear backbuffer reference
+      render_target.release();
+      // resize swapchain
+      swapchain->ResizeBuffers(desc.BufferCount, w, h, desc.BufferDesc.Format,
+                               desc.Flags);
     }
 
-    // d3d
-    if (!d3d11.Initialize(hWnd, shaderSource, textureFile)){
-        return 2;
+    // ensure create backbuffer
+    if (!render_target.get()) {
+      ComPtr<ID3D11Texture2D> backbuffer;
+      auto hr = swapchain->GetBuffer(0, IID_PPV_ARGS(&backbuffer));
+      if (FAILED(hr)) {
+        assert(false);
+      }
+
+      if (!render_target.create(device, backbuffer, true)) {
+        assert(false);
+      }
     }
 
-    // main loop
-    MSG msg;
-    while (true)
-    {
-        if (PeekMessage (&msg,NULL,0,0,PM_NOREMOVE))
-        {
-            if (!GetMessage (&msg,NULL,0,0))
-                return (int)msg.wParam ;
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-        else {
-            d3d11.Render();
-        }
-    }
-    return (int) msg.wParam;
+    // clear RTV
+    auto v =
+        (static_cast<float>(sin(frame_count / 180.0f * DirectX::XM_PI)) + 1) *
+        0.5f;
+    float clear[] = {0.5, v, 0.5, 1.0f};
+    render_target.clear(context, clear);
+    render_target.setup(context, w, h);
+
+    pipeline.setup(context);
+    ia.draw(context);
+
+    // vsync
+    context->Flush();
+    swapchain->Present(1, 0);
+  }
+
+  return 0;
 }

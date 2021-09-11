@@ -43,6 +43,7 @@
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/CompileShader.exe",
             "args": [],
+            "console": "integratedTerminal"
         },
         {
             "name": "BasicPipeline",
@@ -52,6 +53,25 @@
             "program": "${workspaceFolder}/build/Debug/bin/BasicPipeline.exe",
             "args": [
                 "samples/BasicPipeline/basic.hlsl"
+            ],
+        },
+        {
+            "name": "InputLayout",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/InputLayout.exe",
+            "args": [],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "MinTriangle",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/MinTriangle.exe",
+            "args": [
+                "samples/MinTriangle/MinTriangle.fx"
             ],
         }
     ]

@@ -20,6 +20,9 @@ int main(int argc, char **argv) {
   {
     auto [compiled, error] = swtk::compile_vs("vs", vs, "vsMain");
     if (!compiled) {
+      if (error) {
+        std::cerr << (char *)error->GetBufferPointer() << std::endl;
+      }
       return 1;
     }
   }
@@ -28,7 +31,8 @@ int main(int argc, char **argv) {
     auto [compiled, error] = swtk::compile_ps("ps", ps, "vsMain");
     if (error) {
       std::cerr << (char *)error->GetBufferPointer() << std::endl;
-    } else {
+    }
+    if (compiled) {
       assert(false);
     }
   }

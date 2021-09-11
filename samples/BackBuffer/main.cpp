@@ -1,3 +1,4 @@
+#include "render_target.h"
 #include "swapchain.h"
 #include <DirectXMath.h>
 #include <assert.h>
@@ -34,7 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   DXGI_SWAP_CHAIN_DESC desc;
   swapchain->GetDesc(&desc);
 
-  ComPtr<ID3D11RenderTargetView> rtv;
+  swtk::RenderTarget render_target;
 
   for (UINT frame_count = 0; window.process_messages(); ++frame_count) {
 
@@ -44,22 +45,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     int h = rect.bottom - rect.top;
     if (w != desc.BufferDesc.Width || h != desc.BufferDesc.Height) {
       // clear backbuffer reference
-      rtv.Reset();
+      render_target.release();
       // resize swapchain
       swapchain->ResizeBuffers(desc.BufferCount, w, h, desc.BufferDesc.Format,
                                desc.Flags);
     }
 
     // ensure create backbuffer
-    if (!rtv) {
+    if (!render_target.get()) {
       ComPtr<ID3D11Texture2D> backbuffer;
       auto hr = swapchain->GetBuffer(0, IID_PPV_ARGS(&backbuffer));
       if (FAILED(hr)) {
         assert(false);
       }
 
-      hr = device->CreateRenderTargetView(backbuffer.Get(), nullptr, &rtv);
-      if (FAILED(hr)) {
+      if (!render_target.create(device, backbuffer, false)) {
         assert(false);
       }
     }
@@ -69,7 +69,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         (static_cast<float>(sin(frame_count / 180.0f * DirectX::XM_PI)) + 1) *
         0.5f;
     float clear[] = {0.5, v, 0.5, 1.0f};
-    context->ClearRenderTargetView(rtv.Get(), clear);
+    render_target.clear(context, clear);
 
     // vsync
     swapchain->Present(1, 0);
