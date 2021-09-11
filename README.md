@@ -8,7 +8,6 @@
 
 * 20210911: 履歴破棄
 * [ ] sphinx4 で gh-pages に記事作ってみる(myst)
-  * [Sphinx で使える Markdown 方言 'MyST'](https://qiita.com/Tachy_Pochy/items/53866eea43d0ad93ea1d)
 
 ## sphinx
 
@@ -18,6 +17,12 @@
 * sphinx-quickstart
 * rm Makefile, make.bat
 * task: docs$ sphinx-build . ../public
+
+* [actions](./.github/workflows/sphinx.yml)
+
+* [Sphinx で使える Markdown 方言 'MyST'](https://qiita.com/Tachy_Pochy/items/53866eea43d0ad93ea1d)
+
+
 
 ## old
 

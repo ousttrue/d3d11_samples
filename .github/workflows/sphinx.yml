@@ -13,6 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: pip install sphinx
+      - run: pip install --upgrade myst-parser
       - name: sphinx build
         working-directory: ./docs
         run: sphinx-build . ../public

@@ -11,6 +11,16 @@
                 "cwd": "${workspaceFolder}/docs"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "sphinx-watch",
+            "type": "shell",
+            "command": "sphinx-autobuild . ../public",
+            "options": {
+                "cwd": "${workspaceFolder}/docs"
+            },
+            "problemMatcher": [],
+            "isBackground": true
         }
     ]
 }
