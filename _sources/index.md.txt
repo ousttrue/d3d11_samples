@@ -14,7 +14,7 @@ source
 basic/create_window
 basic/create_device
 basic/create_swapchain
-basic/backbuffer
+basic/render_target
 basic/compile_shader
 basic/basic_pipeline
 ```

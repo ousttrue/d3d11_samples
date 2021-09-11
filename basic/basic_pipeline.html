@@ -48,30 +48,27 @@
 <h1>Basic Pipeline<a class="headerlink" href="#basic-pipeline" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>Sahder を使う最小構成。</p>
 <a class="reference internal image-reference" href="../_images/basic_pipeline.jpg"><img alt="../_images/basic_pipeline.jpg" src="../_images/basic_pipeline.jpg" style="width: 320px; height: 320px;" /></a>
-<p>頂点バッファを省略することができるので2次元の <code class="docutils literal notranslate"><span class="pre">GeometryShader</span></code> から入る。</p>
-<p>空の頂点バッファからダミーの Point Primitive を入力して、GeometryShader で 三角形を出力する。</p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/main.cpp</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span>      <span class="n">swapchain</span><span class="o">-&gt;</span><span class="n">ResizeBuffers</span><span class="p">(</span><span class="n">desc</span><span class="p">.</span><span class="n">BufferCount</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">desc</span><span class="p">.</span><span class="n">BufferDesc</span><span class="p">.</span><span class="n">Format</span><span class="p">,</span>
-                               <span class="n">desc</span><span class="p">.</span><span class="n">Flags</span><span class="p">);</span>
-    <span class="p">}</span>
-
-    <span class="c1">// ensure create backbuffer</span>
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">render_target</span><span class="p">.</span><span class="n">get</span><span class="p">())</span> <span class="p">{</span>
-      <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Texture2D</span><span class="o">&gt;</span> <span class="n">backbuffer</span><span class="p">;</span>
-      <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">swapchain</span><span class="o">-&gt;</span><span class="n">GetBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">IID_PPV_ARGS</span><span class="p">(</span><span class="o">&amp;</span><span class="n">backbuffer</span><span class="p">));</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
-        <span class="n">assert</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
-      <span class="p">}</span>
-
-      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">render_target</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">backbuffer</span><span class="p">,</span> <span class="nb">false</span><span class="p">))</span> <span class="p">{</span>
+<p>頂点バッファを省略することができるので2次元の <code class="docutils literal notranslate"><span class="pre">GeometryShader</span></code> から入る。
+空の頂点バッファからダミーの Point Primitive を入力して、GeometryShader で 三角形を出力する。</p>
+<section id="id1">
+<h2>頂点バッファ<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/pipeline.cpp</span><a class="headerlink" href="#id2" title="このコードへのパーマリンク">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span><span class="kt">void</span> <span class="n">Pipeline</span><span class="o">::</span><span class="n">draw_empty</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+<span class="lineno">2 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetVertexBuffers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">);</span>
+<span class="lineno">3 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetPrimitiveTopology</span><span class="p">(</span><span class="n">D3D11_PRIMITIVE_TOPOLOGY_POINTLIST</span><span class="p">);</span>
+<span class="lineno">4 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="lineno">5 </span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
 <p>何もしない頂点シェーダー。
 <code class="docutils literal notranslate"><span class="pre">point</span> <span class="pre">DummyInput</span> <span class="pre">input[1]:</span> <span class="pre">POSITION</span></code> に対応して <code class="docutils literal notranslate"><span class="pre">D3D11_PRIMITIVE_TOPOLOGY_POINTLIST</span></code> を使う。</p>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/basic.hlsl</span><a class="headerlink" href="#id2" title="このコードへのパーマリンク">¶</a></div>
+</section>
+<section id="geometryshader">
+<h2>GeometryShader<a class="headerlink" href="#geometryshader" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/basic.hlsl</span><a class="headerlink" href="#id3" title="このコードへのパーマリンク">¶</a></div>
 <div class="highlight-hlsl notranslate"><div class="highlight"><pre><span></span><span class="lineno"> 1 </span><span class="kt">void</span> <span class="n">vsMain</span><span class="p">()</span> <span class="p">{}</span>
 <span class="lineno"> 2 </span>
 <span class="lineno"> 3 </span><span class="k">struct</span> <span class="n">DummyInput</span> <span class="p">{};</span>
@@ -120,6 +117,7 @@
 </div>
 <p>という座標系であることがわかる。</p>
 </section>
+</section>
 
 
             <div class="clearer"></div>
@@ -128,6 +126,15 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Basic Pipeline</a><ul>
+<li><a class="reference internal" href="#id1">頂点バッファ</a></li>
+<li><a class="reference internal" href="#geometryshader">GeometryShader</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>前のトピックへ</h4>
   <p class="topless"><a href="compile_shader.html"
                         title="前の章へ">CompileShader</a></p>
