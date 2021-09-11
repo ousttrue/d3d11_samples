@@ -1,0 +1,22 @@
+name: Sphinx Github Pages
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true          
+    steps:
+      - uses: actions/checkout@v1
+      - run: pip install sphinx
+      - run: cd docs
+      - run: sphinx-build . ../public
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
