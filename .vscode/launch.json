@@ -5,15 +5,36 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "01.CreateDevice",
+            "name": "CreateWindow",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/bin/MinTriangle.exe",
-            "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false
+            "program": "${workspaceFolder}/build/Debug/bin/CreateWindow.exe",
+            "args": [],
+        },
+        {
+            "name": "CreateDevice",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/CreateDevice.exe",
+            "args": [],
+        },
+        {
+            "name": "CreateSwapChain",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/CreateSwapChain.exe",
+            "args": [],
+        },
+        {
+            "name": "BackBuffer",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/BackBuffer.exe",
+            "args": [],
         }
     ]
 }

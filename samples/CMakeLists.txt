@@ -1,1 +1,1 @@
-subdirs(MinTriangle)
+subdirs(CreateWindow CreateDevice CreateSwapChain BackBuffer MinTriangle)
