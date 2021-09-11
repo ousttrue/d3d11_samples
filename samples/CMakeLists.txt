@@ -2,7 +2,7 @@ subdirs(
   CreateWindow
   CreateDevice
   CreateSwapChain
-  BackBuffer
+  RenderTarget
   CompileShader
   BasicPipeline
   InputLayout
