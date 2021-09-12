@@ -25,7 +25,8 @@ basic/texture
 ## 3D Mesh
 
 ```{toctree}
-three_d/camera
+three_d/orbit_camera
+three_d/input_assembler
 ```
 
 # Indices and tables

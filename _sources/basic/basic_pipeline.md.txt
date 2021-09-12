@@ -30,8 +30,8 @@ Sahder を使う最小構成。
 ## ビューポート座標系
 
 ```{image} ./basic_pipeline.jpg
-:width: 320px
-:height: 320px
+:width: 482px
+:height: 528px
 ```
 
 第1頂点が (-1, -1) かつ赤。
