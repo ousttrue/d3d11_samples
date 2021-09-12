@@ -19,6 +19,7 @@
     <script src="../_static/bizstyle.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="Shader Reflection" href="shader_reflection.html" />
     <link rel="prev" title="CompileShader" href="compile_shader.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
@@ -31,6 +32,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="shader_reflection.html" title="Shader Reflection"
+             accesskey="N">次へ</a> |</li>
         <li class="right" >
           <a href="compile_shader.html" title="CompileShader"
              accesskey="P">前へ</a> |</li>
@@ -47,23 +51,19 @@
   <section class="tex2jax_ignore mathjax_ignore" id="basic-pipeline">
 <h1>Basic Pipeline<a class="headerlink" href="#basic-pipeline" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>Sahder を使う最小構成。</p>
-<a class="reference internal image-reference" href="../_images/basic_pipeline.jpg"><img alt="../_images/basic_pipeline.jpg" src="../_images/basic_pipeline.jpg" style="width: 320px; height: 320px;" /></a>
 <p>頂点バッファを省略することができるので2次元の <code class="docutils literal notranslate"><span class="pre">GeometryShader</span></code> から入る。
 空の頂点バッファからダミーの Point Primitive を入力して、GeometryShader で 三角形を出力する。</p>
 <section id="id1">
-<h2>頂点バッファ<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>頂点バッファを省略<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <div class="literal-block-wrapper docutils container" id="id3">
 <div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/pipeline.cpp</span><a class="headerlink" href="#id3" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span><span class="kt">void</span> <span class="n">Pipeline</span><span class="o">::</span><span class="n">draw_empty</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
-<span class="lineno">2 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetVertexBuffers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">);</span>
-<span class="lineno">3 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetPrimitiveTopology</span><span class="p">(</span><span class="n">D3D11_PRIMITIVE_TOPOLOGY_POINTLIST</span><span class="p">);</span>
-<span class="lineno">4 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-<span class="lineno">5 </span><span class="p">}</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span><span class="p">}</span> <span class="c1">// namespace gorilla</span>
 </pre></div>
 </div>
 </div>
 <p>何もしない頂点シェーダー。
-<code class="docutils literal notranslate"><span class="pre">point</span> <span class="pre">DummyInput</span> <span class="pre">input[1]:</span> <span class="pre">POSITION</span></code> に対応して <code class="docutils literal notranslate"><span class="pre">D3D11_PRIMITIVE_TOPOLOGY_POINTLIST</span></code> を使う。</p>
+<code class="docutils literal notranslate"><span class="pre">point</span> <span class="pre">DummyInput</span> <span class="pre">input[1]:</span> <span class="pre">POSITION</span></code> に対応して <code class="docutils literal notranslate"><span class="pre">D3D11_PRIMITIVE_TOPOLOGY_POINTLIST</span></code> を使う。
+空の頂点シェーダーをキックすることで、間接的に GeometryShader を始動する。</p>
 </section>
 <section id="geometryshader">
 <h2>GeometryShader<a class="headerlink" href="#geometryshader" title="このヘッドラインへのパーマリンク">¶</a></h2>
@@ -107,6 +107,7 @@
 </section>
 <section id="id2">
 <h2>ビューポート座標系<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<a class="reference internal image-reference" href="../_images/basic_pipeline.jpg"><img alt="../_images/basic_pipeline.jpg" src="../_images/basic_pipeline.jpg" style="width: 320px; height: 320px;" /></a>
 <p>第1頂点が (-1, -1) かつ赤。
 第2頂点が (-1, +1) かつ緑。
 第3頂点が (+1, +1) かつ青。</p>
@@ -140,7 +141,7 @@
   <h3><a href="../index.html">目次</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Basic Pipeline</a><ul>
-<li><a class="reference internal" href="#id1">頂点バッファ</a></li>
+<li><a class="reference internal" href="#id1">頂点バッファを省略</a></li>
 <li><a class="reference internal" href="#geometryshader">GeometryShader</a></li>
 <li><a class="reference internal" href="#id2">ビューポート座標系</a></li>
 </ul>
@@ -150,6 +151,9 @@
   <h4>前のトピックへ</h4>
   <p class="topless"><a href="compile_shader.html"
                         title="前の章へ">CompileShader</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="shader_reflection.html"
+                        title="次の章へ">Shader Reflection</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
@@ -178,6 +182,9 @@
           <a href="../genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
+          <a href="shader_reflection.html" title="Shader Reflection"
+             >次へ</a> |</li>
+        <li class="right" >
           <a href="compile_shader.html" title="CompileShader"
              >前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
@@ -186,7 +193,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, ousttrue.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
     </div>
   </body>
 </html>
