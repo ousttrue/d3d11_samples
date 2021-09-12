@@ -41,9 +41,81 @@ LRESULT Window::proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(hWnd, &ps);
     EndPaint(hWnd, &ps);
-  }
     return 0;
   }
+
+  //
+  // MOUSE EVENTS
+  //
+  case WM_MOUSEMOVE: {
+    if (_on_move) {
+      auto pos = MAKEPOINTS(lParam);
+      _on_move(pos.x, pos.y);
+    }
+    return 0;
+  }
+  case WM_LBUTTONDOWN:
+    if (_on_left) {
+      _button |= ButtonFlagsLeft;
+      SetCapture(hWnd);
+      _on_left(true);
+    }
+    return 0;
+
+  case WM_RBUTTONDOWN:
+    if (_on_right) {
+      _button |= ButtonFlagsRight;
+      SetCapture(hWnd);
+      _on_right(true);
+    }
+    return 0;
+
+  case WM_MBUTTONDOWN:
+    if (_on_middle) {
+      _button |= ButtonFlagsMiddle;
+      SetCapture(hWnd);
+      _on_middle(true);
+    }
+    return 0;
+
+  case WM_LBUTTONUP:
+    if (_on_left) {
+      _button &= ~ButtonFlagsLeft;
+      if (_button == ButtonFlagsNone) {
+        ReleaseCapture();
+      }
+      _on_left(false);
+    }
+    return 0;
+
+  case WM_RBUTTONUP:
+    if (_on_right) {
+      _button &= ~ButtonFlagsRight;
+      if (_button == ButtonFlagsNone) {
+        ReleaseCapture();
+      }
+      _on_right(false);
+    }
+    return 0;
+
+  case WM_MBUTTONUP:
+    if (_on_middle) {
+      _button &= ~ButtonFlagsMiddle;
+      if (_button == ButtonFlagsNone) {
+        ReleaseCapture();
+      }
+      _on_middle(false);
+    }
+    return 0;
+
+  case WM_MOUSEWHEEL:
+    if (_on_wheel) {
+      auto d = GET_WHEEL_DELTA_WPARAM(wParam);
+      _on_wheel(d);
+    }
+    return 0;
+  }
+
   return DefWindowProcA(hWnd, message, wParam, lParam);
 }
 

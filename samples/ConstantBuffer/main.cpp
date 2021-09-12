@@ -1,7 +1,9 @@
+#include "constant_buffer.h"
 #include "pipeline.h"
 #include "swapchain.h"
 #include <DirectXMath.h>
 #include <assert.h>
+#include <constant_buffer.h>
 #include <device.h>
 #include <iostream>
 #include <render_target.h>
@@ -10,36 +12,6 @@
 #include <window.h>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-
-namespace gorilla {
-class ConstantBuffer {
-  Microsoft::WRL::ComPtr<ID3D11Buffer> _buffer;
-  D3D11_BUFFER_DESC _desc = {0};
-
-public:
-  bool create(const ComPtr<ID3D11Device> &device, UINT size) {
-    _desc.ByteWidth = size;
-    _desc.Usage = D3D11_USAGE_DEFAULT;
-    _desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    auto hr = device->CreateBuffer(&_desc, nullptr, &_buffer);
-    if (FAILED(hr)) {
-      return false;
-    }
-    return true;
-  }
-
-  void update(const ComPtr<ID3D11DeviceContext> &context, const void *p,
-              UINT size) {
-    assert(_desc.ByteWidth == size);
-    context->UpdateSubresource(_buffer.Get(), 0, nullptr, p, 0, 0);
-  }
-
-  void set_gs(const ComPtr<ID3D11DeviceContext> &context, int slot) {
-    ID3D11Buffer *cbs[1] = {_buffer.Get()};
-    context->GSSetConstantBuffers(slot, 1, cbs);
-  }
-};
-} // namespace gorilla
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {

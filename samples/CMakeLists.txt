@@ -8,5 +8,6 @@ subdirs(
   ConstantBuffer
   Texture
   ShaderReflection
+  Camera
   MinTriangle
   )

@@ -1,6 +1,6 @@
 # D3D11 Samples
 
-<http://ousttrue.github.io/d3d11_samples/>
+<https://ousttrue.github.io/d3d11_samples/>
 
 * 履歴を破棄して作り直し
 * d3d11 の sample コードと簡単な説明

@@ -56,6 +56,15 @@
             ],
         },
         {
+            "name": "ShaderReflection",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/ShaderReflection.exe",
+            "args": [],
+            "console": "integratedTerminal"
+        },
+        {
             "name": "ConstantBuffer",
             "type": "cppvsdbg",
             "request": "launch",
@@ -76,13 +85,14 @@
             ],
         },
         {
-            "name": "ShaderReflection",
+            "name": "Camera",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/ShaderReflection.exe",
-            "args": [],
-            "console": "integratedTerminal"
+            "program": "${workspaceFolder}/build/Debug/bin/Camera.exe",
+            "args": [
+                "samples/Camera/mvp.hlsl"
+            ],
         },
         {
             "name": "MinTriangle",
