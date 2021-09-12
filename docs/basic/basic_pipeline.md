@@ -2,15 +2,10 @@
 
 Sahder を使う最小構成。
 
-```{image} ./basic_pipeline.jpg
-:width: 320px
-:height: 320px
-```
-
 頂点バッファを省略することができるので2次元の `GeometryShader` から入る。
 空の頂点バッファからダミーの Point Primitive を入力して、GeometryShader で 三角形を出力する。
 
-## 頂点バッファ
+## 頂点バッファを省略
 
 ```{literalinclude} ../../samples/BasicPipeline/pipeline.cpp
 :caption:
@@ -21,6 +16,7 @@ Sahder を使う最小構成。
 
 何もしない頂点シェーダー。
 `point DummyInput input[1]: POSITION` に対応して `D3D11_PRIMITIVE_TOPOLOGY_POINTLIST` を使う。
+空の頂点シェーダーをキックすることで、間接的に GeometryShader を始動する。
 
 ## GeometryShader
 
@@ -32,6 +28,11 @@ Sahder を使う最小構成。
 ```
 
 ## ビューポート座標系
+
+```{image} ./basic_pipeline.jpg
+:width: 320px
+:height: 320px
+```
 
 第1頂点が (-1, -1) かつ赤。
 第2頂点が (-1, +1) かつ緑。

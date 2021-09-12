@@ -66,6 +66,16 @@
             ],
         },
         {
+            "name": "Texture",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/Texture.exe",
+            "args": [
+                "samples/Texture/texture.hlsl"
+            ],
+        },
+        {
             "name": "InputLayout",
             "type": "cppvsdbg",
             "request": "launch",

@@ -5,4 +5,4 @@ target_link_libraries(${TARGET_NAME} PUBLIC shader)
 
 set(TARGET_NAME BasicPipeline)
 add_executable(${TARGET_NAME} WIN32 main.cpp)
-target_link_libraries(${TARGET_NAME} window device swapchain pipeline input_layout render_target)
+target_link_libraries(${TARGET_NAME} window device swapchain pipeline render_target)

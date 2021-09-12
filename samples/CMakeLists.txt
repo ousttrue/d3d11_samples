@@ -6,6 +6,7 @@ subdirs(
   CompileShader
   BasicPipeline
   ConstantBuffer
+  Texture
   InputLayout
   MinTriangle
   )
