@@ -7,6 +7,6 @@ subdirs(
   BasicPipeline
   ConstantBuffer
   Texture
-  InputLayout
+  ShaderReflection
   MinTriangle
   )

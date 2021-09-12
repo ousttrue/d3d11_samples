@@ -95,50 +95,6 @@ public:
 };
 
 
-bool ConstantBuffer::Initialize(const Microsoft::WRL::ComPtr<ID3D11Device> &pDevice
-        , SHADERSTAGE stage
-        , const Microsoft::WRL::ComPtr<struct ID3D11ShaderReflection> &pReflector)
-{
-	assert(!m_constants[stage]);
-    auto impl = std::make_shared<VariablesByStage>(stage);
-	m_constants[stage] = impl;
-
-    D3D11_SHADER_DESC shaderdesc;
-    pReflector->GetDesc(&shaderdesc);
-
-    // analize constant buffer
-    for (UINT i = 0; i < shaderdesc.ConstantBuffers; ++i){
-        auto cb = pReflector->GetConstantBufferByIndex(i);
-        D3D11_SHADER_BUFFER_DESC desc;
-        cb->GetDesc(&desc);
-        OutputDebugPrintfA("[%d: %s]\n", i, desc.Name);
-        impl->AddCBSlot(pDevice, desc.Size);
-        for (UINT j = 0; j < desc.Variables; ++j){
-            auto v = cb->GetVariableByIndex(j);
-            D3D11_SHADER_VARIABLE_DESC vdesc;
-            v->GetDesc(&vdesc);
-            OutputDebugPrintfA("(%d) %s %d\n", j, vdesc.Name, vdesc.StartOffset);
-            impl->AddCBVariable(i, vdesc);
-        }
-    }
-
-	for (UINT i = 0; i < shaderdesc.BoundResources; ++i){
-		D3D11_SHADER_INPUT_BIND_DESC desc;
-		pReflector->GetResourceBindingDesc(i, &desc);
-		switch (desc.Type)
-		{
-			case D3D_SIT_TEXTURE:
-			impl->AddSRVSlot(desc);
-			break;
-
-		case D3D_SIT_SAMPLER:
-			impl->AddSamplerSlot(desc);
-			break;
-		}
-	}
-
-    return true;
-}
 
 void ConstantBuffer::UpdateCB(const Microsoft::WRL::ComPtr<ID3D11DeviceContext> &pDeviceContext)
 {

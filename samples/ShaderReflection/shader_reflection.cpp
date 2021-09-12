@@ -1,10 +1,20 @@
-#include "input_layout.h"
+#include "shader_reflection.h"
 #include <d3d11shader.h>
-#include <d3dcompiler.h>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 namespace gorilla {
+
+static ComPtr<ID3D11ShaderReflection>
+get_reflection(const ComPtr<ID3DBlob> &compiled) {
+  ComPtr<ID3D11ShaderReflection> reflection;
+  auto hr = D3DReflect(compiled->GetBufferPointer(), compiled->GetBufferSize(),
+                       IID_ID3D11ShaderReflection, &reflection);
+  if (FAILED(hr)) {
+    return {};
+  }
+  return reflection;
+}
 
 static DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type,
                                  BYTE mask) {
@@ -45,13 +55,8 @@ static DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type,
 
 std::vector<D3D11_INPUT_ELEMENT_DESC>
 get_elements(const ComPtr<ID3DBlob> &vblob) {
-  // vertex shader reflection
-  ComPtr<ID3D11ShaderReflection> pReflector;
-  auto hr = D3DReflect(vblob->GetBufferPointer(), vblob->GetBufferSize(),
-                       IID_ID3D11ShaderReflection, &pReflector);
-  if (FAILED(hr)) {
-    return {};
-  }
+
+  auto pReflector = get_reflection(vblob);
 
   // OutputDebugPrintfA("#### VertexShader ####\n");
   // if (!m_constant->Initialize(pDevice, SHADERSTAGE_VERTEX, pReflector)) {
@@ -99,13 +104,57 @@ create_input_layout(const ComPtr<ID3D11Device> &device,
                     const ComPtr<ID3DBlob> &compiled) {
   auto elements = gorilla::get_elements(compiled);
   ComPtr<ID3D11InputLayout> input_layout;
-  auto hr = device->CreateInputLayout(elements.data(), elements.size(),
-                                      compiled->GetBufferPointer(),
-                                      compiled->GetBufferSize(), &input_layout);
+  auto hr = device->CreateInputLayout(
+      elements.data(), static_cast<UINT>(elements.size()),
+      compiled->GetBufferPointer(), compiled->GetBufferSize(), &input_layout);
   if (FAILED(hr)) {
     return {};
   }
   return input_layout;
+}
+
+bool VariablesByStage::reflect(const ComPtr<ID3DBlob> &compiled) {
+
+  auto pReflector = get_reflection(compiled);
+  // assert(!m_constants[stage]);
+  // auto impl = std::make_shared<VariablesByStage>(stage);
+  // m_constants[stage] = impl;
+
+  D3D11_SHADER_DESC shaderdesc;
+  pReflector->GetDesc(&shaderdesc);
+
+  // analize constant buffer
+  for (UINT i = 0; i < shaderdesc.ConstantBuffers; ++i) {
+    auto cb = pReflector->GetConstantBufferByIndex(i);
+    D3D11_SHADER_BUFFER_DESC desc;
+    cb->GetDesc(&desc);
+    // OutputDebugPrintfA("[%d: %s]\n", i, desc.Name);
+    cb_slots.push_back(ConstantBufferSlot(desc.Size));
+
+    for (UINT j = 0; j < desc.Variables; ++j) {
+      auto v = cb->GetVariableByIndex(j);
+      D3D11_SHADER_VARIABLE_DESC vdesc;
+      v->GetDesc(&vdesc);
+      // OutputDebugPrintfA("(%d) %s %d\n", j, vdesc.Name, vdesc.StartOffset);
+      cb_slots[i].Variables.push_back(ConstantVariable(i, vdesc));
+    }
+  }
+
+  for (UINT i = 0; i < shaderdesc.BoundResources; ++i) {
+    D3D11_SHADER_INPUT_BIND_DESC desc;
+    pReflector->GetResourceBindingDesc(i, &desc);
+    switch (desc.Type) {
+    case D3D_SIT_TEXTURE:
+      AddSRVSlot(desc);
+      break;
+
+    case D3D_SIT_SAMPLER:
+      AddSamplerSlot(desc);
+      break;
+    }
+  }
+
+  return true;
 }
 
 } // namespace gorilla

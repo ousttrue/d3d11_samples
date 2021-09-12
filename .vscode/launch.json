@@ -76,11 +76,11 @@
             ],
         },
         {
-            "name": "InputLayout",
+            "name": "ShaderReflection",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/InputLayout.exe",
+            "program": "${workspaceFolder}/build/Debug/bin/ShaderReflection.exe",
             "args": [],
             "console": "integratedTerminal"
         },
