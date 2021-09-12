@@ -1,10 +1,11 @@
 #include <DirectXMath.h>
 #include <assert.h>
 #include <device.h>
-#include <shader_reflection.h>
+#include <iostream>>
 #include <pipeline.h>
 #include <render_target.h>
 #include <shader.h>
+#include <shader_reflection.h>
 #include <swapchain.h>
 #include <window.h>
 
@@ -115,15 +116,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // setup pipeline
   gorilla::Pipeline pipeline;
-  auto compiled = pipeline.compile_vs(device, "vs", shader, "vsMain");
+  auto [compiled, vserror] =
+      pipeline.compile_vs(device, "vs", shader, "vsMain");
   if (!compiled) {
+    if (vserror) {
+      std::cerr << (const char *)vserror->GetBufferPointer() << std::endl;
+    }
     return 4;
   }
   auto input_layout = gorilla::create_input_layout(device, compiled);
   if (!input_layout) {
     return 9;
   }
-  if (!pipeline.compile_ps(device, "ps", shader, "psMain")) {
+  auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
+  if (!ps) {
+    if (pserror) {
+      std::cerr << (const char *)pserror->GetBufferPointer() << std::endl;
+    }
     return 6;
   }
 

@@ -42,13 +42,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // setup pipeline
   gorilla::Pipeline pipeline;
-  if (!pipeline.compile_vs(device, "vs", shader, "vsMain")) {
+  auto [vs, vserror] = pipeline.compile_vs(device, "vs", shader, "vsMain");
+  if (!vs) {
+    if (vserror) {
+      std::cerr << (const char *)vserror->GetBufferPointer() << std::endl;
+    }
     return 4;
   }
-  if (!pipeline.compile_gs(device, "gs", shader, "gsMain")) {
+  auto [gs, gserror] = pipeline.compile_gs(device, "gs", shader, "gsMain");
+  if (!gs) {
+    if (gserror) {
+      std::cerr << (const char *)gserror->GetBufferPointer() << std::endl;
+    }
     return 5;
   }
-  if (!pipeline.compile_ps(device, "ps", shader, "psMain")) {
+  auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
+  if (!ps) {
+    if (pserror) {
+      std::cerr << (const char *)pserror->GetBufferPointer() << std::endl;
+    }
     return 6;
   }
 

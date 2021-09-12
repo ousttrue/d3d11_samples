@@ -57,6 +57,9 @@ std::vector<D3D11_INPUT_ELEMENT_DESC>
 get_elements(const ComPtr<ID3DBlob> &vblob) {
 
   auto pReflector = get_reflection(vblob);
+  if (!pReflector) {
+    return {};
+  }
 
   // OutputDebugPrintfA("#### VertexShader ####\n");
   // if (!m_constant->Initialize(pDevice, SHADERSTAGE_VERTEX, pReflector)) {
@@ -90,13 +93,6 @@ get_elements(const ComPtr<ID3DBlob> &vblob) {
   }
 
   return vbElement;
-  // if (!vbElement.empty()) {
-  //   hr = pDevice->CreateInputLayout(
-  //       &vbElement[0], static_cast<UINT>(vbElement.size()),
-  //       vblob->GetBufferPointer(), vblob->GetBufferSize(), &m_pInputLayout);
-  //   if (FAILED(hr))
-  //     return false;
-  // }
 }
 
 ComPtr<ID3D11InputLayout>
@@ -113,12 +109,12 @@ create_input_layout(const ComPtr<ID3D11Device> &device,
   return input_layout;
 }
 
-bool VariablesByStage::reflect(const ComPtr<ID3DBlob> &compiled) {
+bool ShaderVariables::reflect(const ComPtr<ID3DBlob> &compiled) {
 
   auto pReflector = get_reflection(compiled);
-  // assert(!m_constants[stage]);
-  // auto impl = std::make_shared<VariablesByStage>(stage);
-  // m_constants[stage] = impl;
+  if (!pReflector) {
+    return false;
+  }
 
   D3D11_SHADER_DESC shaderdesc;
   pReflector->GetDesc(&shaderdesc);
@@ -129,14 +125,14 @@ bool VariablesByStage::reflect(const ComPtr<ID3DBlob> &compiled) {
     D3D11_SHADER_BUFFER_DESC desc;
     cb->GetDesc(&desc);
     // OutputDebugPrintfA("[%d: %s]\n", i, desc.Name);
-    cb_slots.push_back(ConstantBufferSlot(desc.Size));
+    cb_slots.push_back({desc});
 
     for (UINT j = 0; j < desc.Variables; ++j) {
       auto v = cb->GetVariableByIndex(j);
       D3D11_SHADER_VARIABLE_DESC vdesc;
       v->GetDesc(&vdesc);
       // OutputDebugPrintfA("(%d) %s %d\n", j, vdesc.Name, vdesc.StartOffset);
-      cb_slots[i].Variables.push_back(ConstantVariable(i, vdesc));
+      cb_slots.back().variables.push_back(vdesc);
     }
   }
 
@@ -145,11 +141,11 @@ bool VariablesByStage::reflect(const ComPtr<ID3DBlob> &compiled) {
     pReflector->GetResourceBindingDesc(i, &desc);
     switch (desc.Type) {
     case D3D_SIT_TEXTURE:
-      AddSRVSlot(desc);
+      srv_slots.push_back(desc);
       break;
 
     case D3D_SIT_SAMPLER:
-      AddSamplerSlot(desc);
+      sampler_slots.push_back(desc);
       break;
     }
   }

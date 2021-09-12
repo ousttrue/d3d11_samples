@@ -6,6 +6,7 @@
 #include <iostream>
 #include <render_target.h>
 #include <shader.h>
+#include <shader_reflection.h>
 #include <window.h>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -77,9 +78,10 @@ public:
     return true;
   }
 
-  void set_ps(const ComPtr<ID3D11DeviceContext> &context) {
-    context->PSSetShaderResources(0, 1, _srv.GetAddressOf());
-    context->PSSetSamplers(0, 1, _sampler.GetAddressOf());
+  void set_ps(const ComPtr<ID3D11DeviceContext> &context, UINT srv,
+              UINT sampler) {
+    context->PSSetShaderResources(srv, 1, _srv.GetAddressOf());
+    context->PSSetSamplers(sampler, 1, _sampler.GetAddressOf());
   }
 };
 
@@ -117,15 +119,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // setup pipeline
   gorilla::Pipeline pipeline;
-  if (!pipeline.compile_vs(device, "vs", shader, "vsMain")) {
+  auto [vs, vserror] = pipeline.compile_vs(device, "vs", shader, "vsMain");
+  if (!vs) {
+    if (vserror) {
+      std::cerr << (const char *)vserror->GetBufferPointer() << std::endl;
+    }
     return 4;
   }
-  if (!pipeline.compile_gs(device, "gs", shader, "gsMain")) {
+  auto [gs, gserror] = pipeline.compile_gs(device, "gs", shader, "gsMain");
+  if (!gs) {
+    if (gserror) {
+      std::cerr << (const char *)gserror->GetBufferPointer() << std::endl;
+    }
     return 5;
   }
-  if (!pipeline.compile_ps(device, "ps", shader, "psMain")) {
+  auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
+  if (!ps) {
+    if (pserror) {
+      std::cerr << (const char *)pserror->GetBufferPointer() << std::endl;
+    }
     return 6;
   }
+  gorilla::ShaderVariables ps_slots;
+  if (!ps_slots.reflect(ps)) {
+    return 7;
+  }
+  assert(ps_slots.sampler_slots.size() == 1);
+  assert(ps_slots.srv_slots.size() == 1);
+  UINT sampler_slot = 0;
+  UINT srv_slot = 0;
 
   // image
   struct RGBA {
@@ -194,7 +216,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // draw
     pipeline.setup(context);
-    texture.set_ps(context);
+    texture.set_ps(context, srv_slot, sampler_slot);
     pipeline.draw_empty(context);
 
     // vsync

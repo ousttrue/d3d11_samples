@@ -17,7 +17,13 @@ basic/create_swapchain
 basic/render_target
 basic/compile_shader
 basic/basic_pipeline
+basic/shader_reflection
+basic/constant_buffer
+basic/texture
 ```
+
+## 3D Mesh
+
 # Indices and tables
 
 * {ref}`genindex`

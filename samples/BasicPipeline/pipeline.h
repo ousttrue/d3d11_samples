@@ -15,12 +15,15 @@ class Pipeline {
   ComPtr<ID3D11PixelShader> _ps;
 
 public:
-  ComPtr<ID3DBlob> compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
-                  std::string_view source, const char *entry_point);
-  bool compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
-                  std::string_view source, const char *entry_point);
-  bool compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
-                  std::string_view source, const char *entry_point);
+  std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
+  compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
+             std::string_view source, const char *entry_point);
+  std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
+  compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
+             std::string_view source, const char *entry_point);
+  std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
+  compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
+             std::string_view source, const char *entry_point);
 
   void setup(const ComPtr<ID3D11DeviceContext> &context);
   void draw_empty(const ComPtr<ID3D11DeviceContext> &context);

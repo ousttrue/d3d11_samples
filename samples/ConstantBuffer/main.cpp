@@ -6,6 +6,7 @@
 #include <iostream>
 #include <render_target.h>
 #include <shader.h>
+#include <shader_reflection.h>
 #include <window.h>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -50,7 +51,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::Window window;
-  auto hwnd = window.create(hInstance, "CLASS_NAME", "ConstantBuffer", 320, 320);
+  auto hwnd =
+      window.create(hInstance, "CLASS_NAME", "ConstantBuffer", 320, 320);
   if (!hwnd) {
     return 1;
   }
@@ -72,15 +74,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // setup pipeline
   gorilla::Pipeline pipeline;
-  if (!pipeline.compile_vs(device, "vs", shader, "vsMain")) {
+  auto [vs, vserror] = pipeline.compile_vs(device, "vs", shader, "vsMain");
+  if (!vs) {
+    if (vserror) {
+      std::cerr << (const char *)vserror->GetBufferPointer() << std::endl;
+    }
     return 4;
   }
-  if (!pipeline.compile_gs(device, "gs", shader, "gsMain")) {
+  auto [gs, gserror] = pipeline.compile_gs(device, "gs", shader, "gsMain");
+  if (!gs) {
+    if (gserror) {
+      std::cerr << (const char *)gserror->GetBufferPointer() << std::endl;
+    }
     return 5;
   }
-  if (!pipeline.compile_ps(device, "ps", shader, "psMain")) {
+  auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
+  if (!ps) {
+    if (pserror) {
+      std::cerr << (const char *)pserror->GetBufferPointer() << std::endl;
+    }
     return 6;
   }
+  gorilla::ShaderVariables ps_slots;
+  if (!ps_slots.reflect(ps)) {
+    return 7;
+  }
+  assert(ps_slots.cb_slots.size() == 1);
+  UINT cb_slot = 0;
+
   DirectX::XMFLOAT4 xywh;
   gorilla::ConstantBuffer cb;
   if (!cb.create(device, sizeof(xywh))) {
@@ -138,7 +159,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // draw
     pipeline.setup(context);
-    cb.set_gs(context, 0);
+    cb.set_gs(context, cb_slot);
     pipeline.draw_empty(context);
 
     // vsync
