@@ -19,7 +19,6 @@
     <script src="../_static/bizstyle.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
-    <link rel="next" title="InputAssembler" href="input_assembler.html" />
     <link rel="prev" title="Texture" href="../basic/texture.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
@@ -32,9 +31,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
-        <li class="right" >
-          <a href="input_assembler.html" title="InputAssembler"
-             accesskey="N">次へ</a> |</li>
         <li class="right" >
           <a href="../basic/texture.html" title="Texture"
              accesskey="P">前へ</a> |</li>
@@ -50,7 +46,125 @@
             
   <section class="tex2jax_ignore mathjax_ignore" id="orbit-camera">
 <h1>Orbit Camera<a class="headerlink" href="#orbit-camera" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p>マウス操作できる YawPitch カメラ。</p>
+<p>マウス操作できる YawPitch カメラ。
+数学ライブラリーには、 <code class="docutils literal notranslate"><span class="pre">DirectXMath</span></code> を使う。
+後で、 <code class="docutils literal notranslate"><span class="pre">glTF</span></code> をロードする予定なので、Projection には 右手系(RightHanded) を使う。</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">../../samples/Camera/gorilla/orbit_camera.h</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
+<span class="cp">#include</span> <span class="cpf">&lt;DirectXMath.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;limits&gt;</span><span class="cp"></span>
+
+<span class="k">namespace</span> <span class="n">gorilla</span> <span class="p">{</span>
+
+<span class="k">class</span> <span class="nc">OrbitCamera</span> <span class="p">{</span>
+  <span class="kt">float</span> <span class="n">_w</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">_h</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">_near</span> <span class="o">=</span> <span class="mf">0.01f</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">_far</span> <span class="o">=</span> <span class="mf">100.0f</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">_fovYRad</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMConvertToRadians</span><span class="p">(</span><span class="mf">60.0f</span><span class="p">);</span>
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">_projection</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">calc_projection</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">P</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixPerspectiveFovRH</span><span class="p">(</span><span class="n">_fovYRad</span><span class="p">,</span> <span class="n">_w</span> <span class="o">/</span> <span class="n">_h</span><span class="p">,</span> <span class="n">_near</span><span class="p">,</span> <span class="n">_far</span><span class="p">);</span>
+    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMStoreFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_projection</span><span class="p">,</span> <span class="n">P</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3</span> <span class="n">_shift</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">};</span>
+  <span class="kt">float</span> <span class="n">_yaw</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">_pitch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">_view</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">calc_view</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixRotationY</span><span class="p">(</span><span class="n">_yaw</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">P</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixRotationX</span><span class="p">(</span><span class="n">_pitch</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">T</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixTranslation</span><span class="p">(</span><span class="n">_shift</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">_shift</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">_shift</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">M</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixMultiply</span><span class="p">(</span><span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixMultiply</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">P</span><span class="p">),</span> <span class="n">T</span><span class="p">);</span>
+    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMStoreFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_view</span><span class="p">,</span> <span class="n">M</span><span class="p">);</span>
+  <span class="p">}</span>
+
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">OrbitCamera</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">calc_projection</span><span class="p">();</span>
+    <span class="n">calc_view</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">matrix</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">V</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMLoadFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_view</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">P</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMLoadFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_projection</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">M</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixMultiply</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">P</span><span class="p">);</span>
+    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">m</span><span class="p">;</span>
+    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMStoreFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">m</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kt">void</span> <span class="n">yaw_pitch</span><span class="p">(</span><span class="kt">int</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dy</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">_yaw</span> <span class="o">+=</span> <span class="n">dx</span> <span class="o">/</span> <span class="n">_h</span> <span class="o">*</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="n">_pitch</span> <span class="o">+=</span> <span class="n">dy</span> <span class="o">/</span> <span class="n">_h</span> <span class="o">*</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="n">calc_view</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="kt">void</span> <span class="n">shift</span><span class="p">(</span><span class="kt">int</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dy</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">_shift</span><span class="p">.</span><span class="n">x</span> <span class="o">-=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dx</span> <span class="o">/</span> <span class="n">_h</span> <span class="o">*</span> <span class="n">tan</span><span class="p">(</span><span class="n">_fovYRad</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">*</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="n">_shift</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dy</span> <span class="o">/</span> <span class="n">_h</span> <span class="o">*</span> <span class="n">tan</span><span class="p">(</span><span class="n">_fovYRad</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">*</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="n">calc_view</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="kt">void</span> <span class="n">dolly</span><span class="p">(</span><span class="kt">int</span> <span class="n">d</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">*=</span> <span class="mf">1.1f</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">*=</span> <span class="mf">0.9f</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">calc_view</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="kt">void</span> <span class="n">resize</span><span class="p">(</span><span class="kt">float</span> <span class="n">w</span><span class="p">,</span> <span class="kt">float</span> <span class="n">h</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">w</span> <span class="o">==</span> <span class="n">_w</span> <span class="o">&amp;&amp;</span> <span class="n">h</span> <span class="o">==</span> <span class="n">_h</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">_w</span> <span class="o">=</span> <span class="n">w</span><span class="p">;</span>
+    <span class="n">_h</span> <span class="o">=</span> <span class="n">h</span><span class="p">;</span>
+    <span class="n">calc_projection</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">MouseBinder</span> <span class="p">{</span>
+  <span class="kt">bool</span> <span class="n">_left</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="kt">bool</span> <span class="n">_right</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="kt">bool</span> <span class="n">_middle</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">_x</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">();</span>
+  <span class="kt">int</span> <span class="n">_y</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">();</span>
+  <span class="n">OrbitCamera</span> <span class="o">&amp;</span><span class="n">_camera</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">MouseBinder</span><span class="p">(</span><span class="n">gorilla</span><span class="o">::</span><span class="n">OrbitCamera</span> <span class="o">&amp;</span><span class="n">camera</span><span class="p">)</span> <span class="o">:</span> <span class="n">_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span> <span class="p">{}</span>
+  <span class="kt">void</span> <span class="n">Left</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isPress</span><span class="p">)</span> <span class="p">{</span> <span class="n">_left</span> <span class="o">=</span> <span class="n">isPress</span><span class="p">;</span> <span class="p">}</span>
+  <span class="kt">void</span> <span class="n">Middle</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isPress</span><span class="p">)</span> <span class="p">{</span> <span class="n">_middle</span> <span class="o">=</span> <span class="n">isPress</span><span class="p">;</span> <span class="p">}</span>
+  <span class="kt">void</span> <span class="n">Right</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isPress</span><span class="p">)</span> <span class="p">{</span> <span class="n">_right</span> <span class="o">=</span> <span class="n">isPress</span><span class="p">;</span> <span class="p">}</span>
+  <span class="kt">void</span> <span class="n">Move</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">_x</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+      <span class="n">_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">auto</span> <span class="n">dx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">_x</span><span class="p">;</span>
+    <span class="n">_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+    <span class="k">auto</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">_y</span><span class="p">;</span>
+    <span class="n">_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">_right</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">_camera</span><span class="p">.</span><span class="n">yaw_pitch</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">_middle</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">_camera</span><span class="p">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="kt">void</span> <span class="n">Wheel</span><span class="p">(</span><span class="kt">int</span> <span class="n">d</span><span class="p">)</span> <span class="p">{</span> <span class="n">_camera</span><span class="p">.</span><span class="n">dolly</span><span class="p">(</span><span class="n">d</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="p">}</span> <span class="c1">// namespace gorilla</span>
+</pre></div>
+</div>
+</div>
 </section>
 
 
@@ -63,9 +177,6 @@
   <h4>前のトピックへ</h4>
   <p class="topless"><a href="../basic/texture.html"
                         title="前の章へ">Texture</a></p>
-  <h4>次のトピックへ</h4>
-  <p class="topless"><a href="input_assembler.html"
-                        title="次の章へ">InputAssembler</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
@@ -93,9 +204,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="総合索引"
              >索引</a></li>
-        <li class="right" >
-          <a href="input_assembler.html" title="InputAssembler"
-             >次へ</a> |</li>
         <li class="right" >
           <a href="../basic/texture.html" title="Texture"
              >前へ</a> |</li>
