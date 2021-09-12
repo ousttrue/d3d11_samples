@@ -7,10 +7,10 @@ Sahder を使う最小構成。
 
 ## 頂点バッファを省略
 
-```{literalinclude} ../../samples/BasicPipeline/pipeline.cpp
+```{literalinclude} ../../samples/BasicPipeline/gorilla/pipeline.cpp
 :caption:
 :language: cpp
-:lines: 75-79
+:lines: 70-74
 :linenos:
 ```
 

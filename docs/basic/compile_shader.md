@@ -1,6 +1,6 @@
 # CompileShader
 
-```{literalinclude} ../../samples/CompileShader/shader.cpp
+```{literalinclude} ../../samples/CompileShader/gorilla/shader.cpp
 :language: cpp
 :caption:
 ```
