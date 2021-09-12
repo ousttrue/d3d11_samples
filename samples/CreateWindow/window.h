@@ -3,7 +3,7 @@
 #include <string>
 #include <windows.h>
 
-namespace swtk {
+namespace gorilla {
 
 class Window {
   HINSTANCE _instance = nullptr;
@@ -19,4 +19,4 @@ public:
   bool process_messages();
 };
 
-} // namespace swtk
+} // namespace gorilla

@@ -5,7 +5,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  swtk::Window window;
+  gorilla::Window window;
   auto hwnd = window.create(hInstance, "CLASS_NAME", "CreateWindow");
   if (!hwnd) {
     return 1;

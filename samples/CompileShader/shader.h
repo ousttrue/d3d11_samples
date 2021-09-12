@@ -3,7 +3,7 @@
 #include <tuple>
 #include <wrl/client.h>
 
-namespace swtk {
+namespace gorilla {
 
 std::tuple<Microsoft::WRL::ComPtr<ID3DBlob>, Microsoft::WRL::ComPtr<ID3DBlob>>
 compile_shader(const char *name, std::string_view source,
@@ -31,4 +31,4 @@ compile_gs(const char *name, std::string_view source, const char *entry_point,
 
 std::string read_file(std::string_view path);
 
-} // namespace swtk
+} // namespace gorilla

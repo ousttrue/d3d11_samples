@@ -56,6 +56,16 @@
             ],
         },
         {
+            "name": "ConstantBuffer",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/ConstantBuffer.exe",
+            "args": [
+                "samples/ConstantBuffer/constant.hlsl"
+            ],
+        },
+        {
             "name": "InputLayout",
             "type": "cppvsdbg",
             "request": "launch",

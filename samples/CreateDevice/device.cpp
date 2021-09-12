@@ -1,6 +1,6 @@
 #include "device.h"
 
-namespace swtk {
+namespace gorilla {
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -28,4 +28,4 @@ ComPtr<ID3D11Device> create_device(const ComPtr<IDXGIAdapter> &adapter) {
   return device;
 }
 
-} // namespace swtk
+} // namespace gorilla

@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-namespace swtk
+namespace gorilla
 {
 
 Microsoft::WRL::ComPtr<IDXGISwapChain>

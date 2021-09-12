@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-namespace swtk {
+namespace gorilla {
 
 class RenderTarget {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -20,4 +20,4 @@ public:
   void setup(const ComPtr<ID3D11DeviceContext> &context, int w, int h);
 };
 
-} // namespace swtk
+} // namespace gorilla

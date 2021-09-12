@@ -7,7 +7,7 @@
 #include <tuple>
 #include <wrl/client.h>
 
-namespace swtk {
+namespace gorilla {
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
@@ -37,4 +37,4 @@ std::string read_file(std::string_view src) {
   return buffer.str();
 }
 
-} // namespace swtk
+} // namespace gorilla

@@ -12,7 +12,7 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 // auto textureFile = L"../MinTriangle/texture.png";
 
-namespace swtk {
+namespace gorilla {
 class InputAssembler {
   ComPtr<ID3D11InputLayout> _input_layout;
   ComPtr<ID3D11Buffer> _pVertexBuf;
@@ -74,7 +74,7 @@ public:
   }
 };
 
-} // namespace swtk
+} // namespace gorilla
 
 struct Vertex {
   DirectX::XMFLOAT4 pos;
@@ -87,12 +87,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  std::string shader = swtk::read_file(lpCmdLine);
+  std::string shader = gorilla::read_file(lpCmdLine);
   if (shader.empty()) {
     return 7;
   }
 
-  swtk::Window window;
+  gorilla::Window window;
   auto hwnd = window.create(hInstance, "MinTriangle", "MinTriangle", 320, 320);
   if (!hwnd) {
     return 1;
@@ -101,25 +101,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   ShowWindow(hwnd, nCmdShow);
   UpdateWindow(hwnd);
 
-  auto device = swtk::create_device();
+  auto device = gorilla::create_device();
   if (!device) {
     return 2;
   }
   ComPtr<ID3D11DeviceContext> context;
   device->GetImmediateContext(&context);
 
-  auto swapchain = swtk::create_swapchain(device, hwnd);
+  auto swapchain = gorilla::create_swapchain(device, hwnd);
   if (!swapchain) {
     return 3;
   }
 
   // setup pipeline
-  swtk::Pipeline pipeline;
+  gorilla::Pipeline pipeline;
   auto compiled = pipeline.compile_vs(device, "vs", shader, "vsMain");
   if (!compiled) {
     return 4;
   }
-  auto input_layout = swtk::create_input_layout(device, compiled);
+  auto input_layout = gorilla::create_input_layout(device, compiled);
   if (!input_layout) {
     return 9;
   }
@@ -127,7 +127,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 6;
   }
 
-  swtk::InputAssembler ia;
+  gorilla::InputAssembler ia;
   auto size = 0.4f;
   Vertex pVertices[] = {
       // x
@@ -200,7 +200,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   // main loop
   DXGI_SWAP_CHAIN_DESC desc;
   swapchain->GetDesc(&desc);
-  swtk::RenderTarget render_target;
+  gorilla::RenderTarget render_target;
   for (UINT frame_count = 0; window.process_messages(); ++frame_count) {
 
     RECT rect;

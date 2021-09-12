@@ -1,6 +1,6 @@
 #include "render_target.h"
 
-namespace swtk {
+namespace gorilla {
 
 void RenderTarget::clear(const ComPtr<ID3D11DeviceContext> &context,
                          const float clear[4]) {
@@ -71,4 +71,4 @@ void RenderTarget::setup(const ComPtr<ID3D11DeviceContext> &context, int w,
   context->RSSetViewports(_countof(viewports), viewports);
 }
 
-} // namespace swtk
+} // namespace gorilla

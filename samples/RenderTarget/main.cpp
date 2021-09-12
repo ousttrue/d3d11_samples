@@ -12,7 +12,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  swtk::Window window;
+  gorilla::Window window;
   auto hwnd = window.create(hInstance, "CLASS_NAME", "CreateSwapChain");
   if (!hwnd) {
     return 1;
@@ -21,21 +21,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   ShowWindow(hwnd, nCmdShow);
   UpdateWindow(hwnd);
 
-  auto device = swtk::create_device();
+  auto device = gorilla::create_device();
   if (!device) {
     return 2;
   }
   ComPtr<ID3D11DeviceContext> context;
   device->GetImmediateContext(&context);
 
-  auto swapchain = swtk::create_swapchain(device, hwnd);
+  auto swapchain = gorilla::create_swapchain(device, hwnd);
   if (!swapchain) {
     return 3;
   }
   DXGI_SWAP_CHAIN_DESC desc;
   swapchain->GetDesc(&desc);
 
-  swtk::RenderTarget render_target;
+  gorilla::RenderTarget render_target;
 
   for (UINT frame_count = 0; window.process_messages(); ++frame_count) {
 

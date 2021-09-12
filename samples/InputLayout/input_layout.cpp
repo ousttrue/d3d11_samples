@@ -4,7 +4,7 @@
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-namespace swtk {
+namespace gorilla {
 
 static DXGI_FORMAT GetDxgiFormat(D3D10_REGISTER_COMPONENT_TYPE type,
                                  BYTE mask) {
@@ -97,7 +97,7 @@ get_elements(const ComPtr<ID3DBlob> &vblob) {
 ComPtr<ID3D11InputLayout>
 create_input_layout(const ComPtr<ID3D11Device> &device,
                     const ComPtr<ID3DBlob> &compiled) {
-  auto elements = swtk::get_elements(compiled);
+  auto elements = gorilla::get_elements(compiled);
   ComPtr<ID3D11InputLayout> input_layout;
   auto hr = device->CreateInputLayout(elements.data(), elements.size(),
                                       compiled->GetBufferPointer(),
@@ -108,4 +108,4 @@ create_input_layout(const ComPtr<ID3D11Device> &device,
   return input_layout;
 }
 
-} // namespace swtk
+} // namespace gorilla

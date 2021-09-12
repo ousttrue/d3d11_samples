@@ -1,6 +1,6 @@
 #include "window.h"
 
-namespace swtk {
+namespace gorilla {
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
                                 LPARAM lParam) {
@@ -96,4 +96,4 @@ bool Window::process_messages() {
   return true;
 }
 
-} // namespace swtk
+} // namespace gorilla

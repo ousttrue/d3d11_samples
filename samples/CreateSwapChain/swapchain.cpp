@@ -1,7 +1,7 @@
 #include "swapchain.h"
 #include <dxgi1_2.h>
 
-namespace swtk {
+namespace gorilla {
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -70,4 +70,4 @@ create_swapchain(const Microsoft::WRL::ComPtr<ID3D11Device> &device,
   return pSwapChain;
 }
 
-} // namespace swtk
+} // namespace gorilla

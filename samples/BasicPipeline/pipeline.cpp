@@ -4,12 +4,12 @@
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-namespace swtk {
+namespace gorilla {
 
 ComPtr<ID3DBlob> Pipeline::compile_vs(const ComPtr<ID3D11Device> &device,
                                       const char *name, std::string_view source,
                                       const char *entry_point) {
-  auto [compiled, error] = swtk::compile_vs(name, source, entry_point);
+  auto [compiled, error] = gorilla::compile_vs(name, source, entry_point);
   if (!compiled) {
     if (error) {
       std::cerr << (const char *)error->GetBufferPointer() << std::endl;
@@ -26,7 +26,7 @@ ComPtr<ID3DBlob> Pipeline::compile_vs(const ComPtr<ID3D11Device> &device,
 }
 bool Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
                           std::string_view source, const char *entry_point) {
-  auto [compiled, error] = swtk::compile_gs(name, source, entry_point);
+  auto [compiled, error] = gorilla::compile_gs(name, source, entry_point);
   if (!compiled) {
     if (error) {
       std::cerr << (const char *)error->GetBufferPointer() << std::endl;
@@ -43,7 +43,7 @@ bool Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
 }
 bool Pipeline::compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
                           std::string_view source, const char *entry_point) {
-  auto [compiled, error] = swtk::compile_ps(name, source, entry_point);
+  auto [compiled, error] = gorilla::compile_ps(name, source, entry_point);
   if (!compiled) {
     if (error) {
       std::cerr << (const char *)error->GetBufferPointer() << std::endl;
@@ -78,4 +78,4 @@ void Pipeline::draw_empty(const ComPtr<ID3D11DeviceContext> &context) {
   context->Draw(1, 0);
 }
 
-} // namespace swtk
+} // namespace gorilla

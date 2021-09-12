@@ -4,7 +4,7 @@
 #include <string_view>
 #include <wrl/client.h>
 
-namespace swtk {
+namespace gorilla {
 
 class Pipeline {
 
@@ -26,4 +26,4 @@ public:
   void draw_empty(const ComPtr<ID3D11DeviceContext> &context);
 };
 
-} // namespace swtk
+} // namespace gorilla

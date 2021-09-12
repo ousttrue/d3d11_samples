@@ -5,6 +5,7 @@ subdirs(
   RenderTarget
   CompileShader
   BasicPipeline
+  ConstantBuffer
   InputLayout
   MinTriangle
   )

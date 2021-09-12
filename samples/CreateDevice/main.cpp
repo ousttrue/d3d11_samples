@@ -2,7 +2,7 @@
 
 int main(int argc, char **argv) {
 
-  auto device = swtk::create_device();
+  auto device = gorilla::create_device();
 
   // Debug Live Object check
   // device->AddRef();

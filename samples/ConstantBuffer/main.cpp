@@ -10,6 +10,36 @@
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+namespace gorilla {
+class ConstantBuffer {
+  Microsoft::WRL::ComPtr<ID3D11Buffer> _buffer;
+  D3D11_BUFFER_DESC _desc = {0};
+
+public:
+  bool create(const ComPtr<ID3D11Device> &device, UINT size) {
+    _desc.ByteWidth = size;
+    _desc.Usage = D3D11_USAGE_DEFAULT;
+    _desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    auto hr = device->CreateBuffer(&_desc, nullptr, &_buffer);
+    if (FAILED(hr)) {
+      return false;
+    }
+    return true;
+  }
+
+  void update(const ComPtr<ID3D11DeviceContext> &context, const void *p,
+              UINT size) {
+    assert(_desc.ByteWidth == size);
+    context->UpdateSubresource(_buffer.Get(), 0, nullptr, p, 0, 0);
+  }
+
+  void set_gs(const ComPtr<ID3D11DeviceContext> &context, int slot) {
+    ID3D11Buffer *cbs[1] = {_buffer.Get()};
+    context->GSSetConstantBuffers(slot, 1, cbs);
+  }
+};
+} // namespace gorilla
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
@@ -20,7 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::Window window;
-  auto hwnd = window.create(hInstance, "CLASS_NAME", "BasicPipeline", 320, 320);
+  auto hwnd = window.create(hInstance, "CLASS_NAME", "ConstantBuffer", 320, 320);
   if (!hwnd) {
     return 1;
   }
@@ -50,6 +80,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
   if (!pipeline.compile_ps(device, "ps", shader, "psMain")) {
     return 6;
+  }
+  DirectX::XMFLOAT4 xywh;
+  gorilla::ConstantBuffer cb;
+  if (!cb.create(device, sizeof(xywh))) {
+    return 10;
   }
 
   // main loop
@@ -83,6 +118,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       }
     }
 
+    // update
+    POINT point;
+    GetCursorPos(&point);
+    ScreenToClient(hwnd, &point);
+    xywh.x = static_cast<float>(point.x);
+    xywh.y = static_cast<float>(point.y);
+    xywh.z = static_cast<float>(w);
+    xywh.w = static_cast<float>(h);
+    cb.update(context, &xywh, sizeof(xywh));
+
     // clear RTV
     auto v =
         (static_cast<float>(sin(frame_count / 180.0f * DirectX::XM_PI)) + 1) *
@@ -93,6 +138,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // draw
     pipeline.setup(context);
+    cb.set_gs(context, 0);
     pipeline.draw_empty(context);
 
     // vsync

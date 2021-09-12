@@ -18,7 +18,7 @@ constexpr const char ps[] = R"(
 int main(int argc, char **argv) {
 
   {
-    auto [compiled, error] = swtk::compile_vs("vs", vs, "vsMain");
+    auto [compiled, error] = gorilla::compile_vs("vs", vs, "vsMain");
     if (!compiled) {
       if (error) {
         std::cerr << (char *)error->GetBufferPointer() << std::endl;
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
   }
 
   {
-    auto [compiled, error] = swtk::compile_ps("ps", ps, "vsMain");
+    auto [compiled, error] = gorilla::compile_ps("ps", ps, "vsMain");
     if (error) {
       std::cerr << (char *)error->GetBufferPointer() << std::endl;
     }
