@@ -24,6 +24,10 @@ basic/texture
 
 ## 3D Mesh
 
+```{toctree}
+three_d/camera
+```
+
 # Indices and tables
 
 * {ref}`genindex`
