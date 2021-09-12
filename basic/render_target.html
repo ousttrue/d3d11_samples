@@ -68,7 +68,7 @@ RenderTerget を作ったのでクリアできるようになった。</p>
   <span class="n">UNREFERENCED_PARAMETER</span><span class="p">(</span><span class="n">hPrevInstance</span><span class="p">);</span>
   <span class="n">UNREFERENCED_PARAMETER</span><span class="p">(</span><span class="n">lpCmdLine</span><span class="p">);</span>
 
-  <span class="n">swtk</span><span class="o">::</span><span class="n">Window</span> <span class="n">window</span><span class="p">;</span>
+  <span class="n">gorilla</span><span class="o">::</span><span class="n">Window</span> <span class="n">window</span><span class="p">;</span>
   <span class="k">auto</span> <span class="n">hwnd</span> <span class="o">=</span> <span class="n">window</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">hInstance</span><span class="p">,</span> <span class="s">&quot;CLASS_NAME&quot;</span><span class="p">,</span> <span class="s">&quot;CreateSwapChain&quot;</span><span class="p">);</span>
   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">hwnd</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
@@ -77,21 +77,21 @@ RenderTerget を作ったのでクリアできるようになった。</p>
   <span class="n">ShowWindow</span><span class="p">(</span><span class="n">hwnd</span><span class="p">,</span> <span class="n">nCmdShow</span><span class="p">);</span>
   <span class="n">UpdateWindow</span><span class="p">(</span><span class="n">hwnd</span><span class="p">);</span>
 
-  <span class="k">auto</span> <span class="n">device</span> <span class="o">=</span> <span class="n">swtk</span><span class="o">::</span><span class="n">create_device</span><span class="p">();</span>
+  <span class="k">auto</span> <span class="n">device</span> <span class="o">=</span> <span class="n">gorilla</span><span class="o">::</span><span class="n">create_device</span><span class="p">();</span>
   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">device</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="mi">2</span><span class="p">;</span>
   <span class="p">}</span>
   <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="n">context</span><span class="p">;</span>
   <span class="n">device</span><span class="o">-&gt;</span><span class="n">GetImmediateContext</span><span class="p">(</span><span class="o">&amp;</span><span class="n">context</span><span class="p">);</span>
 
-  <span class="k">auto</span> <span class="n">swapchain</span> <span class="o">=</span> <span class="n">swtk</span><span class="o">::</span><span class="n">create_swapchain</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">hwnd</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">swapchain</span> <span class="o">=</span> <span class="n">gorilla</span><span class="o">::</span><span class="n">create_swapchain</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">hwnd</span><span class="p">);</span>
   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">swapchain</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="mi">3</span><span class="p">;</span>
   <span class="p">}</span>
   <span class="n">DXGI_SWAP_CHAIN_DESC</span> <span class="n">desc</span><span class="p">;</span>
   <span class="n">swapchain</span><span class="o">-&gt;</span><span class="n">GetDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">desc</span><span class="p">);</span>
 
-  <span class="n">swtk</span><span class="o">::</span><span class="n">RenderTarget</span> <span class="n">render_target</span><span class="p">;</span>
+  <span class="n">gorilla</span><span class="o">::</span><span class="n">RenderTarget</span> <span class="n">render_target</span><span class="p">;</span>
 
   <span class="k">for</span> <span class="p">(</span><span class="n">UINT</span> <span class="n">frame_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">window</span><span class="p">.</span><span class="n">process_messages</span><span class="p">();</span> <span class="o">++</span><span class="n">frame_count</span><span class="p">)</span> <span class="p">{</span>
 

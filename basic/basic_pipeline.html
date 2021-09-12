@@ -52,8 +52,8 @@
 空の頂点バッファからダミーの Point Primitive を入力して、GeometryShader で 三角形を出力する。</p>
 <section id="id1">
 <h2>頂点バッファ<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/pipeline.cpp</span><a class="headerlink" href="#id2" title="このコードへのパーマリンク">¶</a></div>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/pipeline.cpp</span><a class="headerlink" href="#id3" title="このコードへのパーマリンク">¶</a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span><span class="kt">void</span> <span class="n">Pipeline</span><span class="o">::</span><span class="n">draw_empty</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
 <span class="lineno">2 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetVertexBuffers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">);</span>
 <span class="lineno">3 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetPrimitiveTopology</span><span class="p">(</span><span class="n">D3D11_PRIMITIVE_TOPOLOGY_POINTLIST</span><span class="p">);</span>
@@ -67,8 +67,8 @@
 </section>
 <section id="geometryshader">
 <h2>GeometryShader<a class="headerlink" href="#geometryshader" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="literal-block-wrapper docutils container" id="id3">
-<div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/basic.hlsl</span><a class="headerlink" href="#id3" title="このコードへのパーマリンク">¶</a></div>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">../../samples/BasicPipeline/basic.hlsl</span><a class="headerlink" href="#id4" title="このコードへのパーマリンク">¶</a></div>
 <div class="highlight-hlsl notranslate"><div class="highlight"><pre><span></span><span class="lineno"> 1 </span><span class="kt">void</span> <span class="n">vsMain</span><span class="p">()</span> <span class="p">{}</span>
 <span class="lineno"> 2 </span>
 <span class="lineno"> 3 </span><span class="k">struct</span> <span class="n">DummyInput</span> <span class="p">{};</span>
@@ -104,18 +104,29 @@
 </pre></div>
 </div>
 </div>
+</section>
+<section id="id2">
+<h2>ビューポート座標系<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>第1頂点が (-1, -1) かつ赤。
-第2頂点が (-1, -1) かつ緑。
-第3頂点が (1, 1) かつ青。</p>
+第2頂点が (-1, +1) かつ緑。
+第3頂点が (+1, +1) かつ青。</p>
 <p>ということから</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>         <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="mi">3</span><span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">+</span><span class="mi">1</span><span class="p">)</span>
      <span class="o">+---+</span>
      <span class="o">|</span>   <span class="o">|</span>
      <span class="o">+---+</span>
-<span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="mi">1</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>という座標系であることがわかる。</p>
+<p>という座標系であることがわかる。
+三角形は時計回り。
+試しに、第２頂点の符号を逆にすると見えなくなる。</p>
+<p><code class="docutils literal notranslate"><span class="pre">ID3D11RasterizerState</span></code> のデフォルトが</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">D3D11_RASTERIZER_DESC</span><span class="p">::</span><span class="n">CullMode</span> <span class="o">=</span> <span class="n">D3D11_CULL_BACK</span><span class="p">;</span>
+<span class="n">D3D11_RASTERIZER_DESC</span><span class="p">::</span><span class="n">FrontCounterClockwise</span> <span class="o">=</span> <span class="n">false</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>であることがわかる。</p>
 </section>
 </section>
 
@@ -131,6 +142,7 @@
 <li><a class="reference internal" href="#">Basic Pipeline</a><ul>
 <li><a class="reference internal" href="#id1">頂点バッファ</a></li>
 <li><a class="reference internal" href="#geometryshader">GeometryShader</a></li>
+<li><a class="reference internal" href="#id2">ビューポート座標系</a></li>
 </ul>
 </li>
 </ul>
