@@ -27,8 +27,6 @@
 
 ### customize
 
-* [Sphinx で使える Markdown 方言 'MyST'](https://qiita.com/Tachy_Pochy/items/53866eea43d0ad93ea1d)
-
 ```
 $ pip install --upgrade myst-parser
 $ pip install sphinx-autobuild
