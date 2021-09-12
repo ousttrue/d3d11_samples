@@ -1,15 +1,14 @@
-#include "constant_buffer.h"
-#include "pipeline.h"
-#include "swapchain.h"
 #include <DirectXMath.h>
 #include <assert.h>
-#include <constant_buffer.h>
-#include <device.h>
+#include <gorilla/constant_buffer.h>
+#include <gorilla/device.h>
+#include <gorilla/pipeline.h>
+#include <gorilla/render_target.h>
+#include <gorilla/shader.h>
+#include <gorilla/shader_reflection.h>
+#include <gorilla/swapchain.h>
+#include <gorilla/window.h>
 #include <iostream>
-#include <render_target.h>
-#include <shader.h>
-#include <shader_reflection.h>
-#include <window.h>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 

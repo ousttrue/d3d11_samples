@@ -1,5 +1,5 @@
 set(TARGET_NAME swapchain)
-add_library(${TARGET_NAME} swapchain.cpp)
+add_library(${TARGET_NAME} gorilla/swapchain.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 
 set(TARGET_NAME CreateSwapChain)

@@ -1,4 +1,4 @@
-#include "device.h"
+#include "gorilla/device.h"
 
 int main(int argc, char **argv) {
 

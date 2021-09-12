@@ -1,9 +1,9 @@
-#include "render_target.h"
-#include "swapchain.h"
 #include <DirectXMath.h>
 #include <assert.h>
-#include <device.h>
-#include <window.h>
+#include <gorilla/device.h>
+#include <gorilla/render_target.h>
+#include <gorilla/swapchain.h>
+#include <gorilla/window.h>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 

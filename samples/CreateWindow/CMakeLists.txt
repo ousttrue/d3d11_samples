@@ -1,5 +1,5 @@
 set(TARGET_NAME window)
-add_library(${TARGET_NAME} window.cpp)
+add_library(${TARGET_NAME} gorilla/window.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 
 set(TARGET_NAME CreateWindow)

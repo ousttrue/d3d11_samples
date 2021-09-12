@@ -1,4 +1,4 @@
-#include "window.h"
+#include "gorilla/window.h"
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                     PWSTR lpCmdLine, int nCmdShow) {

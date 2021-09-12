@@ -1,5 +1,5 @@
-# set(TARGET_NAME pipeline)
-# add_library(${TARGET_NAME} pipeline.cpp)
+# set(TARGET_NAME texture)
+# add_library(${TARGET_NAME} gorilla/texture.cpp)
 # target_include_directories(${TARGET_NAME} PUBLIC .)
 # target_link_libraries(${TARGET_NAME} PUBLIC shader)
 

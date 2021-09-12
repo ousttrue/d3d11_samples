@@ -1,4 +1,4 @@
-#include "shader.h"
+#include <gorilla/shader.h>
 #include <assert.h>
 #include <iostream>
 

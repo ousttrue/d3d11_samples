@@ -1,6 +1,6 @@
-#include "shader.h"
-#include "shader_reflection.h"
 #include <assert.h>
+#include <gorilla/shader.h>
+#include <gorilla/shader_reflection.h>
 #include <iostream>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;

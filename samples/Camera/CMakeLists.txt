@@ -11,4 +11,6 @@ target_link_libraries(
   swapchain
   pipeline
   render_target
-  constant_buffer)
+  constant_buffer
+  orbit_camera
+  )

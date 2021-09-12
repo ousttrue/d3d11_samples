@@ -1,5 +1,5 @@
 set(TARGET_NAME constant_buffer)
-add_library(${TARGET_NAME} constant_buffer.cpp)
+add_library(${TARGET_NAME} gorilla/constant_buffer.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 
 set(TARGET_NAME ConstantBuffer)

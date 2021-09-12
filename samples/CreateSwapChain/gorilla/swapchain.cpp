@@ -1,4 +1,4 @@
-#include "swapchain.h"
+#include <gorilla/swapchain.h>
 #include <dxgi1_2.h>
 
 namespace gorilla {

@@ -1,12 +1,12 @@
-#include "pipeline.h"
-#include "swapchain.h"
 #include <DirectXMath.h>
 #include <assert.h>
-#include <device.h>
+#include <gorilla/device.h>
+#include <gorilla/pipeline.h>
+#include <gorilla/render_target.h>
+#include <gorilla/shader.h>
+#include <gorilla/swapchain.h>
+#include <gorilla/window.h>
 #include <iostream>
-#include <render_target.h>
-#include <shader.h>
-#include <window.h>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 

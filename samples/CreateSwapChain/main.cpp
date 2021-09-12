@@ -1,6 +1,6 @@
-#include "swapchain.h"
-#include <device.h>
-#include <window.h>
+#include <gorilla/swapchain.h>
+#include <gorilla/device.h>
+#include <gorilla/window.h>
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {

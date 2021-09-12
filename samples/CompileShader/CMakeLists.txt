@@ -1,5 +1,5 @@
 set(TARGET_NAME shader)
-add_library(${TARGET_NAME} shader.cpp)
+add_library(${TARGET_NAME} gorilla/shader.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PUBLIC d3dcompiler.lib)
 

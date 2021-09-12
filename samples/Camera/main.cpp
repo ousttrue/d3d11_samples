@@ -1,17 +1,16 @@
-#include "orbit_camera.h"
 #include <DirectXMath.h>
 #include <assert.h>
-#include <constant_buffer.h>
-#include <device.h>
+#include <gorilla/constant_buffer.h>
+#include <gorilla/device.h>
+#include <gorilla/orbit_camera.h>
+#include <gorilla/pipeline.h>
+#include <gorilla/render_target.h>
+#include <gorilla/shader.h>
+#include <gorilla/swapchain.h>
+#include <gorilla/window.h>
 #include <iostream>
-#include <pipeline.h>
-#include <render_target.h>
-#include <shader.h>
-#include <swapchain.h>
-#include <window.h>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
