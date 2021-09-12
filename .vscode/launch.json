@@ -95,13 +95,13 @@
             ],
         },
         {
-            "name": "MinTriangle",
+            "name": "InputAssembler",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/MinTriangle.exe",
+            "program": "${workspaceFolder}/build/Debug/bin/InputAssembler.exe",
             "args": [
-                "samples/MinTriangle/MinTriangle.fx"
+                "samples/InputAssembler/ia.hlsl"
             ],
         }
     ]

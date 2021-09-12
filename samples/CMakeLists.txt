@@ -9,5 +9,5 @@ subdirs(
   Texture
   ShaderReflection
   Camera
-  MinTriangle
+  InputAssembler
   )

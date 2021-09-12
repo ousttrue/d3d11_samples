@@ -20,10 +20,19 @@ void ConstantBuffer::update(const ComPtr<ID3D11DeviceContext> &context,
   context->UpdateSubresource(_buffer.Get(), 0, nullptr, p, 0, 0);
 }
 
+void ConstantBuffer::set_vs(const ComPtr<ID3D11DeviceContext> &context,
+                            int slot) {
+  context->VSSetConstantBuffers(slot, 1, _buffer.GetAddressOf());
+}
+
 void ConstantBuffer::set_gs(const ComPtr<ID3D11DeviceContext> &context,
                             int slot) {
-  ID3D11Buffer *cbs[1] = {_buffer.Get()};
-  context->GSSetConstantBuffers(slot, 1, cbs);
+  context->GSSetConstantBuffers(slot, 1, _buffer.GetAddressOf());
+}
+
+void ConstantBuffer::set_ps(const ComPtr<ID3D11DeviceContext> &context,
+                            int slot) {
+  context->PSSetConstantBuffers(slot, 1, _buffer.GetAddressOf());
 }
 
 } // namespace gorilla

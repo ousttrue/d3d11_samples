@@ -20,7 +20,9 @@ public:
     update(context, &t, sizeof(T));
   }
 
+  void set_vs(const ComPtr<ID3D11DeviceContext> &context, int slot);
   void set_gs(const ComPtr<ID3D11DeviceContext> &context, int slot);
+  void set_ps(const ComPtr<ID3D11DeviceContext> &context, int slot);
 };
 
 } // namespace gorilla

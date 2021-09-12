@@ -1,13 +1,16 @@
 #include <DirectXMath.h>
 #include <assert.h>
+#include <constant_buffer.h>
 #include <device.h>
-#include <iostream>>
+#include <iostream>
+#include <orbit_camera.h>
 #include <pipeline.h>
 #include <render_target.h>
 #include <shader.h>
 #include <shader_reflection.h>
 #include <swapchain.h>
 #include <window.h>
+
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -94,7 +97,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::Window window;
-  auto hwnd = window.create(hInstance, "MinTriangle", "MinTriangle", 320, 320);
+  auto hwnd = window.create(hInstance, "WINDOW_CLASS", "InputAssembler", 320, 320);
   if (!hwnd) {
     return 1;
   }
@@ -206,6 +209,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 8;
   }
 
+  gorilla::ConstantBuffer cb;
+  if (!cb.create(device, sizeof(DirectX::XMFLOAT4X4))) {
+    return 7;
+  }
+  UINT cb_slot = 0;
+  gorilla::OrbitCamera camera;
+  gorilla::MouseBinder binder(camera);
+  window.bind_mouse(
+      std::bind(&gorilla::MouseBinder::Left, &binder, std::placeholders::_1),
+      std::bind(&gorilla::MouseBinder::Middle, &binder, std::placeholders::_1),
+      std::bind(&gorilla::MouseBinder::Right, &binder, std::placeholders::_1),
+      std::bind(&gorilla::MouseBinder::Move, &binder, std::placeholders::_1,
+                std::placeholders::_2),
+      std::bind(&gorilla::MouseBinder::Wheel, &binder, std::placeholders::_1));
+
   // main loop
   DXGI_SWAP_CHAIN_DESC desc;
   swapchain->GetDesc(&desc);
@@ -237,6 +255,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       }
     }
 
+    // update
+    camera.resize(static_cast<float>(w), static_cast<float>(h));
+    cb.update(context, camera.matrix());
+
     // clear RTV
     auto v =
         (static_cast<float>(sin(frame_count / 180.0f * DirectX::XM_PI)) + 1) *
@@ -246,6 +268,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     render_target.setup(context, w, h);
 
     pipeline.setup(context);
+    cb.set_vs(context, cb_slot);
     ia.draw(context);
 
     // vsync

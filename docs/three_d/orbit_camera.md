@@ -1,5 +1,3 @@
-# Camera
-
-## Orbit Camera
+# Orbit Camera
 
 マウス操作できる YawPitch カメラ。
