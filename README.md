@@ -13,8 +13,25 @@
 * [x] Texture
 * [x] DepthBuffer
 * [ ] glTF
+* [ ] ImageLoader
+* [ ] imgui
+* [ ] MikkTSpace
+* [ ] skinning
+* [ ] morph target
+* [ ] Animation: BVH
 * [ ] CubeMap
 * [ ] IBL
+* [ ] AsciiTexture によるデバッグ表示 <https://nothings.org/stb/font/>
+* [ ] Gizmo: Grid
+* [ ] Gizmo: drag
+* [ ] Gizmo: wire frame
+* [ ] Gizmo: BoundingBox
+* [ ] Gizmo: T
+* [ ] Gizmo: R
+* [ ] Gizmo: S
+* [ ] Gizmo: point select
+* [ ] Gizmo: edge select
+* [ ] Gizmo: face select
 
 ## sphinx
 ### init
