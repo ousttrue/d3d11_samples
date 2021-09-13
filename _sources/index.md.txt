@@ -27,6 +27,7 @@ basic/input_assembler
 
 ```{toctree}
 three_d/orbit_camera
+three_d/depth_test
 ```
 
 # 参考
