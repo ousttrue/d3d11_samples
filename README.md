@@ -11,7 +11,7 @@
 * [x] Camera(Projection)
 * [x] MouseInput
 * [x] Texture
-* [ ] DepthBuffer
+* [x] DepthBuffer
 * [ ] glTF
 * [ ] CubeMap
 * [ ] IBL
