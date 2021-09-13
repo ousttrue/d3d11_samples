@@ -1,8 +1,4 @@
 {
-    "cmake.generator": "Ninja",
-    "cmake.configureArgs": [
-        "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
-    ],
     "python.formatting.provider": "yapf",
     "restructuredtext.confPath": "${workspaceFolder}\\docs",
     "files.associations": {
@@ -18,6 +14,10 @@
         "xlocnum": "cpp",
         "xloctime": "cpp",
         "xutility": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "functional": "cpp"
     },
+    "cSpell.words": [
+        "DXGI"
+    ],
 }

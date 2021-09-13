@@ -10,4 +10,5 @@ subdirs(
   ShaderReflection
   Camera
   InputAssembler
+  DepthTest
   )

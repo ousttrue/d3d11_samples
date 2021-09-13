@@ -106,7 +106,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         assert(false);
       }
 
-      if (!render_target.create(device, backbuffer, false)) {
+      if (!render_target.create_rtv(device, backbuffer)) {
         assert(false);
       }
     }

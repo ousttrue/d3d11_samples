@@ -103,6 +103,16 @@
             "args": [
                 "samples/InputAssembler/ia.hlsl"
             ],
+        },
+        {
+            "name": "DepthTest",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/DepthTest.exe",
+            "args": [
+                "samples/DepthTest/depth.hlsl"
+            ],
         }
     ]
 }

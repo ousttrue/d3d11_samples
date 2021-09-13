@@ -1,8 +1,4 @@
-set(TARGET_NAME input_assembler)
-add_library(${TARGET_NAME} gorilla/input_assembler.cpp)
-target_include_directories(${TARGET_NAME} PUBLIC .)
-
-set(TARGET_NAME InputAssembler)
+set(TARGET_NAME DepthTest)
 add_executable(${TARGET_NAME} WIN32 main.cpp)
 target_link_libraries(
   ${TARGET_NAME}
