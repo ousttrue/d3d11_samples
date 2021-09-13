@@ -68,46 +68,51 @@ RenderTerget を作ったのでクリアできるようになった。</p>
         <span class="n">_dsv</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="n">D3D11_CLEAR_DEPTH</span> <span class="o">|</span> <span class="n">D3D11_CLEAR_STENCIL</span><span class="p">,</span> <span class="n">clearDepth</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
   <span class="p">}</span>
 <span class="p">}</span>
-<span class="kt">bool</span> <span class="n">RenderTarget</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Device</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">device</span><span class="p">,</span>
-                          <span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Texture2D</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">texture</span><span class="p">,</span>
-                          <span class="kt">bool</span> <span class="n">create_dsv</span><span class="p">)</span> <span class="p">{</span>
+
+<span class="kt">bool</span> <span class="n">RenderTarget</span><span class="o">::</span><span class="n">create_rtv</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Device</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">device</span><span class="p">,</span>
+                              <span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Texture2D</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">texture</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateRenderTargetView</span><span class="p">(</span><span class="n">texture</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="k">nullptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_rtv</span><span class="p">);</span>
   <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
   <span class="p">}</span>
 
-  <span class="k">if</span> <span class="p">(</span><span class="n">create_dsv</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">D3D11_TEXTURE2D_DESC</span> <span class="n">tdesc</span><span class="p">;</span>
-    <span class="n">texture</span><span class="o">-&gt;</span><span class="n">GetDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tdesc</span><span class="p">);</span>
+  <span class="n">texture</span><span class="o">-&gt;</span><span class="n">GetDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_desc</span><span class="p">);</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
 
-    <span class="n">D3D11_TEXTURE2D_DESC</span> <span class="n">depthDesc</span><span class="p">;</span>
-    <span class="n">ZeroMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">depthDesc</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">depthDesc</span><span class="p">));</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">Width</span> <span class="o">=</span> <span class="n">tdesc</span><span class="p">.</span><span class="n">Width</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">Height</span> <span class="o">=</span> <span class="n">tdesc</span><span class="p">.</span><span class="n">Height</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">MipLevels</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">ArraySize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">Format</span> <span class="o">=</span> <span class="n">DXGI_FORMAT_D24_UNORM_S8_UINT</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Quality</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">Usage</span> <span class="o">=</span> <span class="n">D3D11_USAGE_DEFAULT</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">BindFlags</span> <span class="o">=</span> <span class="n">D3D11_BIND_DEPTH_STENCIL</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">CPUAccessFlags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">depthDesc</span><span class="p">.</span><span class="n">MiscFlags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateTexture2D</span><span class="p">(</span><span class="o">&amp;</span><span class="n">depthDesc</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_depthStencil</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="kt">bool</span> <span class="n">RenderTarget</span><span class="o">::</span><span class="n">create_dsv</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Device</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">device</span><span class="p">)</span> <span class="p">{</span>
 
-    <span class="n">D3D11_DEPTH_STENCIL_VIEW_DESC</span> <span class="n">dsvDesc</span><span class="p">;</span>
-    <span class="n">ZeroMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsvDesc</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">dsvDesc</span><span class="p">));</span>
-    <span class="n">dsvDesc</span><span class="p">.</span><span class="n">Format</span> <span class="o">=</span> <span class="n">depthDesc</span><span class="p">.</span><span class="n">Format</span><span class="p">;</span>
-    <span class="n">dsvDesc</span><span class="p">.</span><span class="n">ViewDimension</span> <span class="o">=</span> <span class="n">D3D11_DSV_DIMENSION_TEXTURE2DMS</span><span class="p">;</span>
-    <span class="n">dsvDesc</span><span class="p">.</span><span class="n">Texture2D</span><span class="p">.</span><span class="n">MipSlice</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateDepthStencilView</span><span class="p">(</span><span class="n">_depthStencil</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">dsvDesc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_dsv</span><span class="p">);</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
-    <span class="p">}</span>
+  <span class="n">D3D11_TEXTURE2D_DESC</span> <span class="n">depthDesc</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">Width</span> <span class="o">=</span> <span class="n">_desc</span><span class="p">.</span><span class="n">Width</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">Height</span> <span class="o">=</span> <span class="n">_desc</span><span class="p">.</span><span class="n">Height</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">MipLevels</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">ArraySize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">Format</span> <span class="o">=</span> <span class="n">DXGI_FORMAT_D24_UNORM_S8_UINT</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Quality</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">Usage</span> <span class="o">=</span> <span class="n">D3D11_USAGE_DEFAULT</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">BindFlags</span> <span class="o">=</span> <span class="n">D3D11_BIND_DEPTH_STENCIL</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">CPUAccessFlags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">MiscFlags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateTexture2D</span><span class="p">(</span><span class="o">&amp;</span><span class="n">depthDesc</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_depthStencil</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
   <span class="p">}</span>
+
+  <span class="n">D3D11_DEPTH_STENCIL_VIEW_DESC</span> <span class="n">dsvDesc</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="n">dsvDesc</span><span class="p">.</span><span class="n">Format</span> <span class="o">=</span> <span class="n">depthDesc</span><span class="p">.</span><span class="n">Format</span><span class="p">;</span>
+  <span class="n">dsvDesc</span><span class="p">.</span><span class="n">ViewDimension</span> <span class="o">=</span> <span class="n">D3D11_DSV_DIMENSION_TEXTURE2DMS</span><span class="p">;</span>
+  <span class="n">dsvDesc</span><span class="p">.</span><span class="n">Texture2D</span><span class="p">.</span><span class="n">MipSlice</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateDepthStencilView</span><span class="p">(</span><span class="n">_depthStencil</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">dsvDesc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_dsv</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">D3D11_DEPTH_STENCIL_DESC</span> <span class="n">dssDesc</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+  <span class="n">dssDesc</span><span class="p">.</span><span class="n">DepthEnable</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="n">dssDesc</span><span class="p">.</span><span class="n">DepthFunc</span> <span class="o">=</span> <span class="n">D3D11_COMPARISON_LESS_EQUAL</span><span class="p">;</span>
+  <span class="n">dssDesc</span><span class="p">.</span><span class="n">DepthWriteMask</span> <span class="o">=</span> <span class="n">D3D11_DEPTH_WRITE_MASK_ALL</span><span class="p">;</span>
+  <span class="n">dssDesc</span><span class="p">.</span><span class="n">StencilEnable</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
 
   <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
 <span class="p">}</span>
@@ -116,7 +121,9 @@ RenderTerget を作ったのでクリアできるようになった。</p>
                          <span class="kt">int</span> <span class="n">h</span><span class="p">)</span> <span class="p">{</span>
   <span class="c1">// set backbuffer &amp; depthbuffer</span>
   <span class="n">ID3D11RenderTargetView</span> <span class="o">*</span><span class="n">rtv_list</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="n">_rtv</span><span class="p">.</span><span class="n">Get</span><span class="p">()};</span>
-  <span class="n">context</span><span class="o">-&gt;</span><span class="n">OMSetRenderTargets</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rtv_list</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">);</span>
+  <span class="n">context</span><span class="o">-&gt;</span><span class="n">OMSetRenderTargets</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rtv_list</span><span class="p">,</span> <span class="n">_dsv</span><span class="p">.</span><span class="n">Get</span><span class="p">());</span>
+  <span class="n">context</span><span class="o">-&gt;</span><span class="n">OMSetDepthStencilState</span><span class="p">(</span><span class="n">_dss</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+
   <span class="n">D3D11_VIEWPORT</span> <span class="n">viewports</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{{</span><span class="mi">0</span><span class="p">}};</span>
   <span class="n">viewports</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">TopLeftX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
   <span class="n">viewports</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">TopLeftY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
