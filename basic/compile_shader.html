@@ -91,6 +91,12 @@
   <span class="k">return</span> <span class="n">buffer</span><span class="p">.</span><span class="n">str</span><span class="p">();</span>
 <span class="p">}</span>
 
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">read_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">dir</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">ss</span><span class="p">;</span>
+  <span class="n">ss</span> <span class="o">&lt;&lt;</span> <span class="n">dir</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;/&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">src</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">ss</span><span class="p">.</span><span class="n">str</span><span class="p">());</span>
+<span class="p">}</span>
+
 <span class="p">}</span> <span class="c1">// namespace gorilla</span>
 </pre></div>
 </div>

@@ -52,28 +52,6 @@
 <h1>InputAssembler<a class="headerlink" href="#inputassembler" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>頂点バッファを使う。
 <code class="docutils literal notranslate"><span class="pre">VertexShader</span></code> =&gt; <code class="docutils literal notranslate"><span class="pre">PixelShader</span></code> とデータが流れる。</p>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">../../samples/InputAssembler/ia.hlsl</span><a class="headerlink" href="#id2" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-hlsl notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">VS_IN</span> <span class="p">{</span>
-  <span class="kt">float2</span> <span class="n">Position</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
-<span class="p">};</span>
-
-<span class="k">struct</span> <span class="n">PS_IN</span> <span class="p">{</span>
-  <span class="kt">float4</span> <span class="n">Position</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
-<span class="p">};</span>
-
-<span class="k">row_major</span> <span class="kt">matrix</span> <span class="n">MVP</span><span class="p">;</span>
-
-<span class="n">PS_IN</span> <span class="n">vsMain</span><span class="p">(</span><span class="n">VS_IN</span> <span class="n">input</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">PS_IN</span> <span class="n">Output</span><span class="p">;</span>
-  <span class="n">Output</span><span class="p">.</span><span class="n">Position</span> <span class="o">=</span> <span class="nb">mul</span><span class="p">(</span><span class="kt">float4</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">Position</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">MVP</span><span class="p">);</span>
-  <span class="k">return</span> <span class="n">Output</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="kt">float4</span> <span class="n">psMain</span><span class="p">(</span><span class="n">PS_IN</span> <span class="n">input</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span> <span class="p">{</span> <span class="k">return</span> <span class="kt">float4</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span> <span class="p">}</span>
-</pre></div>
-</div>
-</div>
 <section id="id1">
 <h2>頂点レイアウト<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 </section>
