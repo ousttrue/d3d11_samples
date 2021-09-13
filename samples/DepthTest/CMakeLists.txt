@@ -10,4 +10,5 @@ target_link_libraries(
           render_target
           orbit_camera
           constant_buffer
-          input_assembler)
+          input_assembler
+          asset)

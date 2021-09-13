@@ -37,4 +37,10 @@ std::string read_file(std::string_view src) {
   return buffer.str();
 }
 
+std::string read_file(std::string_view dir, std::string_view src) {
+  std::stringstream ss;
+  ss << dir << "/" << src;
+  return read_file(ss.str());
+}
+
 } // namespace gorilla

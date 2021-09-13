@@ -1,5 +1,6 @@
 #include <DirectXMath.h>
 #include <assert.h>
+#include <gorilla/asset.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
 #include <gorilla/orbit_camera.h>
@@ -16,7 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  std::string shader = gorilla::read_file(lpCmdLine);
+  auto shader = gorilla::assets::get_shader("mvp.hlsl");
   if (shader.empty()) {
     return 7;
   }

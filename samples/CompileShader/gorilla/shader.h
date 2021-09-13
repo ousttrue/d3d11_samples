@@ -31,4 +31,6 @@ compile_gs(const char *name, std::string_view source, const char *entry_point,
 
 std::string read_file(std::string_view path);
 
+std::string read_file(std::string_view dir, std::string_view path);
+
 } // namespace gorilla

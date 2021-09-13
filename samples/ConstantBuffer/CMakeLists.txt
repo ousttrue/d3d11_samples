@@ -12,4 +12,5 @@ target_link_libraries(
           pipeline
           render_target
           shader_reflection
-          constant_buffer)
+          constant_buffer
+          asset)

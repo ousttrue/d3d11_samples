@@ -1,5 +1,6 @@
 #include <DirectXMath.h>
 #include <assert.h>
+#include <gorilla/asset.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
 #include <gorilla/input_assembler.h>
@@ -86,7 +87,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  std::string shader = gorilla::read_file(lpCmdLine);
+  auto shader = gorilla::assets::get_shader("depth.hlsl");
   if (shader.empty()) {
     return 1;
   }

@@ -10,7 +10,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/CreateWindow.exe",
-            "args": [],
         },
         {
             "name": "CreateDevice",
@@ -18,7 +17,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/CreateDevice.exe",
-            "args": [],
         },
         {
             "name": "CreateSwapChain",
@@ -26,7 +24,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/CreateSwapChain.exe",
-            "args": [],
         },
         {
             "name": "RenderTarget",
@@ -34,7 +31,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/RenderTarget.exe",
-            "args": [],
         },
         {
             "name": "CompileShader",
@@ -42,7 +38,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/CompileShader.exe",
-            "args": [],
             "console": "integratedTerminal"
         },
         {
@@ -51,9 +46,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/BasicPipeline.exe",
-            "args": [
-                "samples/BasicPipeline/basic.hlsl"
-            ],
         },
         {
             "name": "ShaderReflection",
@@ -61,7 +53,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/ShaderReflection.exe",
-            "args": [],
             "console": "integratedTerminal"
         },
         {
@@ -70,9 +61,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/ConstantBuffer.exe",
-            "args": [
-                "samples/ConstantBuffer/constant.hlsl"
-            ],
         },
         {
             "name": "Texture",
@@ -80,9 +68,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/Texture.exe",
-            "args": [
-                "samples/Texture/texture.hlsl"
-            ],
         },
         {
             "name": "Camera",
@@ -90,9 +75,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/Camera.exe",
-            "args": [
-                "samples/Camera/mvp.hlsl"
-            ],
         },
         {
             "name": "InputAssembler",
@@ -100,9 +82,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/InputAssembler.exe",
-            "args": [
-                "samples/InputAssembler/ia.hlsl"
-            ],
         },
         {
             "name": "DepthTest",
@@ -110,9 +89,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/DepthTest.exe",
-            "args": [
-                "samples/DepthTest/depth.hlsl"
-            ],
         }
     ]
 }

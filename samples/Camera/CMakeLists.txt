@@ -13,4 +13,5 @@ target_link_libraries(
   render_target
   constant_buffer
   orbit_camera
+  asset
   )

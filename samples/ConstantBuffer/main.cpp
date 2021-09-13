@@ -1,5 +1,6 @@
 #include <DirectXMath.h>
 #include <assert.h>
+#include <gorilla/asset.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
 #include <gorilla/pipeline.h>
@@ -16,7 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  std::string shader = gorilla::read_file(lpCmdLine);
+  auto shader = gorilla::assets::get_shader("constant.hlsl");
   if (shader.empty()) {
     return 7;
   }
@@ -66,11 +67,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     return 6;
   }
-  gorilla::ShaderVariables ps_slots;
-  if (!ps_slots.reflect(ps)) {
+  gorilla::ShaderVariables gs_slots;
+  if (!gs_slots.reflect(gs)) {
     return 7;
   }
-  assert(ps_slots.cb_slots.size() == 1);
+  assert(gs_slots.cb_slots.size() == 1);
   UINT cb_slot = 0;
 
   DirectX::XMFLOAT4 xywh;

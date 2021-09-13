@@ -5,4 +5,4 @@
 
 set(TARGET_NAME Texture)
 add_executable(${TARGET_NAME} WIN32 main.cpp)
-target_link_libraries(${TARGET_NAME} window device swapchain pipeline render_target shader_reflection)
+target_link_libraries(${TARGET_NAME} window device swapchain pipeline render_target shader_reflection asset)

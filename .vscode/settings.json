@@ -15,7 +15,9 @@
         "xloctime": "cpp",
         "xutility": "cpp",
         "vector": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "xiosbase": "cpp",
+        "xhash": "cpp"
     },
     "cSpell.words": [
         "DXGI"
