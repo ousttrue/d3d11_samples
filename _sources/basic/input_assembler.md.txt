@@ -3,7 +3,7 @@
 頂点バッファを使う。
 `VertexShader` => `PixelShader` とデータが流れる。
 
-```{literalinclude} ../../samples/InputAssembler/ia.hlsl
+```{literalinclude} ../../assets/ia.hlsl
 :language: hlsl
 :caption:
 ```
