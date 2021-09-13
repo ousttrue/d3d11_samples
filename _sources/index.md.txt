@@ -2,8 +2,6 @@
 
 d3d11 の備忘録。
 
-* <https://docs.microsoft.com/en-us/windows/win32/direct3d11/atoc-dx-graphics-direct3d-11>
-
 ## Source
 
 ```{toctree}
@@ -30,6 +28,11 @@ basic/input_assembler
 ```{toctree}
 three_d/orbit_camera
 ```
+
+# 参考
+
+* <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>
+* <https://tositeru.github.io/ImasaraDX11/>
 
 # Indices and tables
 
