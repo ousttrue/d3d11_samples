@@ -20,7 +20,7 @@ Sahder を使う最小構成。
 
 ## GeometryShader
 
-```{literalinclude} ../../samples/BasicPipeline/basic.hlsl
+```{literalinclude} ../../assets/basic.hlsl
 :caption:
 :language: hlsl
 :emphasize-lines: 15-16,19-20,23-24
