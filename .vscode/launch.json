@@ -91,6 +91,14 @@
             "program": "${workspaceFolder}/build/Debug/bin/DepthTest.exe",
         },
         {
+            "name": "ImageLoader",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/ImageLoader.exe",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "GltfLoader",
             "type": "cppvsdbg",
             "request": "launch",

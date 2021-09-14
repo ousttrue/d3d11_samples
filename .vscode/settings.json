@@ -17,7 +17,8 @@
         "vector": "cpp",
         "functional": "cpp",
         "xiosbase": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "atomic": "cpp"
     },
     "cSpell.words": [
         "DXGI",

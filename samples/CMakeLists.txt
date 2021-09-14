@@ -12,6 +12,7 @@ subdirs(
   InputAssembler
   DepthTest
   #
+  ImageLoader
   GltfLoader
   GltfMesh
   GltfBaseColorTexture

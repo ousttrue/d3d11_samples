@@ -16,29 +16,29 @@ struct GS_OUTPUT {
 
   // 0
   element.position = float4(-1, -1, 0, 1);
-  element.uv = float2(0, 0);
+  element.uv = float2(0, 1);
   output.Append(element);
   // 1
   element.position = float4(-1, 1, 0, 1);
-  element.uv = float2(0, 1);
+  element.uv = float2(0, 0);
   output.Append(element);
   // 2
   element.position = float4(1, 1, 0, 1);
-  element.uv = float2(1, 1);
+  element.uv = float2(1, 0);
   output.Append(element);
   output.RestartStrip();
 
   // 3
   element.position = float4(1, 1, 0, 1);
-  element.uv = float2(1, 1);
+  element.uv = float2(1, 0);
   output.Append(element);
   // 4
   element.position = float4(1, -1, 0, 1);
-  element.uv = float2(1, 0);
+  element.uv = float2(1, 1);
   output.Append(element);
   // 5
   element.position = float4(-1, -1, 0, 1);
-  element.uv = float2(0, 0);
+  element.uv = float2(0, 1);
   output.Append(element);
   output.RestartStrip();
 
