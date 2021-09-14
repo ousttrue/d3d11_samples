@@ -18,10 +18,23 @@ class InputAssembler {
 public:
   bool create_vertices(const ComPtr<ID3D11Device> &device,
                        const ComPtr<ID3D11InputLayout> &input_layout,
-                       const void *p, UINT size, UINT count);
+                       const void *p, size_t size, size_t count);
+
+  template <typename T>
+  bool create_vertices(const ComPtr<ID3D11Device> &device,
+                       const ComPtr<ID3D11InputLayout> &input_layout,
+                       const T *p, size_t count) {
+    return create_vertices(device, input_layout, p, sizeof(T) * count, count);
+  }
 
   bool create_indices(const ComPtr<ID3D11Device> &device, const void *p,
-                      UINT size, UINT count);
+                      size_t size, size_t count);
+
+  template <typename T>
+  bool create_indices(const ComPtr<ID3D11Device> &device, const T *p,
+                      size_t count) {
+    return create_indices(device, p, sizeof(T) * count, count);
+  }
 
   void draw(const ComPtr<ID3D11DeviceContext> &context);
 };

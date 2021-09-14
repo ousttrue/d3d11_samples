@@ -27,7 +27,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  auto shader = gorilla::assets::get_shader("ia.hlsl");
+  auto shader = gorilla::assets::get_string("ia.hlsl");
   if (shader.empty()) {
     return 1;
   }

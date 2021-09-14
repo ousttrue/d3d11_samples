@@ -11,4 +11,7 @@ subdirs(
   Camera
   InputAssembler
   DepthTest
+  #
+  GltfLoader
+  GltfMesh
   )

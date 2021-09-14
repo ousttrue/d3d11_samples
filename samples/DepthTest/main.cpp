@@ -87,7 +87,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  auto shader = gorilla::assets::get_shader("depth.hlsl");
+  auto shader = gorilla::assets::get_string("depth.hlsl");
   if (shader.empty()) {
     return 1;
   }

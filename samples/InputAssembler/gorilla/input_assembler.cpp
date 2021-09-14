@@ -4,11 +4,11 @@ namespace gorilla {
 
 bool InputAssembler::create_vertices(
     const ComPtr<ID3D11Device> &device,
-    const ComPtr<ID3D11InputLayout> &input_layout, const void *p, UINT size,
-    UINT count) {
+    const ComPtr<ID3D11InputLayout> &input_layout, const void *p, size_t size,
+    size_t count) {
 
   D3D11_BUFFER_DESC desc = {0};
-  desc.ByteWidth = size;
+  desc.ByteWidth = static_cast<UINT>(size);
   desc.Usage = D3D11_USAGE_DEFAULT;
   desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
   desc.CPUAccessFlags = 0;
@@ -21,16 +21,16 @@ bool InputAssembler::create_vertices(
     return false;
   }
   _input_layout = input_layout;
-  _vertex_count = count;
-  _strides[0] = size / count;
+  _vertex_count = static_cast<UINT>(count);
+  _strides[0] = static_cast<UINT>(size / count);
 
   return true;
 }
 
 bool InputAssembler::create_indices(const ComPtr<ID3D11Device> &device,
-                                    const void *p, UINT size, UINT count) {
+                                    const void *p, size_t size, size_t count) {
   D3D11_BUFFER_DESC desc = {0};
-  desc.ByteWidth = size;
+  desc.ByteWidth = static_cast<UINT>(size);
   desc.Usage = D3D11_USAGE_DEFAULT;
   desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
   desc.CPUAccessFlags = 0;
@@ -42,7 +42,7 @@ bool InputAssembler::create_indices(const ComPtr<ID3D11Device> &device,
   if (FAILED(hr)) {
     return false;
   }
-  _index_count = count;
+  _index_count = static_cast<UINT>(count);
 
   switch (size / count) {
   case 1:

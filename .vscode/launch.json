@@ -89,6 +89,21 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/DepthTest.exe",
-        }
+        },
+        {
+            "name": "GltfLoader",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/GltfLoader.exe",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "GltfMesh",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/GltfMesh.exe",
+        },
     ]
 }

@@ -15,7 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  auto shader = gorilla::assets::get_shader("basic.hlsl");
+  auto shader = gorilla::assets::get_string("basic.hlsl");
   if (shader.empty()) {
     return 7;
   }

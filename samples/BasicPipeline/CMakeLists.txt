@@ -1,5 +1,6 @@
 set(TARGET_NAME asset)
 add_library(${TARGET_NAME} gorilla/asset.cpp)
+target_include_directories(${TARGET_NAME} PUBLIC .)
 
 set(TARGET_NAME pipeline)
 add_library(${TARGET_NAME} gorilla/pipeline.cpp)

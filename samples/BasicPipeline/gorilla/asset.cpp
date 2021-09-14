@@ -1,4 +1,5 @@
 #include "asset.h"
+#include <assert.h>
 #include <filesystem>
 #include <fstream>
 #include <unordered_map>
@@ -10,10 +11,15 @@ struct Asset {
   std::string_view string_view() const {
     return std::string_view((char *)bytes.data(), bytes.size());
   }
+
+  template <typename T> std::span<T> span() const {
+    assert(bytes.size() % sizeof(T) == 0);
+    return std::span<T>((T *)bytes.data(), bytes.size() / sizeof(T));
+  }
 };
 
 class Database {
-  std::filesystem::path _root;
+  const std::filesystem::path _root;
 
   std::list<Asset> _assets;
   std::unordered_map<std::string_view, Asset *> _map;
@@ -23,6 +29,11 @@ public:
   Database(const std::filesystem::path &root) : _root(root) {}
   Database(const Database &) = delete;
   Database &operator=(const Database &) = delete;
+
+  std::filesystem::path get_full(std::string_view key) const {
+    auto item = _root;
+    return item.append(key);
+  }
 
   bool try_get(std::string_view key, Asset **asset) {
     if (key.empty()) {
@@ -35,7 +46,7 @@ public:
       return true;
     }
 
-    std::ifstream is(_root.append(key), std::ios::binary);
+    std::ifstream is(get_full(key), std::ios::binary);
     if (!is) {
       return false;
     }
@@ -65,14 +76,23 @@ Database &get_or_default() {
 
 namespace gorilla::assets {
 
-std::string_view get_shader(std::string_view file) {
+std::string_view get_string(std::string_view key) {
 
   auto &db = get_or_default();
   Asset *asset;
-  if (!db.try_get(file, &asset)) {
+  if (!db.try_get(key, &asset)) {
     return {};
   }
   return asset->string_view();
 }
 
-} // namespace gorilla
+std::span<uint8_t> get_bytes(std::string_view key) {
+  auto &db = get_or_default();
+  Asset *asset;
+  if (!db.try_get(key, &asset)) {
+    return {};
+  }
+  return asset->span<uint8_t>();
+}
+
+} // namespace gorilla::assets
