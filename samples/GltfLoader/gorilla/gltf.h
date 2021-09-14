@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include <span>
 #include <stdint.h>
 #include <string_view>
@@ -116,6 +117,27 @@ struct float4 {
   float w;
 };
 
+enum class ImageType {
+  Unknown,
+  Png,
+  Jpg,
+};
+
+struct Texture {
+  ImageType type = ImageType::Unknown;
+  std::span<uint8_t> bytes;
+};
+
+struct Material {
+  std::optional<uint32_t> base_color_texture_index;
+};
+
+struct SubMesh {
+  uint32_t offset = 0;
+  uint32_t draw_count = 0;
+  std::optional<uint32_t> material_index;
+};
+
 struct Mesh {
   struct Vertex {
     float3 position;
@@ -124,11 +146,22 @@ struct Mesh {
 
   std::vector<Vertex> vertices;
   std::vector<Index> indices;
+  std::vector<SubMesh> submeshes;
 };
 
 struct GltfLoader {
+  std::string json;
+  std::vector<uint8_t> bin;
+  std::vector<Texture> textures;
+  std::vector<Material> materials;
   std::vector<Mesh> meshes;
-  bool load(std::string_view json, std::span<const uint8_t> bin);
+
+  GltfLoader(std::string_view json, std::span<const uint8_t> bin)
+  : json(json), bin(bin.begin(), bin.end())
+  {
+  }
+
+  bool load();
 };
 
 } // namespace gorilla::gltf

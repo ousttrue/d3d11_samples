@@ -105,5 +105,12 @@
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/GltfMesh.exe",
         },
+        {
+            "name": "GltfBaseColorTexture",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/GltfBaseColorTexture.exe",
+        },
     ]
 }

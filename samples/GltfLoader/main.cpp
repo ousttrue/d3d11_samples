@@ -14,8 +14,8 @@ int main(int argc, char **argv) {
     return 2;
   }
 
-  gorilla::gltf::GltfLoader loader;
-  if(!loader.load(glb.json, glb.bin))
+  gorilla::gltf::GltfLoader loader(glb.json, glb.bin);
+  if(!loader.load())
   {
     return 3;
   }

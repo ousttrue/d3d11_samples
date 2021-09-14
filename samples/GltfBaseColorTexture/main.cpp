@@ -43,11 +43,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 4;
   }
 
-
   auto shader = gorilla::assets::get_string("gltf.hlsl");
   if (shader.empty()) {
     return 1;
   }
+
   // setup pipeline
   gorilla::Pipeline pipeline;
   auto [compiled, vserror] =
@@ -71,7 +71,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   auto bytes = gorilla::assets::get_bytes(
-      "glTF-Sample-Models/2.0/Box/glTF-Binary/Box.glb");
+      "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb");
   if (bytes.empty()) {
     return 10;
   }

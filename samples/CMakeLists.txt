@@ -14,4 +14,5 @@ subdirs(
   #
   GltfLoader
   GltfMesh
+  GltfBaseColorTexture
   )
