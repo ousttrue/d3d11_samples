@@ -12,4 +12,6 @@ target_link_libraries(
           constant_buffer
           input_assembler
           asset
-          gltf)
+          gltf
+          texture
+          image)

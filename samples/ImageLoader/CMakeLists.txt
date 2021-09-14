@@ -15,4 +15,6 @@ target_link_libraries(
           shader
           shader_reflection
           pipeline
-          image)
+          texture
+          image
+          )

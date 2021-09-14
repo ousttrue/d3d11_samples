@@ -4,6 +4,7 @@
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
 #include <gorilla/gltf.h>
+#include <gorilla/image.h>
 #include <gorilla/input_assembler.h>
 #include <gorilla/orbit_camera.h>
 #include <gorilla/pipeline.h>
@@ -11,6 +12,7 @@
 #include <gorilla/shader.h>
 #include <gorilla/shader_reflection.h>
 #include <gorilla/swapchain.h>
+#include <gorilla/texture.h>
 #include <gorilla/window.h>
 #include <iostream>
 
@@ -69,9 +71,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     return 7;
   }
+  gorilla::ShaderVariables ps_slots;
+  if (!ps_slots.reflect(ps)) {
+    return 7;
+  }
+  assert(ps_slots.sampler_slots.size() == 1);
+  assert(ps_slots.srv_slots.size() == 1);
+  UINT sampler_slot = 0;
+  UINT srv_slot = 0;
 
   auto bytes = gorilla::assets::get_bytes(
-      "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb");
+      // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
+      "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb"
+      );
   if (bytes.empty()) {
     return 10;
   }
@@ -91,6 +103,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
   if (!ia.create_indices(device, mesh.indices.data(), mesh.indices.size())) {
     return 14;
+  }
+  auto &gltf_material = loader.materials[mesh.submeshes[0].material_index.value()];
+  auto &gltf_texture = loader.textures[gltf_material.base_color_texture_index.value()];
+  gorilla::assets::Image image;
+  if (!image.load(gltf_texture.bytes)) {
+    return 9;
+  }
+  gorilla::d3d11::Texture texture;
+  if (!texture.create(device, image.data(), image.width(), image.height())) {
+    return 10;
   }
 
   gorilla::ConstantBuffer cb;
@@ -167,6 +189,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     context->RSSetState(rs.Get());
     pipeline.setup(context);
     cb.set_vs(context, cb_slot);
+    texture.set_ps(context, srv_slot, sampler_slot);
     ia.draw(context);
 
     // vsync

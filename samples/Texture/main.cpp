@@ -7,86 +7,11 @@
 #include <gorilla/shader.h>
 #include <gorilla/shader_reflection.h>
 #include <gorilla/swapchain.h>
+#include <gorilla/texture.h>
 #include <gorilla/window.h>
 #include <iostream>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-
-namespace gorilla {
-
-class Texture {
-  Microsoft::WRL::ComPtr<ID3D11Texture2D> _texture;
-  Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _srv;
-  Microsoft::WRL::ComPtr<ID3D11SamplerState> _sampler;
-
-public:
-  bool create(const ComPtr<ID3D11Device> &device, const void *p, UINT w,
-              UINT h) {
-    D3D11_TEXTURE2D_DESC desc;
-    desc.Width = w;
-    desc.Height = h;
-    desc.MipLevels = 1;
-    desc.ArraySize = 1;
-    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    desc.SampleDesc.Count = 1;
-    desc.SampleDesc.Quality = 0;
-    desc.Usage = D3D11_USAGE_DEFAULT;
-    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-    desc.CPUAccessFlags = 0;
-    desc.MiscFlags = 0;
-
-    D3D11_SUBRESOURCE_DATA initData;
-    initData.pSysMem = p;
-    initData.SysMemPitch = w * 4;
-    initData.SysMemSlicePitch = w * h * 4;
-
-    auto hr = device->CreateTexture2D(&desc, &initData, &_texture);
-    if (FAILED(hr)) {
-      return false;
-    }
-
-    D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = {};
-    SRVDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-    SRVDesc.Texture2D.MipLevels = 1;
-
-    hr = device->CreateShaderResourceView(_texture.Get(), &SRVDesc, &_srv);
-    if (FAILED(hr)) {
-      return false;
-    }
-
-    D3D11_SAMPLER_DESC samplerDesc;
-    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.MipLODBias = 0.0f;
-    samplerDesc.MaxAnisotropy = 1;
-    samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    samplerDesc.BorderColor[0] = 0;
-    samplerDesc.BorderColor[1] = 0;
-    samplerDesc.BorderColor[2] = 0;
-    samplerDesc.BorderColor[3] = 0;
-    samplerDesc.MinLOD = 0;
-    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-    // Create the texture sampler state.
-    hr = device->CreateSamplerState(&samplerDesc, &_sampler);
-    if (FAILED(hr)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  void set_ps(const ComPtr<ID3D11DeviceContext> &context, UINT srv,
-              UINT sampler) {
-    context->PSSetShaderResources(srv, 1, _srv.GetAddressOf());
-    context->PSSetSamplers(sampler, 1, _sampler.GetAddressOf());
-  }
-};
-
-} // namespace gorilla
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
@@ -171,7 +96,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       }
     }
   }
-  gorilla::Texture texture;
+  gorilla::d3d11::Texture texture;
   if (!texture.create(device, image, 256, 256)) {
     return 10;
   }

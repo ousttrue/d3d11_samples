@@ -125,7 +125,7 @@ enum class ImageType {
 
 struct Texture {
   ImageType type = ImageType::Unknown;
-  std::span<uint8_t> bytes;
+  std::span<const uint8_t> bytes;
 };
 
 struct Material {
@@ -141,6 +141,7 @@ struct SubMesh {
 struct Mesh {
   struct Vertex {
     float3 position;
+    float2 tex0;
   };
   using Index = uint32_t;
 

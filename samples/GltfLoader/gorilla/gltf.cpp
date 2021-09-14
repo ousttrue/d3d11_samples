@@ -50,7 +50,10 @@ static Texture load_texture(const nlohmann::json &gltf,
                             const nlohmann::json &gltf_texture) {
   Texture texture = {};
 
-
+  if (gltf_texture.contains("source")) {
+    int image_index = gltf_texture["source"];
+    texture.bytes = from_bufferview(gltf, bin, image_index);
+  }
 
   return texture;
 }
@@ -84,12 +87,28 @@ static Mesh load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       submesh.material_index = gltf_prim["material"];
     }
 
+    auto attributes = gltf_prim["attributes"];
+    size_t vertex_count = 0;
+
     // position
-    int position_accessor_index = gltf_prim["attributes"]["POSITION"];
-    auto position = from_accessor<float3>(gltf, bin, position_accessor_index);
-    mesh.vertices.resize(mesh.vertices.size() + position.size());
-    for (size_t i = 0; i < position.size(); ++i) {
-      mesh.vertices[vertex_offset + i].position = position[i];
+    {
+      int position_accessor_index = attributes["POSITION"];
+      auto position = from_accessor<float3>(gltf, bin, position_accessor_index);
+      vertex_count = position.size();
+      mesh.vertices.resize(mesh.vertices.size() + position.size());
+      for (size_t i = 0; i < position.size(); ++i) {
+        mesh.vertices[vertex_offset + i].position = position[i];
+      }
+    }
+
+    if (attributes.contains("TEXCOORD_0")) {
+      int tex_accessor_index = attributes["TEXCOORD_0"];
+      auto tex = from_accessor<float2>(gltf, bin, tex_accessor_index);
+      assert(tex.size() == vertex_count);
+      mesh.vertices.resize(mesh.vertices.size() + tex.size());
+      for (size_t i = 0; i < tex.size(); ++i) {
+        mesh.vertices[vertex_offset + i].tex0 = tex[i];
+      }
     }
 
     if (gltf_prim.contains("indices")) {
@@ -125,7 +144,7 @@ static Mesh load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       throw std::runtime_error("not implemented");
     }
 
-    vertex_offset += position.size();
+    vertex_offset += vertex_count;
   }
   return mesh;
 }
