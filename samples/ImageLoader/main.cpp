@@ -82,7 +82,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 9;
   }
 
-  gorilla::d3d11::Texture texture;
+  gorilla::Texture texture;
   if (!texture.create(device, image.data(), image.width(), image.height())) {
     return 10;
   }

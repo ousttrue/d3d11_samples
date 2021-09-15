@@ -96,7 +96,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       }
     }
   }
-  gorilla::d3d11::Texture texture;
+  gorilla::Texture texture;
   if (!texture.create(device, image, 256, 256)) {
     return 10;
   }

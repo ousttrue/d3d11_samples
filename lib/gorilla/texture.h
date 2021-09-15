@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-namespace gorilla::d3d11 {
+namespace gorilla {
 
 class Texture {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;

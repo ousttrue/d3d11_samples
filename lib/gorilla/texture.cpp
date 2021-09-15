@@ -1,6 +1,6 @@
 #include "texture.h"
 
-namespace gorilla::d3d11 {
+namespace gorilla {
 
 bool Texture::create(const ComPtr<ID3D11Device> &device, const void *p, UINT w,
                      UINT h) {
@@ -67,4 +67,4 @@ void Texture::set_ps(const ComPtr<ID3D11DeviceContext> &context, UINT srv,
   context->PSSetSamplers(sampler, 1, _sampler.GetAddressOf());
 }
 
-} // namespace gorilla::d3d11
+} // namespace gorilla
