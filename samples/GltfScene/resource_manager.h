@@ -1,31 +1,22 @@
 #pragma once
 #include <banana/scene.h>
 #include <d3d11.h>
+#include <gorilla/constant_buffer.h>
+#include <gorilla/input_assembler.h>
+#include <gorilla/pipeline.h>
+#include <gorilla/texture.h>
 #include <memory>
 #include <unordered_map>
 #include <wrl/client.h>
-#include <gorilla/input_assembler.h>
-#include <gorilla/pipeline.h>
-#include <gorilla/constant_buffer.h>
 
 namespace gorilla::resource {
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-class Texture {
-  // srv, sampler
-};
-
-class Material {
+struct Material {
   Pipeline pipeline;
-  // shader resource
-  std::optional<ConstantBuffer> vs_cb;
-  std::optional<ConstantBuffer> gs_cb;
-  std::optional<ConstantBuffer> ps_cb;
-  std::shared_ptr<Texture> color_texture;
-  // rasterizer state
-public:
-  void setup(const ComPtr<ID3D11DeviceContext> &context);
+  std::shared_ptr<gorilla::Texture> color_texture;
+  ComPtr<ID3D11RasterizerState> rs;
 };
 
 struct SubMesh {

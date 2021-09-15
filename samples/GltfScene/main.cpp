@@ -53,7 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   gorilla::Window window;
   auto hwnd =
-      window.create(hInstance, "WINDOW_CLASS", "InputAssembler", 320, 320);
+      window.create(hInstance, "WINDOW_CLASS", "GltfScene", 320, 320);
   if (!hwnd) {
     return 2;
   }
@@ -79,7 +79,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   auto bytes = banana::get_bytes(
       // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
       // "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb"
-      "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
+      // "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
+      "glTF-Sample-Models/2.0/CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb"
       //
   );
   if (bytes.empty()) {

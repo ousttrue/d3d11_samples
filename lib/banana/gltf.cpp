@@ -1,6 +1,7 @@
 #include "gltf.h"
 #include <DirectXMath.h>
 #include <array>
+#include <fstream>
 #include <nlohmann/json.hpp>
 
 namespace banana::gltf {
@@ -55,11 +56,15 @@ static std::shared_ptr<Image> load_texture(const nlohmann::json &gltf,
     return {};
   }
 
-  int image_index = gltf_texture["source"];
-  auto bytes = from_bufferview(gltf, bin, image_index);
+  int gltf_image_index = gltf_texture["source"];
+  auto gltf_image = gltf["images"][gltf_image_index];
+
+  int bufferview_index = gltf_image["bufferView"];
+  auto bytes = from_bufferview(gltf, bin, bufferview_index);
 
   auto image = std::make_shared<Image>();
   if (!image->load(bytes)) {
+    assert(false);
     return {};
   }
 
@@ -71,6 +76,7 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
               const nlohmann::json &gltf_material,
               const std::vector<std::shared_ptr<Image>> &textures) {
   auto material = std::make_shared<Material>();
+  material->shader_name = "gltf.hlsl";
 
   if (gltf_material.contains("pbrMetallicRoughness")) {
     auto pbrMetallicRoughness = gltf_material["pbrMetallicRoughness"];
@@ -80,6 +86,12 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
         int base_color_texture_index = baseColorTexture["index"];
         material->base_color_texture = textures[base_color_texture_index];
       }
+    }
+  }
+
+  if (gltf_material.contains("doubleSided")) {
+    if ((bool)gltf_material["doubleSided"]) {
+      throw std::runtime_error("not implemented");
     }
   }
 

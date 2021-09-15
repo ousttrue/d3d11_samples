@@ -27,9 +27,9 @@ struct Float4 {
 };
 
 struct Transform {
-  Float3 translation;
-  Float4 rotation; // quaternon
-  Float3 scaling;
+  Float3 translation = {0, 0, 0};
+  Float4 rotation = {0, 0, 0, 1}; // quaternon
+  Float3 scaling = {1, 1, 1};
 
   DirectX::XMMATRIX matrix() const {
     auto T = DirectX::XMMatrixTranslation(translation.x, translation.y,
@@ -42,6 +42,7 @@ struct Transform {
 };
 
 struct Material {
+  std::string shader_name;
   std::shared_ptr<Image> base_color_texture;
 };
 
