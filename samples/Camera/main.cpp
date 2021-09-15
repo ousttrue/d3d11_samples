@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  auto shader = banana::asset::get_string("mvp.hlsl");
+  auto shader = banana::get_string("mvp.hlsl");
   if (shader.empty()) {
     return 7;
   }

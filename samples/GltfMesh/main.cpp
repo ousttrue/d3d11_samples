@@ -1,6 +1,7 @@
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
+#include <banana/glb.h>
 #include <banana/gltf.h>
 #include <banana/orbit_camera.h>
 #include <gorilla/constant_buffer.h>
@@ -43,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 4;
   }
 
-  auto shader = banana::asset::get_string("gltf.hlsl");
+  auto shader = banana::get_string("gltf.hlsl");
   if (shader.empty()) {
     return 1;
   }
@@ -69,8 +70,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 7;
   }
 
-  auto bytes = banana::asset::get_bytes(
-      "glTF-Sample-Models/2.0/Box/glTF-Binary/Box.glb");
+  auto bytes =
+      banana::get_bytes("glTF-Sample-Models/2.0/Box/glTF-Binary/Box.glb");
   if (bytes.empty()) {
     return 10;
   }
@@ -82,13 +83,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!loader.load()) {
     return 12;
   }
-  auto &mesh = loader.meshes[0];
+  auto mesh = loader.meshes[0];
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, input_layout, mesh.vertices.data(),
-                          mesh.vertices.size())) {
+  if (!ia.create_vertices(device, input_layout, mesh->vertices)) {
     return 13;
   }
-  if (!ia.create_indices(device, mesh.indices.data(), mesh.indices.size())) {
+  if (!ia.create_indices(device, mesh->indices)) {
     return 14;
   }
 

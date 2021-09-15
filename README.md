@@ -49,6 +49,11 @@ $ pip install --upgrade myst-parser
 $ pip install sphinx-autobuild
 ```
 
+```py
+# conf.py
+extensions = ['myst_parser']
+```
+
 ### actions
 
 * [actions](./.github/workflows/sphinx.yml)

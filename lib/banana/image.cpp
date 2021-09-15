@@ -60,7 +60,7 @@ from_bytes(const ComPtr<IWICImagingFactory> &factory,
   return FC;
 }
 
-namespace banana::asset {
+namespace banana {
 
 bool Image::load(std::span<const uint8_t> bytes) {
 
@@ -110,4 +110,4 @@ bool Image::load(std::span<const uint8_t> bytes) {
   return true;
 }
 
-} // namespace banana::asset
+} // namespace banana

@@ -18,7 +18,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  auto shader = banana::asset::get_string("texture.hlsl");
+  auto shader = banana::get_string("texture.hlsl");
   if (shader.empty()) {
     return 7;
   }
@@ -76,8 +76,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UINT sampler_slot = 0;
   UINT srv_slot = 0;
 
-  auto image_bytes = banana::asset::get_bytes("image.png");
-  banana::asset::Image image;
+  auto image_bytes = banana::get_bytes("image.png");
+  banana::Image image;
   if (!image.load(image_bytes)) {
     return 9;
   }

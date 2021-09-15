@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d11.h>
+#include <vector>
 #include <wrl/client.h>
 
 namespace gorilla {
@@ -27,6 +28,14 @@ public:
     return create_vertices(device, input_layout, p, sizeof(T) * count, count);
   }
 
+  template <typename T>
+  bool create_vertices(const ComPtr<ID3D11Device> &device,
+                       const ComPtr<ID3D11InputLayout> &input_layout,
+                       const std::vector<T> &vertices) {
+    return create_vertices(device, input_layout, vertices.data(),
+                           vertices.size());
+  }
+
   bool create_indices(const ComPtr<ID3D11Device> &device, const void *p,
                       size_t size, size_t count);
 
@@ -34,6 +43,12 @@ public:
   bool create_indices(const ComPtr<ID3D11Device> &device, const T *p,
                       size_t count) {
     return create_indices(device, p, sizeof(T) * count, count);
+  }
+
+  template <typename T>
+  bool create_indices(const ComPtr<ID3D11Device> &device,
+                      const std::vector<T> &indices) {
+    return create_indices(device, indices.data(), indices.size());
   }
 
   void draw(const ComPtr<ID3D11DeviceContext> &context);

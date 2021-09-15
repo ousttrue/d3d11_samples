@@ -1,6 +1,7 @@
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
+#include <banana/glb.h>
 #include <banana/gltf.h>
 #include <banana/image.h>
 #include <banana/orbit_camera.h>
@@ -45,7 +46,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 4;
   }
 
-  auto shader = banana::asset::get_string("gltf.hlsl");
+  auto shader = banana::get_string("gltf.hlsl");
   if (shader.empty()) {
     return 1;
   }
@@ -80,7 +81,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UINT sampler_slot = 0;
   UINT srv_slot = 0;
 
-  auto bytes = banana::asset::get_bytes(
+  auto bytes = banana::get_bytes(
       // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
       "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb");
   if (bytes.empty()) {
@@ -94,25 +95,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!loader.load()) {
     return 12;
   }
-  auto &mesh = loader.meshes[0];
+  auto mesh = loader.meshes[0];
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, input_layout, mesh.vertices.data(),
-                          mesh.vertices.size())) {
+  if (!ia.create_vertices(device, input_layout, mesh->vertices)) {
     return 13;
   }
-  if (!ia.create_indices(device, mesh.indices.data(), mesh.indices.size())) {
+  if (!ia.create_indices(device, mesh->indices)) {
     return 14;
   }
-  auto &gltf_material =
-      loader.materials[mesh.submeshes[0].material_index.value()];
-  auto &gltf_texture =
-      loader.textures[gltf_material.base_color_texture_index.value()];
-  banana::asset::Image image;
-  if (!image.load(gltf_texture.bytes)) {
-    return 9;
-  }
+  auto image =mesh->submeshes[0].material->base_color_texture;
   gorilla::Texture texture;
-  if (!texture.create(device, image.data(), image.width(), image.height())) {
+  if (!texture.create(device, image->data(), image->width(), image->height())) {
     return 10;
   }
 

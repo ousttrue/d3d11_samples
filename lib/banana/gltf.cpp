@@ -45,30 +45,38 @@ static std::span<const T> from_accessor(const nlohmann::json &gltf,
   return span;
 }
 
-static Texture load_texture(const nlohmann::json &gltf,
-                            std::span<const uint8_t> bin,
-                            const nlohmann::json &gltf_texture) {
-  Texture texture = {};
+static std::shared_ptr<Image> load_texture(const nlohmann::json &gltf,
+                                           std::span<const uint8_t> bin,
+                                           const nlohmann::json &gltf_texture) {
 
-  if (gltf_texture.contains("source")) {
-    int image_index = gltf_texture["source"];
-    texture.bytes = from_bufferview(gltf, bin, image_index);
+  if (!gltf_texture.contains("source")) {
+    return {};
   }
 
-  return texture;
+  int image_index = gltf_texture["source"];
+  auto bytes = from_bufferview(gltf, bin, image_index);
+
+  auto image = std::make_shared<Image>();
+  if (!image->load(bytes)) {
+    return {};
+  }
+
+  return image;
 }
 
-static Material load_material(const nlohmann::json &gltf,
-                              std::span<const uint8_t> bin,
-                              const nlohmann::json &gltf_material) {
-  Material material = {};
+static std::shared_ptr<Material>
+load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
+              const nlohmann::json &gltf_material,
+              const std::vector<std::shared_ptr<Image>> &textures) {
+  auto material = std::make_shared<Material>();
 
   if (gltf_material.contains("pbrMetallicRoughness")) {
     auto pbrMetallicRoughness = gltf_material["pbrMetallicRoughness"];
     if (pbrMetallicRoughness.contains("baseColorTexture")) {
       auto baseColorTexture = pbrMetallicRoughness["baseColorTexture"];
       if (baseColorTexture.contains("index")) {
-        material.base_color_texture_index = baseColorTexture["index"];
+        int base_color_texture_index = baseColorTexture["index"];
+        material->base_color_texture = textures[base_color_texture_index];
       }
     }
   }
@@ -76,15 +84,18 @@ static Material load_material(const nlohmann::json &gltf,
   return material;
 }
 
-static Mesh load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
-                      const nlohmann::json &gltf_mesh) {
-  Mesh mesh;
+static std::shared_ptr<Mesh>
+load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
+          const nlohmann::json &gltf_mesh,
+          const std::vector<std::shared_ptr<Material>> &materials) {
+  auto mesh = std::make_shared<Mesh>();
   size_t vertex_offset = 0;
   size_t index_offset = 0;
   for (auto &gltf_prim : gltf_mesh["primitives"]) {
-    auto &submesh = mesh.submeshes.emplace_back(SubMesh{});
+    auto &submesh = mesh->submeshes.emplace_back(SubMesh{});
     if (gltf_prim.contains("material")) {
-      submesh.material_index = gltf_prim["material"];
+      int material_index = gltf_prim["material"];
+      submesh.material = materials[material_index];
     }
 
     auto attributes = gltf_prim["attributes"];
@@ -93,21 +104,21 @@ static Mesh load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     // position
     {
       int position_accessor_index = attributes["POSITION"];
-      auto position = from_accessor<float3>(gltf, bin, position_accessor_index);
+      auto position = from_accessor<Float3>(gltf, bin, position_accessor_index);
       vertex_count = position.size();
-      mesh.vertices.resize(mesh.vertices.size() + position.size());
+      mesh->vertices.resize(vertex_offset + position.size());
       for (size_t i = 0; i < position.size(); ++i) {
-        mesh.vertices[vertex_offset + i].position = position[i];
+        mesh->vertices[vertex_offset + i].position = position[i];
       }
     }
 
     if (attributes.contains("TEXCOORD_0")) {
       int tex_accessor_index = attributes["TEXCOORD_0"];
-      auto tex = from_accessor<float2>(gltf, bin, tex_accessor_index);
+      auto tex = from_accessor<Float2>(gltf, bin, tex_accessor_index);
       assert(tex.size() == vertex_count);
-      mesh.vertices.resize(mesh.vertices.size() + tex.size());
+      mesh->vertices.resize(vertex_offset + tex.size());
       for (size_t i = 0; i < tex.size(); ++i) {
-        mesh.vertices[vertex_offset + i].tex0 = tex[i];
+        mesh->vertices[vertex_offset + i].tex0 = tex[i];
       }
     }
 
@@ -126,9 +137,9 @@ static Mesh load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       {
         auto indices =
             from_accessor<uint16_t>(gltf, bin, indices_accessor_index);
-        mesh.indices.reserve(mesh.indices.size() + indices.size());
+        mesh->indices.reserve(index_offset + indices.size());
         for (auto &i : indices) {
-          mesh.indices.push_back(static_cast<uint32_t>(vertex_offset + i));
+          mesh->indices.push_back(static_cast<uint32_t>(vertex_offset + i));
         }
         submesh.offset = static_cast<uint32_t>(index_offset);
         submesh.draw_count = static_cast<uint32_t>(indices.size());
@@ -157,12 +168,14 @@ bool GltfLoader::load() {
   }
 
   for (auto &gltf_material : gltf["materials"]) {
-    materials.emplace_back(load_material(gltf, bin, gltf_material));
+    materials.emplace_back(load_material(gltf, bin, gltf_material, textures));
   }
 
   for (auto &gltf_mesh : gltf["meshes"]) {
-    meshes.emplace_back(load_mesh(gltf, bin, gltf_mesh));
+    meshes.emplace_back(load_mesh(gltf, bin, gltf_mesh, materials));
   }
+
+  // TODO: nodes
 
   return true;
 }

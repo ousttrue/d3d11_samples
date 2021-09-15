@@ -1,9 +1,10 @@
 #include <banana/asset.h>
 #include <banana/gltf.h>
+#include <banana/glb.h>
 
 int main(int argc, char **argv) {
 
-  auto bytes = banana::asset::get_bytes(
+  auto bytes = banana::get_bytes(
       "glTF-Sample-Models/2.0/Box/glTF-Binary/Box.glb");
   if (bytes.empty()) {
     return 1;
