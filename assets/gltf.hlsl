@@ -11,7 +11,10 @@ struct PS_IN {
   float2 Tex : TEXCOORD0;
 };
 
-row_major matrix MVP;
+cbuffer c0 {
+  row_major matrix MVP;
+  float4 BaseColor;
+}
 
 PS_IN vsMain(VS_IN In) {
   PS_IN Output;
@@ -20,4 +23,6 @@ PS_IN vsMain(VS_IN In) {
   return Output;
 }
 
-float4 psMain(PS_IN In) : SV_TARGET { return t0.Sample(s0, In.Tex); }
+float4 psMain(PS_IN In) : SV_TARGET {
+  return t0.Sample(s0, In.Tex) * BaseColor;
+}

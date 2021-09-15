@@ -43,6 +43,7 @@ struct Transform {
 
 struct Material {
   std::string shader_name;
+  Float4 base_color = {1, 1, 1, 1};
   std::shared_ptr<Image> base_color_texture;
 };
 

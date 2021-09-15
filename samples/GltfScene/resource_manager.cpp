@@ -1,7 +1,13 @@
 #include "resource_manager.h"
+#include <array>
 #include <banana/asset.h>
 #include <gorilla/input_assembler.h>
 #include <iostream>
+
+struct GltfShaderConstant {
+  std::array<float, 16> MVP;
+  std::array<float, 4> BaseColor;
+};
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -11,24 +17,45 @@ void Mesh::draw(const ComPtr<ID3D11DeviceContext> &context,
                 const DirectX::XMMATRIX &projection,
                 const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &model) {
 
+  //
+  // mesh level
+  //
+  auto VP = DirectX::XMMatrixMultiply(view, projection);
+  auto MVP = DirectX::XMMatrixMultiply(model, VP);
+  DirectX::XMFLOAT4X4 mvp;
+  DirectX::XMStoreFloat4x4(&mvp, MVP);
+
   ia.setup(context);
   for (auto &submesh : submeshes) {
+    //
+    // submesh level
+    //
     auto material = submesh.material;
-
-    // update constant buffer
-    auto VP = DirectX::XMMatrixMultiply(view, projection);
-    auto MVP = DirectX::XMMatrixMultiply(model, VP);
-    DirectX::XMFLOAT4X4 mvp;
-    DirectX::XMStoreFloat4x4(&mvp, MVP);
-    material->pipeline.vs_cb[0].update(context, mvp);
-    if (material->color_texture) {
-      material->color_texture->set_ps(context, 0, 0);
-    }
-
     material->pipeline.setup(context);
 
+    // update constant buffer
+    GltfShaderConstant constant;
+    constant.MVP = *((const std::array<float, 16> *)&mvp);
+    constant.BaseColor = material->base_color;
+    for (auto &slot : material->pipeline.vs_cb) {
+      slot.update(context, constant);
+    }
+    for (auto &slot : material->pipeline.gs_cb) {
+      slot.update(context, constant);
+    }
+    for (auto &slot : material->pipeline.ps_cb) {
+      slot.update(context, constant);
+    }
+
+    // SRV
+    if (material->base_color_texture) {
+      material->base_color_texture->set_ps(context, 0, 0);
+    }
+
+    // STATE
     context->RSSetState(material->rs.Get());
 
+    // draw submesh
     ia.draw_submesh(context, submesh.offset, submesh.draw_count);
   }
 }
@@ -95,7 +122,22 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
     return {};
   }
 
-  material->color_texture = get_or_create(device, src->base_color_texture);
+  material->base_color_texture = get_or_create(device, src->base_color_texture);
+  if (!material->base_color_texture) {
+    // default white
+    static std::shared_ptr<Texture> WHITE;
+    if (!WHITE) {
+      WHITE = std::make_shared<Texture>();
+      uint8_t white[2 * 2 * 4] = {
+          1, 1, 1, 1, //
+          1, 1, 1, 1, //
+          1, 1, 1, 1, //
+          1, 1, 1, 1, //
+      };
+      WHITE->create(device, white, 2, 2);
+    }
+    material->base_color_texture = WHITE;
+  }
 
   D3D11_RASTERIZER_DESC rs_desc = {};
   rs_desc.CullMode = D3D11_CULL_NONE;

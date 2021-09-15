@@ -8,8 +8,7 @@
 
 namespace banana::gltf {
 
-struct GltfScene
-{
+struct GltfScene {
   std::vector<std::shared_ptr<Node>> nodes;
 };
 

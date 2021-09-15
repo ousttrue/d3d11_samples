@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <banana/scene.h>
 #include <d3d11.h>
 #include <gorilla/constant_buffer.h>
@@ -15,7 +16,8 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 struct Material {
   Pipeline pipeline;
-  std::shared_ptr<gorilla::Texture> color_texture;
+  std::array<float, 4> base_color = {1, 1, 1, 1};
+  std::shared_ptr<gorilla::Texture> base_color_texture;
   ComPtr<ID3D11RasterizerState> rs;
 };
 

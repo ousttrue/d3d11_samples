@@ -8,6 +8,16 @@ namespace banana::gltf {
 
 // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/
 
+template <size_t N, typename T> T load_float_array(const nlohmann::json &j) {
+  std::array<float, N> values;
+  static_assert(sizeof(values) == sizeof(T));
+  int i = 0;
+  for (auto &e : j) {
+    values[i++] = e;
+  }
+  return *((T *)&values);
+}
+
 static std::span<const uint8_t> from_bufferview(const nlohmann::json &gltf,
                                                 std::span<const uint8_t> bin,
                                                 int bufferview_index) {
@@ -86,6 +96,10 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
         int base_color_texture_index = baseColorTexture["index"];
         material->base_color_texture = textures[base_color_texture_index];
       }
+    }
+    if (gltf_material.contains("baseColorFactor")) {
+      material->base_color =
+          load_float_array<4, Float4>(gltf_material["baseColorFactor"]);
     }
   }
 
@@ -172,16 +186,6 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     vertex_offset += vertex_count;
   }
   return mesh;
-}
-
-template <size_t N, typename T> T load_float_array(const nlohmann::json &j) {
-  std::array<float, N> values;
-  static_assert(sizeof(values) == sizeof(T));
-  int i = 0;
-  for (auto &e : j) {
-    values[i++] = e;
-  }
-  return *((T *)&values);
 }
 
 static std::shared_ptr<Node>
