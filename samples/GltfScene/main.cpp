@@ -1,3 +1,4 @@
+#include "resource_manager.h"
 #include "scene_renderer.h"
 #include <DirectXMath.h>
 #include <assert.h>
@@ -19,6 +20,31 @@
 #include <iostream>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+class SceneRenderer {
+  template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+  gorilla::resource::ResourceManager _resource_manager;
+
+public:
+  void Render(const ComPtr<ID3D11Device> &device,
+              const ComPtr<ID3D11DeviceContext> &context,
+              const DirectX::XMMATRIX &projection,
+              const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &parent,
+              const std::shared_ptr<banana::Node> &node) {
+
+    auto M = DirectX::XMMatrixMultiply(node->transform.matrix(), parent);
+
+    if (node->mesh) {
+      auto drawable = _resource_manager.get_or_create(device, node->mesh);
+      drawable->draw(context, projection, view, M);
+    }
+
+    for (auto &child : node->children) {
+      Render(device, context, projection, view, M, child);
+    }
+  }
+};
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {

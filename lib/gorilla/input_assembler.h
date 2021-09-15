@@ -7,7 +7,6 @@ namespace gorilla {
 class InputAssembler {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-  ComPtr<ID3D11InputLayout> _input_layout;
   ComPtr<ID3D11Buffer> _pVertexBuf;
   UINT _vertex_count = 0;
   UINT _strides[1] = {0};
@@ -18,21 +17,18 @@ class InputAssembler {
 
 public:
   bool create_vertices(const ComPtr<ID3D11Device> &device,
-                       const ComPtr<ID3D11InputLayout> &input_layout,
                        const void *p, size_t size, size_t count);
 
   template <typename T>
   bool create_vertices(const ComPtr<ID3D11Device> &device,
-                       const ComPtr<ID3D11InputLayout> &input_layout,
                        const T *p, size_t count) {
-    return create_vertices(device, input_layout, p, sizeof(T) * count, count);
+    return create_vertices(device, p, sizeof(T) * count, count);
   }
 
   template <typename T>
   bool create_vertices(const ComPtr<ID3D11Device> &device,
-                       const ComPtr<ID3D11InputLayout> &input_layout,
                        const std::vector<T> &vertices) {
-    return create_vertices(device, input_layout, vertices.data(),
+    return create_vertices(device, vertices.data(),
                            vertices.size());
   }
 
@@ -51,6 +47,9 @@ public:
     return create_indices(device, indices.data(), indices.size());
   }
 
+  void setup(const ComPtr<ID3D11DeviceContext> &context);
+  void draw_submesh(const ComPtr<ID3D11DeviceContext> &context, UINT offset,
+                    UINT count);
   void draw(const ComPtr<ID3D11DeviceContext> &context);
 };
 

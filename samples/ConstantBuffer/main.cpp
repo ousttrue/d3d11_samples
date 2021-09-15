@@ -53,6 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     return 4;
   }
+  assert(pipeline.vs_cb.size() == 0);
   auto [gs, gserror] = pipeline.compile_gs(device, "gs", shader, "gsMain");
   if (!gs) {
     if (gserror) {
@@ -60,6 +61,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     return 5;
   }
+  DirectX::XMFLOAT4 xywh;
+  assert(pipeline.gs_cb.size() == 1);
+  assert(pipeline.gs_cb[0].desc.ByteWidth == sizeof(xywh));
   auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
   if (!ps) {
     if (pserror) {
@@ -67,18 +71,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     return 6;
   }
-  gorilla::ShaderVariables gs_slots;
-  if (!gs_slots.reflect(gs)) {
-    return 7;
-  }
-  assert(gs_slots.cb_slots.size() == 1);
-  UINT cb_slot = 0;
-
-  DirectX::XMFLOAT4 xywh;
-  gorilla::ConstantBuffer cb;
-  if (!cb.create(device, sizeof(xywh))) {
-    return 10;
-  }
+  assert(pipeline.ps_cb.size() == 0);
 
   // main loop
   DXGI_SWAP_CHAIN_DESC desc;
@@ -119,7 +112,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     xywh.y = static_cast<float>(point.y);
     xywh.z = static_cast<float>(w);
     xywh.w = static_cast<float>(h);
-    cb.update(context, &xywh, sizeof(xywh));
+    pipeline.gs_cb[0].update(context, &xywh, sizeof(xywh));
 
     // clear RTV
     auto v =
@@ -131,7 +124,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // draw
     pipeline.setup(context);
-    cb.set_gs(context, cb_slot);
     pipeline.draw_empty(context);
 
     // vsync

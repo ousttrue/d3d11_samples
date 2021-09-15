@@ -63,10 +63,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     return 5;
   }
-  auto input_layout = gorilla::create_input_layout(device, compiled);
-  if (!input_layout) {
-    return 6;
-  }
   auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
   if (!ps) {
     if (pserror) {
@@ -76,16 +72,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, input_layout, triangle, sizeof(triangle),
+  if (!ia.create_vertices(device, triangle, sizeof(triangle),
                           _countof(triangle))) {
     return 8;
   }
 
-  gorilla::ConstantBuffer cb;
-  if (!cb.create(device, sizeof(DirectX::XMFLOAT4X4))) {
-    return 9;
-  }
-  UINT cb_slot = 0;
   banana::OrbitCamera camera;
   banana::MouseBinder binder(camera);
   window.bind_mouse(
@@ -129,7 +120,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // update
     camera.resize(static_cast<float>(w), static_cast<float>(h));
-    cb.update(context, camera.matrix());
+    pipeline.vs_cb[0].update(context, camera.matrix());
 
     // clear RTV
     auto v =
@@ -140,7 +131,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     render_target.setup(context, w, h);
 
     pipeline.setup(context);
-    cb.set_vs(context, cb_slot);
     ia.draw(context);
 
     // vsync

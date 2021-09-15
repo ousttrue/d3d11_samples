@@ -104,12 +104,12 @@ int main(int argc, char **argv) {
     }
 
     if (compiled) {
-      gorilla::ShaderVariables cb;
-      cb.reflect(compiled);
+      gorilla::ShaderVariables reflection;
+      reflection.reflect(compiled);
 
-      assert(cb.cb_slots.empty());
-      assert(cb.srv_slots.size() == 1);
-      assert(cb.sampler_slots.size() == 1);
+      assert(reflection.cb_slots.empty());
+      assert(reflection.srv_slots.size() == 1);
+      assert(reflection.sampler_slots.size() == 1);
     }
   }
 

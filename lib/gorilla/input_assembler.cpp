@@ -2,10 +2,8 @@
 
 namespace gorilla {
 
-bool InputAssembler::create_vertices(
-    const ComPtr<ID3D11Device> &device,
-    const ComPtr<ID3D11InputLayout> &input_layout, const void *p, size_t size,
-    size_t count) {
+bool InputAssembler::create_vertices(const ComPtr<ID3D11Device> &device,
+                                     const void *p, size_t size, size_t count) {
 
   D3D11_BUFFER_DESC desc = {0};
   desc.ByteWidth = static_cast<UINT>(size);
@@ -20,7 +18,7 @@ bool InputAssembler::create_vertices(
   if (FAILED(hr)) {
     return false;
   }
-  _input_layout = input_layout;
+
   _vertex_count = static_cast<UINT>(count);
   _strides[0] = static_cast<UINT>(size / count);
 
@@ -61,20 +59,33 @@ bool InputAssembler::create_indices(const ComPtr<ID3D11Device> &device,
   return true;
 }
 
-void InputAssembler::draw(const ComPtr<ID3D11DeviceContext> &context) {
-  context->IASetInputLayout(_input_layout.Get());
+void InputAssembler::setup(const ComPtr<ID3D11DeviceContext> &context) {
 
   // set vertexbuffer
   ID3D11Buffer *pBufferTbl[] = {_pVertexBuf.Get()};
   UINT OffsetTbl[] = {0};
   context->IASetVertexBuffers(0, 1, pBufferTbl, _strides, OffsetTbl);
   context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
   if (_pIndexBuf) {
     context->IASetIndexBuffer(_pIndexBuf.Get(), _index_format, 0);
-    context->DrawIndexed(_index_count, 0, 0);
+  }
+}
+
+void InputAssembler::draw_submesh(const ComPtr<ID3D11DeviceContext> &context,
+                                  UINT offset, UINT count) {
+  if (_pIndexBuf) {
+    context->DrawIndexed(count, offset, 0);
   } else {
-    context->Draw(_vertex_count, 0);
+    context->Draw(count, offset);
+  }
+}
+
+void InputAssembler::draw(const ComPtr<ID3D11DeviceContext> &context) {
+  setup(context);
+  if (_pIndexBuf) {
+    draw_submesh(context, 0, _index_count);
+  } else {
+    draw_submesh(context, 0, _vertex_count);
   }
 }
 

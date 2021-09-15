@@ -1,5 +1,6 @@
 #pragma once
 #include "image.h"
+#include <DirectXMath.h>
 #include <memory>
 #include <optional>
 #include <stdint.h>
@@ -29,6 +30,15 @@ struct Transform {
   Float3 translation;
   Float4 rotation; // quaternon
   Float3 scaling;
+
+  DirectX::XMMATRIX matrix() const {
+    auto T = DirectX::XMMatrixTranslation(translation.x, translation.y,
+                                          translation.z);
+    auto Q = DirectX::XMLoadFloat4((const DirectX::XMFLOAT4 *)&rotation);
+    auto R = DirectX::XMMatrixRotationQuaternion(Q);
+    auto S = DirectX::XMMatrixScaling(scaling.x, scaling.y, scaling.z);
+    return DirectX::XMMatrixMultiply(DirectX::XMMatrixMultiply(S, R), T);
+  }
 };
 
 struct Material {

@@ -99,6 +99,10 @@ ComPtr<ID3D11InputLayout>
 create_input_layout(const ComPtr<ID3D11Device> &device,
                     const ComPtr<ID3DBlob> &compiled) {
   auto elements = gorilla::get_elements(compiled);
+  if(elements.empty())
+  {
+    return {};
+  }
   ComPtr<ID3D11InputLayout> input_layout;
   auto hr = device->CreateInputLayout(
       elements.data(), static_cast<UINT>(elements.size()),

@@ -66,11 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     return 6;
   }
-  gorilla::ConstantBuffer cb;
-  if (!cb.create(device, sizeof(DirectX::XMFLOAT4X4))) {
-    return 7;
-  }
-  UINT cb_slot = 0;
+  
   banana::OrbitCamera camera;
   banana::MouseBinder binder(camera);
   window.bind_mouse(
@@ -114,7 +110,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // update
     camera.resize(static_cast<float>(w), static_cast<float>(h));
-    cb.update(context, camera.matrix());
+    pipeline.gs_cb[0].update(context, camera.matrix());
 
     // clear RTV
     auto v =
@@ -126,7 +122,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // draw
     pipeline.setup(context);
-    cb.set_gs(context, cb_slot);
     pipeline.draw_empty(context);
 
     // vsync
