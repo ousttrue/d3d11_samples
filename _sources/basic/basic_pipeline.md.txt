@@ -7,7 +7,7 @@ Sahder を使う最小構成。
 
 ## 頂点バッファを省略
 
-```{literalinclude} ../../samples/BasicPipeline/gorilla/pipeline.cpp
+```{literalinclude} ../../lib/gorilla/pipeline.cpp
 :caption:
 :language: cpp
 :lines: 70-74

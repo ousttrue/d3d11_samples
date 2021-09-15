@@ -7,7 +7,7 @@
 :caption:
 ```
 
-```{literalinclude} ../../samples/ConstantBuffer/gorilla/constant_buffer.cpp
+```{literalinclude} ../../lib/gorilla/constant_buffer.cpp
 :language: cpp
 :caption:
 ```
