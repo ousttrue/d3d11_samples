@@ -28,7 +28,10 @@ basic/input_assembler
 ```{toctree}
 three_d/orbit_camera
 three_d/depth_test
+three_d/scene
 ```
+
+## SceneGraph
 
 # 参考
 

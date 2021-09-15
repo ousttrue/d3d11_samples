@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Depth Test &#8212; d3d11 samples  ドキュメント</title>
+    <title>SceneGraph &#8212; d3d11 samples  ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css" />
     
@@ -19,8 +19,7 @@
     <script src="../_static/bizstyle.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
-    <link rel="next" title="SceneGraph" href="scene.html" />
-    <link rel="prev" title="Orbit Camera" href="orbit_camera.html" />
+    <link rel="prev" title="Depth Test" href="depth_test.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
@@ -33,13 +32,10 @@
           <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="scene.html" title="SceneGraph"
-             accesskey="N">次へ</a> |</li>
-        <li class="right" >
-          <a href="orbit_camera.html" title="Orbit Camera"
+          <a href="depth_test.html" title="Depth Test"
              accesskey="P">前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Depth Test</a></li> 
+        <li class="nav-item nav-item-this"><a href="">SceneGraph</a></li> 
       </ul>
     </div>  
 
@@ -48,9 +44,35 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section class="tex2jax_ignore mathjax_ignore" id="depth-test">
-<h1>Depth Test<a class="headerlink" href="#depth-test" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p>両面描画にして cube を draw することで、深度バッファが必要なシーンにしてみた。</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="scenegraph">
+<h1>SceneGraph<a class="headerlink" href="#scenegraph" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>glTF のローダーを作るので導入する。いつもの木構造。</p>
+<ul class="simple">
+<li><p>Node</p>
+<ul>
+<li><p>Transform</p>
+<ul>
+<li><p>Translation</p></li>
+<li><p>Rotation</p></li>
+<li><p>Scale</p></li>
+</ul>
+</li>
+<li><p>Mesh</p>
+<ul>
+<li><p>SubMesh[]</p>
+<ul>
+<li><p>Material</p>
+<ul>
+<li><p>Texture</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 </section>
 
 
@@ -61,15 +83,12 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>前のトピックへ</h4>
-  <p class="topless"><a href="orbit_camera.html"
-                        title="前の章へ">Orbit Camera</a></p>
-  <h4>次のトピックへ</h4>
-  <p class="topless"><a href="scene.html"
-                        title="次の章へ">SceneGraph</a></p>
+  <p class="topless"><a href="depth_test.html"
+                        title="前の章へ">Depth Test</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/three_d/depth_test.md.txt"
+      <li><a href="../_sources/three_d/scene.md.txt"
             rel="nofollow">ソースコードを表示</a></li>
     </ul>
    </div>
@@ -94,13 +113,10 @@
           <a href="../genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="scene.html" title="SceneGraph"
-             >次へ</a> |</li>
-        <li class="right" >
-          <a href="orbit_camera.html" title="Orbit Camera"
+          <a href="depth_test.html" title="Depth Test"
              >前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Depth Test</a></li> 
+        <li class="nav-item nav-item-this"><a href="">SceneGraph</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -108,10 +108,10 @@
 <span class="k">namespace</span> <span class="n">gorilla</span> <span class="p">{</span>
 
 <span class="kt">bool</span> <span class="n">ConstantBuffer</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Device</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">device</span><span class="p">,</span> <span class="n">UINT</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">_desc</span><span class="p">.</span><span class="n">ByteWidth</span> <span class="o">=</span> <span class="n">size</span><span class="p">;</span>
-  <span class="n">_desc</span><span class="p">.</span><span class="n">Usage</span> <span class="o">=</span> <span class="n">D3D11_USAGE_DEFAULT</span><span class="p">;</span>
-  <span class="n">_desc</span><span class="p">.</span><span class="n">BindFlags</span> <span class="o">=</span> <span class="n">D3D11_BIND_CONSTANT_BUFFER</span><span class="p">;</span>
-  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateBuffer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_desc</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_buffer</span><span class="p">);</span>
+  <span class="n">desc</span><span class="p">.</span><span class="n">ByteWidth</span> <span class="o">=</span> <span class="n">size</span><span class="p">;</span>
+  <span class="n">desc</span><span class="p">.</span><span class="n">Usage</span> <span class="o">=</span> <span class="n">D3D11_USAGE_DEFAULT</span><span class="p">;</span>
+  <span class="n">desc</span><span class="p">.</span><span class="n">BindFlags</span> <span class="o">=</span> <span class="n">D3D11_BIND_CONSTANT_BUFFER</span><span class="p">;</span>
+  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateBuffer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">desc</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">buffer</span><span class="p">);</span>
   <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
   <span class="p">}</span>
@@ -120,23 +120,8 @@
 
 <span class="kt">void</span> <span class="n">ConstantBuffer</span><span class="o">::</span><span class="n">update</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">,</span>
                             <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="n">UINT</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">assert</span><span class="p">(</span><span class="n">_desc</span><span class="p">.</span><span class="n">ByteWidth</span> <span class="o">==</span> <span class="n">size</span><span class="p">);</span>
-  <span class="n">context</span><span class="o">-&gt;</span><span class="n">UpdateSubresource</span><span class="p">(</span><span class="n">_buffer</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="kt">void</span> <span class="n">ConstantBuffer</span><span class="o">::</span><span class="n">set_vs</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">,</span>
-                            <span class="kt">int</span> <span class="n">slot</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">context</span><span class="o">-&gt;</span><span class="n">VSSetConstantBuffers</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_buffer</span><span class="p">.</span><span class="n">GetAddressOf</span><span class="p">());</span>
-<span class="p">}</span>
-
-<span class="kt">void</span> <span class="n">ConstantBuffer</span><span class="o">::</span><span class="n">set_gs</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">,</span>
-                            <span class="kt">int</span> <span class="n">slot</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">context</span><span class="o">-&gt;</span><span class="n">GSSetConstantBuffers</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_buffer</span><span class="p">.</span><span class="n">GetAddressOf</span><span class="p">());</span>
-<span class="p">}</span>
-
-<span class="kt">void</span> <span class="n">ConstantBuffer</span><span class="o">::</span><span class="n">set_ps</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">,</span>
-                            <span class="kt">int</span> <span class="n">slot</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">context</span><span class="o">-&gt;</span><span class="n">PSSetConstantBuffers</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_buffer</span><span class="p">.</span><span class="n">GetAddressOf</span><span class="p">());</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">desc</span><span class="p">.</span><span class="n">ByteWidth</span> <span class="o">==</span> <span class="n">size</span><span class="p">);</span>
+  <span class="n">context</span><span class="o">-&gt;</span><span class="n">UpdateSubresource</span><span class="p">(</span><span class="n">buffer</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="p">}</span> <span class="c1">// namespace gorilla</span>
