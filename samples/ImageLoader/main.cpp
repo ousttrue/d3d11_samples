@@ -1,8 +1,8 @@
 #include <DirectXMath.h>
 #include <assert.h>
-#include <gorilla/asset.h>
+#include <banana/asset.h>
 #include <gorilla/device.h>
-#include <gorilla/image.h>
+#include <banana/image.h>
 #include <gorilla/pipeline.h>
 #include <gorilla/render_target.h>
 #include <gorilla/shader.h>
@@ -18,7 +18,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  auto shader = gorilla::assets::get_string("texture.hlsl");
+  auto shader = banana::asset::get_string("texture.hlsl");
   if (shader.empty()) {
     return 7;
   }
@@ -76,8 +76,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UINT sampler_slot = 0;
   UINT srv_slot = 0;
 
-  auto image_bytes = gorilla::assets::get_bytes("image.png");
-  gorilla::assets::Image image;
+  auto image_bytes = banana::asset::get_bytes("image.png");
+  banana::asset::Image image;
   if (!image.load(image_bytes)) {
     return 9;
   }

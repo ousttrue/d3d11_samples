@@ -2,7 +2,7 @@
 #include <span>
 #include <vector>
 
-namespace gorilla::assets {
+namespace banana::asset {
 class Image {
 
   uint32_t _width = 0;
@@ -16,4 +16,4 @@ public:
 
   bool load(std::span<const uint8_t> bytes);
 };
-} // namespace gorilla::assets
+} // namespace banana::asset

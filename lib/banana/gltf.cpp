@@ -1,7 +1,7 @@
 #include "gltf.h"
 #include <nlohmann/json.hpp>
 
-namespace gorilla::gltf {
+namespace banana::gltf {
 
 // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/
 
@@ -167,4 +167,4 @@ bool GltfLoader::load() {
   return true;
 }
 
-} // namespace gorilla::gltf
+} // namespace banana::gltf

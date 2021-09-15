@@ -5,7 +5,7 @@
 #include <string_view>
 #include <vector>
 
-namespace gorilla::gltf {
+namespace banana::gltf {
 
 class ByteReader {
   const uint8_t *_p;
@@ -165,4 +165,4 @@ struct GltfLoader {
   bool load();
 };
 
-} // namespace gorilla::gltf
+} // namespace banana::gltf

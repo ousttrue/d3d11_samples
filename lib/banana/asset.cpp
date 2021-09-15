@@ -74,7 +74,7 @@ Database &get_or_default() {
   return *g_assets;
 }
 
-namespace gorilla::assets {
+namespace banana::asset {
 
 std::string_view get_string(std::string_view key) {
 
@@ -95,4 +95,4 @@ std::span<uint8_t> get_bytes(std::string_view key) {
   return asset->span<uint8_t>();
 }
 
-} // namespace gorilla::assets
+} // namespace banana::asset

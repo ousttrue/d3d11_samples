@@ -1,9 +1,9 @@
 #include <DirectXMath.h>
 #include <assert.h>
-#include <gorilla/asset.h>
+#include <banana/asset.h>
+#include <banana/orbit_camera.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
-#include <gorilla/orbit_camera.h>
 #include <gorilla/pipeline.h>
 #include <gorilla/render_target.h>
 #include <gorilla/shader.h>
@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  auto shader = gorilla::assets::get_string("mvp.hlsl");
+  auto shader = banana::asset::get_string("mvp.hlsl");
   if (shader.empty()) {
     return 7;
   }
@@ -71,15 +71,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 7;
   }
   UINT cb_slot = 0;
-  gorilla::OrbitCamera camera;
-  gorilla::MouseBinder binder(camera);
+  banana::OrbitCamera camera;
+  banana::MouseBinder binder(camera);
   window.bind_mouse(
-      std::bind(&gorilla::MouseBinder::Left, &binder, std::placeholders::_1),
-      std::bind(&gorilla::MouseBinder::Middle, &binder, std::placeholders::_1),
-      std::bind(&gorilla::MouseBinder::Right, &binder, std::placeholders::_1),
-      std::bind(&gorilla::MouseBinder::Move, &binder, std::placeholders::_1,
+      std::bind(&banana::MouseBinder::Left, &binder, std::placeholders::_1),
+      std::bind(&banana::MouseBinder::Middle, &binder, std::placeholders::_1),
+      std::bind(&banana::MouseBinder::Right, &binder, std::placeholders::_1),
+      std::bind(&banana::MouseBinder::Move, &binder, std::placeholders::_1,
                 std::placeholders::_2),
-      std::bind(&gorilla::MouseBinder::Wheel, &binder, std::placeholders::_1));
+      std::bind(&banana::MouseBinder::Wheel, &binder, std::placeholders::_1));
 
   // main loop
   DXGI_SWAP_CHAIN_DESC desc;

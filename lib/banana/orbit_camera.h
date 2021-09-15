@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include <limits>
 
-namespace gorilla {
+namespace banana {
 
 class OrbitCamera {
   float _w = 1;
@@ -83,7 +83,7 @@ struct MouseBinder {
   OrbitCamera &_camera;
 
 public:
-  MouseBinder(gorilla::OrbitCamera &camera) : _camera(camera) {}
+  MouseBinder(banana::OrbitCamera &camera) : _camera(camera) {}
   void Left(bool isPress) { _left = isPress; }
   void Middle(bool isPress) { _middle = isPress; }
   void Right(bool isPress) { _right = isPress; }
@@ -108,4 +108,4 @@ public:
   void Wheel(int d) { _camera.dolly(d); }
 };
 
-} // namespace gorilla
+} // namespace banana

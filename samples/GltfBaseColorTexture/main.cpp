@@ -1,12 +1,12 @@
 #include <DirectXMath.h>
 #include <assert.h>
-#include <gorilla/asset.h>
+#include <banana/asset.h>
+#include <banana/gltf.h>
+#include <banana/image.h>
+#include <banana/orbit_camera.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
-#include <gorilla/gltf.h>
-#include <gorilla/image.h>
 #include <gorilla/input_assembler.h>
-#include <gorilla/orbit_camera.h>
 #include <gorilla/pipeline.h>
 #include <gorilla/render_target.h>
 #include <gorilla/shader.h>
@@ -45,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 4;
   }
 
-  auto shader = gorilla::assets::get_string("gltf.hlsl");
+  auto shader = banana::asset::get_string("gltf.hlsl");
   if (shader.empty()) {
     return 1;
   }
@@ -80,18 +80,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UINT sampler_slot = 0;
   UINT srv_slot = 0;
 
-  auto bytes = gorilla::assets::get_bytes(
+  auto bytes = banana::asset::get_bytes(
       // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
-      "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb"
-      );
+      "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb");
   if (bytes.empty()) {
     return 10;
   }
-  gorilla::gltf::Glb glb;
+  banana::gltf::Glb glb;
   if (!glb.parse(bytes)) {
     return 11;
   }
-  gorilla::gltf::GltfLoader loader(glb.json, glb.bin);
+  banana::gltf::GltfLoader loader(glb.json, glb.bin);
   if (!loader.load()) {
     return 12;
   }
@@ -104,9 +103,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!ia.create_indices(device, mesh.indices.data(), mesh.indices.size())) {
     return 14;
   }
-  auto &gltf_material = loader.materials[mesh.submeshes[0].material_index.value()];
-  auto &gltf_texture = loader.textures[gltf_material.base_color_texture_index.value()];
-  gorilla::assets::Image image;
+  auto &gltf_material =
+      loader.materials[mesh.submeshes[0].material_index.value()];
+  auto &gltf_texture =
+      loader.textures[gltf_material.base_color_texture_index.value()];
+  banana::asset::Image image;
   if (!image.load(gltf_texture.bytes)) {
     return 9;
   }
@@ -120,15 +121,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 8;
   }
   UINT cb_slot = 0;
-  gorilla::OrbitCamera camera;
-  gorilla::MouseBinder binder(camera);
+  banana::OrbitCamera camera;
+  banana::MouseBinder binder(camera);
   window.bind_mouse(
-      std::bind(&gorilla::MouseBinder::Left, &binder, std::placeholders::_1),
-      std::bind(&gorilla::MouseBinder::Middle, &binder, std::placeholders::_1),
-      std::bind(&gorilla::MouseBinder::Right, &binder, std::placeholders::_1),
-      std::bind(&gorilla::MouseBinder::Move, &binder, std::placeholders::_1,
+      std::bind(&banana::MouseBinder::Left, &binder, std::placeholders::_1),
+      std::bind(&banana::MouseBinder::Middle, &binder, std::placeholders::_1),
+      std::bind(&banana::MouseBinder::Right, &binder, std::placeholders::_1),
+      std::bind(&banana::MouseBinder::Move, &binder, std::placeholders::_1,
                 std::placeholders::_2),
-      std::bind(&gorilla::MouseBinder::Wheel, &binder, std::placeholders::_1));
+      std::bind(&banana::MouseBinder::Wheel, &binder, std::placeholders::_1));
 
   ComPtr<ID3D11RasterizerState> rs;
   D3D11_RASTERIZER_DESC rs_desc = {};

@@ -1,6 +1,6 @@
 #include <DirectXMath.h>
 #include <assert.h>
-#include <gorilla/asset.h>
+#include <banana/asset.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
 #include <gorilla/pipeline.h>
@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  auto shader = gorilla::assets::get_string("constant.hlsl");
+  auto shader = banana::asset::get_string("constant.hlsl");
   if (shader.empty()) {
     return 7;
   }
