@@ -4,7 +4,7 @@
 数学ライブラリーには、 `DirectXMath` を使う。
 後で、 `glTF` をロードする予定なので、Projection には 右手系(RightHanded) を使う。
 
-```{literalinclude} ../../lib/gorilla/orbit_camera.h
+```{literalinclude} ../../lib/banana/orbit_camera.h
 :language: cpp
 :caption:
 ```

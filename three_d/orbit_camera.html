@@ -54,12 +54,12 @@
 数学ライブラリーには、 <code class="docutils literal notranslate"><span class="pre">DirectXMath</span></code> を使う。
 後で、 <code class="docutils literal notranslate"><span class="pre">glTF</span></code> をロードする予定なので、Projection には 右手系(RightHanded) を使う。</p>
 <div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">../../lib/gorilla/orbit_camera.h</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">../../lib/banana/orbit_camera.h</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
 <span class="cp">#include</span> <span class="cpf">&lt;DirectXMath.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;limits&gt;</span><span class="cp"></span>
 
-<span class="k">namespace</span> <span class="n">gorilla</span> <span class="p">{</span>
+<span class="k">namespace</span> <span class="n">banana</span> <span class="p">{</span>
 
 <span class="k">class</span> <span class="nc">OrbitCamera</span> <span class="p">{</span>
   <span class="kt">float</span> <span class="n">_w</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
@@ -140,7 +140,7 @@
   <span class="n">OrbitCamera</span> <span class="o">&amp;</span><span class="n">_camera</span><span class="p">;</span>
 
 <span class="k">public</span><span class="o">:</span>
-  <span class="n">MouseBinder</span><span class="p">(</span><span class="n">gorilla</span><span class="o">::</span><span class="n">OrbitCamera</span> <span class="o">&amp;</span><span class="n">camera</span><span class="p">)</span> <span class="o">:</span> <span class="n">_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span> <span class="p">{}</span>
+  <span class="n">MouseBinder</span><span class="p">(</span><span class="n">banana</span><span class="o">::</span><span class="n">OrbitCamera</span> <span class="o">&amp;</span><span class="n">camera</span><span class="p">)</span> <span class="o">:</span> <span class="n">_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span> <span class="p">{}</span>
   <span class="kt">void</span> <span class="n">Left</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isPress</span><span class="p">)</span> <span class="p">{</span> <span class="n">_left</span> <span class="o">=</span> <span class="n">isPress</span><span class="p">;</span> <span class="p">}</span>
   <span class="kt">void</span> <span class="n">Middle</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isPress</span><span class="p">)</span> <span class="p">{</span> <span class="n">_middle</span> <span class="o">=</span> <span class="n">isPress</span><span class="p">;</span> <span class="p">}</span>
   <span class="kt">void</span> <span class="n">Right</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isPress</span><span class="p">)</span> <span class="p">{</span> <span class="n">_right</span> <span class="o">=</span> <span class="n">isPress</span><span class="p">;</span> <span class="p">}</span>
@@ -165,7 +165,7 @@
   <span class="kt">void</span> <span class="n">Wheel</span><span class="p">(</span><span class="kt">int</span> <span class="n">d</span><span class="p">)</span> <span class="p">{</span> <span class="n">_camera</span><span class="p">.</span><span class="n">dolly</span><span class="p">(</span><span class="n">d</span><span class="p">);</span> <span class="p">}</span>
 <span class="p">};</span>
 
-<span class="p">}</span> <span class="c1">// namespace gorilla</span>
+<span class="p">}</span> <span class="c1">// namespace banana</span>
 </pre></div>
 </div>
 </div>
