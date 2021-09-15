@@ -1,6 +1,6 @@
 # CreateDevice
 
-```{literalinclude} ../../samples/CreateDevice/gorilla/device.cpp
+```{literalinclude} ../../lib/gorilla/device.cpp
 :language: cpp
 :caption:
 ```

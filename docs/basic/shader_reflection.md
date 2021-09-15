@@ -1,6 +1,6 @@
 # Shader Reflection
 
-```{literalinclude} ../../samples/ShaderReflection/gorilla/shader_reflection.cpp
+```{literalinclude} ../../lib/gorilla/shader_reflection.cpp
 :language: cpp
 :caption:
 ```
