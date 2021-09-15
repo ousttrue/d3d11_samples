@@ -34,6 +34,8 @@ public:
     calc_view();
   }
 
+  const DirectX::XMFLOAT4X4 &view() const { return _view; }
+  const DirectX::XMFLOAT4X4 &projection() const { return _projection; }
   DirectX::XMFLOAT4X4 matrix() const {
     auto V = DirectX::XMLoadFloat4x4(&_view);
     auto P = DirectX::XMLoadFloat4x4(&_projection);

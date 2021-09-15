@@ -19,7 +19,8 @@
         "xiosbase": "cpp",
         "xhash": "cpp",
         "atomic": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "sstream": "cpp"
     },
     "cSpell.words": [
         "DXGI",

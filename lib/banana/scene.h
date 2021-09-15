@@ -1,9 +1,9 @@
 #pragma once
 #include "image.h"
+#include <memory>
 #include <optional>
 #include <stdint.h>
 #include <string>
-#include <memory>
 
 namespace banana {
 
@@ -53,9 +53,19 @@ struct Mesh {
   std::vector<SubMesh> submeshes;
 };
 
-class Node {
+struct Node : std::enable_shared_from_this<Node> {
   std::string name;
   Transform transform;
+
+  std::weak_ptr<Node> parent;
+  std::vector<std::shared_ptr<Node>> children;
+
+  void add_child(const std::shared_ptr<Node> &child) {
+    child->parent = shared_from_this();
+    children.push_back(child);
+  }
+
+  std::shared_ptr<Mesh> mesh;
 };
 
 } // namespace  banana

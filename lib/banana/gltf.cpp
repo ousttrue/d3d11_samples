@@ -1,4 +1,6 @@
 #include "gltf.h"
+#include <DirectXMath.h>
+#include <array>
 #include <nlohmann/json.hpp>
 
 namespace banana::gltf {
@@ -160,22 +162,107 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
   return mesh;
 }
 
+template <size_t N, typename T> T load_float_array(const nlohmann::json &j) {
+  std::array<float, N> values;
+  static_assert(sizeof(values) == sizeof(T));
+  int i = 0;
+  for (auto &e : j) {
+    values[i++] = e;
+  }
+  return *((T *)&values);
+}
+
+static std::shared_ptr<Node>
+load_node(const nlohmann::json &gltf, std::span<const uint8_t> bin,
+          const nlohmann::json &gltf_node,
+          const std::vector<std::shared_ptr<Mesh>> &meshes) {
+
+  auto node = std::make_shared<Node>();
+
+  if (gltf_node.contains("name")) {
+    node->name = gltf_node["name"];
+  }
+
+  if (gltf_node.contains("matrix")) {
+    auto m = load_float_array<16, DirectX::XMFLOAT4X4>(gltf_node["matrix"]);
+    auto M = DirectX::XMLoadFloat4x4(&m);
+    DirectX::XMVECTOR T;
+    DirectX::XMVECTOR R;
+    DirectX::XMVECTOR S;
+    if (DirectX::XMMatrixDecompose(&S, &R, &T, M)) {
+      DirectX::XMStoreFloat3((DirectX::XMFLOAT3 *)&node->transform.translation,
+                             T);
+      DirectX::XMStoreFloat4((DirectX::XMFLOAT4 *)&node->transform.rotation, R);
+      DirectX::XMStoreFloat3((DirectX::XMFLOAT3 *)&node->transform.scaling, S);
+    } else {
+      assert(false);
+    }
+
+  } else {
+    // TRS
+    if (gltf_node.contains("translation")) {
+      node->transform.translation =
+          load_float_array<3, Float3>(gltf_node["translation"]);
+    }
+    if (gltf_node.contains("rotation")) {
+      node->transform.rotation =
+          load_float_array<4, Float4>(gltf_node["rotation"]);
+    }
+    if (gltf_node.contains("scale")) {
+      node->transform.scaling = load_float_array<3, Float3>(gltf_node["scale"]);
+    }
+  }
+
+  if (gltf_node.contains("mesh")) {
+    auto mesh_index = gltf_node["mesh"];
+    node->mesh = meshes[mesh_index];
+  }
+
+  return node;
+}
+
 bool GltfLoader::load() {
   auto gltf = nlohmann::json::parse(json);
 
   for (auto &gltf_texture : gltf["textures"]) {
-    textures.emplace_back(load_texture(gltf, bin, gltf_texture));
+    textures.push_back(load_texture(gltf, bin, gltf_texture));
   }
 
   for (auto &gltf_material : gltf["materials"]) {
-    materials.emplace_back(load_material(gltf, bin, gltf_material, textures));
+    materials.push_back(load_material(gltf, bin, gltf_material, textures));
   }
 
   for (auto &gltf_mesh : gltf["meshes"]) {
-    meshes.emplace_back(load_mesh(gltf, bin, gltf_mesh, materials));
+    meshes.push_back(load_mesh(gltf, bin, gltf_mesh, materials));
   }
 
-  // TODO: nodes
+  for (auto &gltf_node : gltf["nodes"]) {
+    nodes.push_back(load_node(gltf, bin, gltf_node, meshes));
+  }
+
+  int i = 0;
+  for (auto &gltf_node : gltf["nodes"]) {
+
+    if (gltf_node.contains("children")) {
+      for (int child_index : gltf_node["children"]) {
+        auto child = nodes[child_index];
+        auto self = nodes[i];
+        self->add_child(child);
+      }
+    }
+
+    ++i;
+  }
+
+  for (auto &gltf_scene : gltf["scenes"]) {
+    auto &scene = scenes.emplace_back(GltfScene{});
+    if (gltf_scene.contains("nodes")) {
+      for (int node_index : gltf_scene["nodes"]) {
+        auto node = nodes[node_index];
+        scene.nodes.push_back(node);
+      }
+    }
+  }
 
   return true;
 }

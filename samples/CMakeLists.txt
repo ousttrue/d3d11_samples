@@ -14,6 +14,5 @@ subdirs(
   #
   ImageLoader
   GltfLoader
-  GltfMesh
-  GltfBaseColorTexture
+  GltfScene
   )

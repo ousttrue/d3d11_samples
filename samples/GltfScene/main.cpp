@@ -1,8 +1,10 @@
+#include "scene_renderer.h"
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
 #include <banana/glb.h>
 #include <banana/gltf.h>
+#include <banana/image.h>
 #include <banana/orbit_camera.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
@@ -12,6 +14,7 @@
 #include <gorilla/shader.h>
 #include <gorilla/shader_reflection.h>
 #include <gorilla/swapchain.h>
+#include <gorilla/texture.h>
 #include <gorilla/window.h>
 #include <iostream>
 
@@ -44,34 +47,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 4;
   }
 
-  auto shader = banana::get_string("gltf.hlsl");
-  if (shader.empty()) {
-    return 1;
-  }
-  // setup pipeline
-  gorilla::Pipeline pipeline;
-  auto [compiled, vserror] =
-      pipeline.compile_vs(device, "vs", shader, "vsMain");
-  if (!compiled) {
-    if (vserror) {
-      std::cerr << (const char *)vserror->GetBufferPointer() << std::endl;
-    }
-    return 5;
-  }
-  auto input_layout = gorilla::create_input_layout(device, compiled);
-  if (!input_layout) {
-    return 6;
-  }
-  auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
-  if (!ps) {
-    if (pserror) {
-      std::cerr << (const char *)pserror->GetBufferPointer() << std::endl;
-    }
-    return 7;
-  }
-
-  auto bytes =
-      banana::get_bytes("glTF-Sample-Models/2.0/Box/glTF-Binary/Box.glb");
+  //
+  // scene
+  //
+  auto bytes = banana::get_bytes(
+      // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
+      // "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb"
+      "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
+      //
+  );
   if (bytes.empty()) {
     return 10;
   }
@@ -83,20 +67,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!loader.load()) {
     return 12;
   }
-  auto mesh = loader.meshes[0];
-  gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, input_layout, mesh->vertices)) {
-    return 13;
-  }
-  if (!ia.create_indices(device, mesh->indices)) {
-    return 14;
-  }
 
-  gorilla::ConstantBuffer cb;
-  if (!cb.create(device, sizeof(DirectX::XMFLOAT4X4))) {
-    return 8;
-  }
-  UINT cb_slot = 0;
+  auto root = loader.scenes[0].nodes[0];
+
   banana::OrbitCamera camera;
   banana::MouseBinder binder(camera);
   window.bind_mouse(
@@ -107,16 +80,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                 std::placeholders::_2),
       std::bind(&banana::MouseBinder::Wheel, &binder, std::placeholders::_1));
 
-  ComPtr<ID3D11RasterizerState> rs;
-  D3D11_RASTERIZER_DESC rs_desc = {};
-  rs_desc.CullMode = D3D11_CULL_NONE;
-  rs_desc.FillMode = D3D11_FILL_SOLID;
-  rs_desc.FrontCounterClockwise = true;
-  rs_desc.ScissorEnable = false;
-  rs_desc.MultisampleEnable = false;
-  if (FAILED(device->CreateRasterizerState(&rs_desc, &rs))) {
-    return 9;
-  }
+  SceneRenderer renderer;
 
   // main loop
   DXGI_SWAP_CHAIN_DESC desc;
@@ -153,7 +117,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // update
     camera.resize(static_cast<float>(w), static_cast<float>(h));
-    cb.update(context, camera.matrix());
 
     // clear RTV
     auto v =
@@ -163,10 +126,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     render_target.clear(context, clear);
     render_target.setup(context, w, h);
 
-    context->RSSetState(rs.Get());
-    pipeline.setup(context);
-    cb.set_vs(context, cb_slot);
-    ia.draw(context);
+    // scene
+    renderer.Render(device, context,
+                    DirectX::XMLoadFloat4x4(&camera.projection()),
+                    DirectX::XMLoadFloat4x4(&camera.view()),
+                    DirectX::XMMatrixIdentity(), root);
 
     // vsync
     context->Flush();
