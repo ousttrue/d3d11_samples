@@ -21,8 +21,8 @@
 * [ ] CubeMap
 * [ ] IBL
 * [x] AsciiTexture <https://evanw.github.io/font-texture-generator/>
-* [ ] Gizmo: Grid
-* [ ] Gizmo: drag
+* [ ] ScreenGizmo: drag
+* [x] Gizmo: Grid
 * [ ] Gizmo: wire frame
 * [ ] Gizmo: BoundingBox
 * [ ] Gizmo: T

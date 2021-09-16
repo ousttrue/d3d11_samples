@@ -77,6 +77,13 @@
             "program": "${workspaceFolder}/build/Debug/bin/Camera.exe",
         },
         {
+            "name": "Grid",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/Grid.exe",
+        },
+        {
             "name": "InputAssembler",
             "type": "cppvsdbg",
             "request": "launch",

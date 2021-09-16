@@ -9,6 +9,7 @@ subdirs(
   Texture
   ShaderReflection
   Camera
+  Grid
   InputAssembler
   FontMesh
   DepthTest

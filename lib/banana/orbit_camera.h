@@ -4,7 +4,7 @@
 
 namespace banana {
 
-class OrbitCamera {
+struct OrbitCamera {
   float _w = 1;
   float _h = 1;
   float _near = 0.01f;
@@ -26,6 +26,18 @@ class OrbitCamera {
     auto T = DirectX::XMMatrixTranslation(_shift.x, _shift.y, _shift.z);
     auto M = DirectX::XMMatrixMultiply(DirectX::XMMatrixMultiply(Y, P), T);
     DirectX::XMStoreFloat4x4(&_view, M);
+  }
+
+  DirectX::XMFLOAT3 position() const {
+    auto Y = DirectX::XMMatrixRotationY(-_yaw);
+    auto P = DirectX::XMMatrixRotationX(-_pitch);
+    auto T = DirectX::XMMatrixTranslation(-_shift.x, -_shift.y, -_shift.z);
+    auto M = DirectX::XMMatrixMultiply(T, DirectX::XMMatrixMultiply(P, Y));
+    DirectX::XMFLOAT4 pos(0, 0, 0, 1);
+    auto POS = DirectX::XMLoadFloat4(&pos);
+    POS = DirectX::XMVector4Transform(POS, M);
+    DirectX::XMStoreFloat4(&pos, POS);
+    return {pos.x, pos.y, pos.z};
   }
 
 public:
