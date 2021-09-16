@@ -167,7 +167,7 @@
   <span class="k">return</span> <span class="n">input_layout</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="kt">bool</span> <span class="n">ShaderReflection</span><span class="o">::</span><span class="n">reflect</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">compiled</span><span class="p">)</span> <span class="p">{</span>
+<span class="kt">bool</span> <span class="n">ShaderVariables</span><span class="o">::</span><span class="n">reflect</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">compiled</span><span class="p">)</span> <span class="p">{</span>
 
   <span class="k">auto</span> <span class="n">pReflector</span> <span class="o">=</span> <span class="n">get_reflection</span><span class="p">(</span><span class="n">compiled</span><span class="p">);</span>
   <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pReflector</span><span class="p">)</span> <span class="p">{</span>

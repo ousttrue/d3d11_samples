@@ -57,11 +57,10 @@
 <h2>頂点バッファを省略<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <div class="literal-block-wrapper docutils container" id="id3">
 <div class="code-block-caption"><span class="caption-text">../../lib/gorilla/pipeline.cpp</span><a class="headerlink" href="#id3" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span><span class="kt">void</span> <span class="n">Pipeline</span><span class="o">::</span><span class="n">create_cb</span><span class="p">(</span><span class="n">ShaderStage</span> <span class="o">&amp;</span><span class="n">stage</span><span class="p">,</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span><span class="kt">void</span> <span class="n">Pipeline</span><span class="o">::</span><span class="n">create_cb</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">ConstantBuffer</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">buffers</span><span class="p">,</span>
 <span class="lineno">2 </span>                         <span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Device</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">device</span><span class="p">,</span>
 <span class="lineno">3 </span>                         <span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">compiled</span><span class="p">)</span> <span class="p">{</span>
-<span class="lineno">4 </span>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">stage</span><span class="p">.</span><span class="n">reflection</span><span class="p">.</span><span class="n">reflect</span><span class="p">(</span><span class="n">compiled</span><span class="p">))</span> <span class="p">{</span>
-<span class="lineno">5 </span>    <span class="n">assert</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="lineno">4 </span>  <span class="n">gorilla</span><span class="o">::</span><span class="n">ShaderVariables</span> <span class="n">reflection</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
