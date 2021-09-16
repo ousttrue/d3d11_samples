@@ -13,6 +13,11 @@
 #include <gorilla/window.h>
 #include <iostream>
 
+auto CLASS_NAME = "CLASS_NAME";
+auto WINDOW_TITLE = "DepthTest";
+auto WIDTH = 320;
+auto HEIGHT = 320;
+
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 struct Vertex {
@@ -94,7 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   gorilla::Window window;
   auto hwnd =
-      window.create(hInstance, "WINDOW_CLASS", "InputAssembler", 320, 320);
+      window.create(hInstance, "WINDOW_CLASS", WINDOW_TITLE, WIDTH, HEIGHT);
   if (!hwnd) {
     return 2;
   }
@@ -116,20 +121,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // setup pipeline
   gorilla::Pipeline pipeline;
-  auto [compiled, vserror] =
-      pipeline.compile_vs(device, "vs", shader, "vsMain");
-  if (!compiled) {
-    if (vserror) {
-      std::cerr << (const char *)vserror->GetBufferPointer() << std::endl;
-    }
+  auto [ok, error] =
+      pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
+  if (!ok) {
+    std::cerr << error << std::endl;
     return 5;
-  }
-  auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
-  if (!ps) {
-    if (pserror) {
-      std::cerr << (const char *)pserror->GetBufferPointer() << std::endl;
-    }
-    return 7;
   }
 
   gorilla::InputAssembler ia;
@@ -197,7 +193,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // update
     camera.resize(static_cast<float>(w), static_cast<float>(h));
-    pipeline.vs_cb[0].update(context, camera.matrix());
+    pipeline.vs_stage.cb[0].update(context, camera.matrix());
 
     // clear RTV
     auto v =

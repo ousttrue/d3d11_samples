@@ -10,7 +10,9 @@ subdirs(
   ShaderReflection
   Camera
   InputAssembler
+  FontMesh
   DepthTest
+  FontTexture
   #
   ImageLoader
   GltfLoader

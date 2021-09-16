@@ -1,1 +1,1 @@
-subdirs(json)
+subdirs(stb json)

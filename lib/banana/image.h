@@ -10,8 +10,8 @@ class Image {
   std::vector<uint8_t> _buffer;
 
 public:
-  uint32_t height() const { return _width; }
-  uint32_t width() const { return _height; }
+  uint32_t width() const { return _width; }
+  uint32_t height() const { return _height; }
   const void *data() const { return _buffer.data(); }
 
   bool load(std::span<const uint8_t> bytes);

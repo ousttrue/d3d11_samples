@@ -16,6 +16,8 @@ static ComPtr<IWICImagingFactory> create_factory() {
   return factory;
 }
 
+const auto RGBA_FORMAT = GUID_WICPixelFormat32bppRGBA;
+
 static ComPtr<IWICBitmapSource>
 from_bytes(const ComPtr<IWICImagingFactory> &factory,
            const ComPtr<IStream> &stream) {
@@ -40,7 +42,7 @@ from_bytes(const ComPtr<IWICImagingFactory> &factory,
     return {};
   }
 
-  if (pixelFormat == GUID_WICPixelFormat32bppRGBA) {
+  if (pixelFormat == RGBA_FORMAT) {
     return frame;
   }
 
@@ -50,7 +52,18 @@ from_bytes(const ComPtr<IWICImagingFactory> &factory,
     return {};
   }
 
-  hr = FC->Initialize(frame.Get(), GUID_WICPixelFormat32bppRGBA,
+  BOOL can_convert;
+  hr = FC->CanConvert(pixelFormat, RGBA_FORMAT, &can_convert);
+  if(FAILED(hr))
+  {
+    return {};
+  }
+  if(!can_convert)
+  {
+    return {};
+  }
+
+  hr = FC->Initialize(frame.Get(), RGBA_FORMAT,
                       WICBitmapDitherTypeErrorDiffusion, 0, 0,
                       WICBitmapPaletteTypeCustom);
   if (FAILED(hr)) {
@@ -81,6 +94,11 @@ bool Image::load(std::span<const uint8_t> bytes) {
   if (FAILED(hr)) {
     return {};
   }
+
+  WICPixelFormatGUID pixel_format;
+  hr = frame->GetPixelFormat(&pixel_format);
+  assert(pixel_format == RGBA_FORMAT);
+
   _buffer.resize(_width * _height * 4);
 
 #if 0
@@ -100,8 +118,7 @@ bool Image::load(std::span<const uint8_t> bytes) {
     return {};
   }
 #else
-  hr = frame->CopyPixels(0, _width * 4, (UINT)_buffer.size(),
-                                _buffer.data());
+  hr = frame->CopyPixels(0, _width * 4, (UINT)_buffer.size(), _buffer.data());
   if (FAILED(hr)) {
     return {};
   }
