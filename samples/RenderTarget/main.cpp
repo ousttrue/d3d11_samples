@@ -5,6 +5,11 @@
 #include <gorilla/swapchain.h>
 #include <gorilla/window.h>
 
+auto CLASS_NAME = "CLASS_NAME";
+auto WINDOW_TITLE = "RendertTarget";
+auto WIDTH = 320;
+auto HEIGHT = 320;
+
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -13,7 +18,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
 
   gorilla::Window window;
-  auto hwnd = window.create(hInstance, "CLASS_NAME", "CreateSwapChain");
+  auto hwnd = window.create(hInstance, CLASS_NAME, WINDOW_TITLE, WIDTH, HEIGHT);
   if (!hwnd) {
     return 1;
   }

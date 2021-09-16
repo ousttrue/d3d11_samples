@@ -2,13 +2,18 @@
 #include <gorilla/device.h>
 #include <gorilla/window.h>
 
+auto CLASS_NAME = "CLASS_NAME";
+auto WINDOW_TITLE = "CreateSwapChain";
+auto WIDTH = 320;
+auto HEIGHT = 320;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
   gorilla::Window window;
-  auto hwnd = window.create(hInstance, "CLASS_NAME", "CreateSwapChain");
+  auto hwnd = window.create(hInstance, CLASS_NAME, WINDOW_TITLE, WIDTH, HEIGHT);
   if (!hwnd) {
     return 1;
   }

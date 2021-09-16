@@ -12,19 +12,59 @@
 #include <gorilla/swapchain.h>
 #include <gorilla/window.h>
 #include <iostream>
+#include <stb_easy_font.h>
 
 auto CLASS_NAME = "CLASS_NAME";
-auto WINDOW_TITLE = "InputAssembler";
+auto WINDOW_TITLE = "FontMesh";
 auto WIDTH = 320;
 auto HEIGHT = 320;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-const DirectX::XMFLOAT2 triangle[3] = {
-    {1.0f, 0.0f},
-    {-1.0f, 0.0f},
-    {0.0f, 1.0f},
+struct Vertex {
+  float x, y, z, w;
 };
+
+std::shared_ptr<gorilla::InputAssembler>
+text_mesh(const ComPtr<ID3D11Device> &device, const char *text, float z) {
+  int width = stb_easy_font_width((char *)text);
+  int height = stb_easy_font_height((char *)text);
+
+  std::vector<Vertex> font_data_(9999);
+  int num_quads = stb_easy_font_print(
+      -width / 2, -height / 2, (char *)text, nullptr, font_data_.data(),
+      sizeof(font_data_[0]) * font_data_.size());
+
+  std::vector<Vertex> vert_data_;
+  vert_data_.resize(num_quads * 4);
+  for (size_t i = 0; i < vert_data_.size(); ++i) {
+    vert_data_[i] = font_data_[i];
+    vert_data_[i].y *= -1;
+    vert_data_[i].z = z;
+  }
+
+  std::vector<uint32_t> index_data_;
+  auto num_indices = 6 * num_quads;
+  index_data_.resize(num_indices);
+  for (size_t i = 0; 6 * i < index_data_.size(); ++i) {
+    index_data_[6 * i + 0] = 4 * i + 0;
+    index_data_[6 * i + 1] = 4 * i + 1;
+    index_data_[6 * i + 2] = 4 * i + 2;
+    index_data_[6 * i + 3] = 4 * i + 2;
+    index_data_[6 * i + 4] = 4 * i + 3;
+    index_data_[6 * i + 5] = 4 * i + 0;
+  }
+
+  auto ia = std::make_shared<gorilla::InputAssembler>();
+  if (!ia->create_vertices(device, vert_data_)) {
+    return {};
+  }
+  if (!ia->create_indices(device, index_data_)) {
+    return {};
+  }
+
+  return ia;
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
@@ -66,11 +106,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 5;
   }
 
-  gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, triangle, sizeof(triangle),
-                          _countof(triangle))) {
-    return 8;
-  }
+  auto ia = text_mesh(device, "FontMesh", 5);
 
   banana::OrbitCamera camera;
   banana::MouseBinder binder(camera);
@@ -126,7 +162,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     render_target.setup(context, w, h);
 
     pipeline.setup(context);
-    ia.draw(context);
+    ia->draw(context);
 
     // vsync
     context->Flush();

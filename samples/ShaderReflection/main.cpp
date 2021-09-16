@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
     }
 
     if (compiled) {
-      gorilla::ShaderVariables reflection;
+      gorilla::ShaderReflection reflection;
       reflection.reflect(compiled);
 
       assert(reflection.cb_slots.empty());

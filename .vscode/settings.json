@@ -34,7 +34,8 @@
         "system_error": "cpp",
         "xfacet": "cpp",
         "xlocale": "cpp",
-        "xlocbuf": "cpp"
+        "xlocbuf": "cpp",
+        "xstring": "cpp"
     },
     "cSpell.words": [
         "DXGI",

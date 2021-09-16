@@ -113,7 +113,7 @@ create_input_layout(const ComPtr<ID3D11Device> &device,
   return input_layout;
 }
 
-bool ShaderVariables::reflect(const ComPtr<ID3DBlob> &compiled) {
+bool ShaderReflection::reflect(const ComPtr<ID3DBlob> &compiled) {
 
   auto pReflector = get_reflection(compiled);
   if (!pReflector) {

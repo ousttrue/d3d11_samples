@@ -22,7 +22,7 @@ struct ConstantBufferSlot {
   std::vector<D3D11_SHADER_VARIABLE_DESC> variables;
 };
 
-class ShaderVariables {
+class ShaderReflection {
 public:
   std::vector<ConstantBufferSlot> cb_slots;
   std::vector<D3D11_SHADER_INPUT_BIND_DESC> srv_slots;

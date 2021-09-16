@@ -1,8 +1,8 @@
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
-#include <gorilla/device.h>
 #include <banana/image.h>
+#include <gorilla/device.h>
 #include <gorilla/pipeline.h>
 #include <gorilla/render_target.h>
 #include <gorilla/shader.h>
@@ -11,6 +11,11 @@
 #include <gorilla/texture.h>
 #include <gorilla/window.h>
 #include <iostream>
+
+auto CLASS_NAME = "CLASS_NAME";
+auto WINDOW_TITLE = "ImageLoader";
+auto WIDTH = 320;
+auto HEIGHT = 320;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -24,7 +29,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::Window window;
-  auto hwnd = window.create(hInstance, "CLASS_NAME", "Texture", 320, 320);
+  auto hwnd = window.create(hInstance, CLASS_NAME, WINDOW_TITLE, WIDTH, HEIGHT);
   if (!hwnd) {
     return 1;
   }
@@ -67,7 +72,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     return 6;
   }
-  gorilla::ShaderVariables ps_slots;
+  gorilla::ShaderReflection ps_slots;
   if (!ps_slots.reflect(ps)) {
     return 7;
   }

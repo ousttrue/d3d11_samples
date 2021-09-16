@@ -12,7 +12,7 @@
 * [x] MouseInput
 * [x] Texture
 * [x] DepthBuffer
-* [ ] glTF
+* [x] glTF
 * [x] ImageLoader
 * [ ] MikkTSpace
 * [ ] skinning
@@ -20,7 +20,7 @@
 * [ ] Animation: BVH
 * [ ] CubeMap
 * [ ] IBL
-* [ ] AsciiTexture によるデバッグ表示 <https://nothings.org/stb/font/>
+* [x] AsciiTexture <https://evanw.github.io/font-texture-generator/>
 * [ ] Gizmo: Grid
 * [ ] Gizmo: drag
 * [ ] Gizmo: wire frame

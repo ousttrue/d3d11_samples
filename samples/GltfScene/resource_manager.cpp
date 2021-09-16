@@ -37,13 +37,13 @@ void Mesh::draw(const ComPtr<ID3D11DeviceContext> &context,
     GltfShaderConstant constant;
     constant.MVP = *((const std::array<float, 16> *)&mvp);
     constant.BaseColor = material->base_color;
-    for (auto &slot : material->pipeline.vs_cb) {
+    for (auto &slot : material->pipeline.vs_stage.cb) {
       slot.update(context, constant);
     }
-    for (auto &slot : material->pipeline.gs_cb) {
+    for (auto &slot : material->pipeline.gs_stage.cb) {
       slot.update(context, constant);
     }
-    for (auto &slot : material->pipeline.ps_cb) {
+    for (auto &slot : material->pipeline.ps_stage.cb) {
       slot.update(context, constant);
     }
 

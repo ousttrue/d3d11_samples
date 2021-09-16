@@ -11,6 +11,11 @@
 #include <gorilla/window.h>
 #include <iostream>
 
+auto CLASS_NAME = "CLASS_NAME";
+auto WINDOW_TITLE = "Camera";
+auto WIDTH = 320;
+auto HEIGHT = 320;
+
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -23,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::Window window;
-  auto hwnd = window.create(hInstance, "CLASS_NAME", "BasicPipeline", 320, 320);
+  auto hwnd = window.create(hInstance, CLASS_NAME, WINDOW_TITLE, WIDTH, HEIGHT);
   if (!hwnd) {
     return 1;
   }
@@ -45,28 +50,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // setup pipeline
   gorilla::Pipeline pipeline;
-  auto [vs, vserror] = pipeline.compile_vs(device, "vs", shader, "vsMain");
-  if (!vs) {
-    if (vserror) {
-      std::cerr << (const char *)vserror->GetBufferPointer() << std::endl;
-    }
+  auto [ok, error] = pipeline.compile_shader(device, shader, "vsMain", "gsMain", "psMain");
+  if(!ok)
+  {
+    std::cerr << error << std::endl;
     return 4;
   }
-  auto [gs, gserror] = pipeline.compile_gs(device, "gs", shader, "gsMain");
-  if (!gs) {
-    if (gserror) {
-      std::cerr << (const char *)gserror->GetBufferPointer() << std::endl;
-    }
-    return 5;
-  }
-  auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
-  if (!ps) {
-    if (pserror) {
-      std::cerr << (const char *)pserror->GetBufferPointer() << std::endl;
-    }
-    return 6;
-  }
-  
+
   banana::OrbitCamera camera;
   banana::MouseBinder binder(camera);
   window.bind_mouse(
@@ -110,7 +100,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // update
     camera.resize(static_cast<float>(w), static_cast<float>(h));
-    pipeline.gs_cb[0].update(context, camera.matrix());
+    pipeline.gs_stage.cb[0].update(context, camera.matrix());
 
     // clear RTV
     auto v =

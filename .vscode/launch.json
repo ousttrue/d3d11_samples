@@ -84,11 +84,25 @@
             "program": "${workspaceFolder}/build/Debug/bin/InputAssembler.exe",
         },
         {
+            "name": "FontMesh",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/FontMesh.exe",
+        },
+        {
             "name": "DepthTest",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/DepthTest.exe",
+        },
+        {
+            "name": "FontTexture",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/FontTexture.exe",
         },
         {
             "name": "ImageLoader",
