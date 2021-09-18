@@ -15,7 +15,7 @@ bool ConstantBuffer::create(const ComPtr<ID3D11Device> &device, UINT size) {
 }
 
 void ConstantBuffer::update(const ComPtr<ID3D11DeviceContext> &context,
-                            const void *p, UINT size) {
+                            const void *p, size_t size) {
   assert(desc.ByteWidth == size);
   context->UpdateSubresource(buffer.Get(), 0, nullptr, p, 0, 0);
 }

@@ -113,6 +113,46 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
   return mesh;
 }
 
+void ResourceManager::draw(const ComPtr<ID3D11Device> &device,
+                           const ComPtr<ID3D11DeviceContext> &context,
+                           const banana::DrawCommand &command) {
+
+  auto drawable = get_or_create(device, command.mesh);
+  auto material = get_or_create(device, command.material);
+  assert(material);
+
+  {
+    // VS
+    auto stage = &material->pipeline.vs_stage;
+    stage->cb[0].update(context, command.vs_backing_store.data(),
+                        command.vs_backing_store.size());
+  }
+
+  {
+    // PS
+    auto stage = &material->pipeline.ps_stage;
+    stage->cb[0].update(context, command.ps_backing_store.data(),
+                        command.ps_backing_store.size());
+
+    // SRV
+    if (material->base_color_texture) {
+      material->base_color_texture->set_ps(context, 0, 0);
+    }
+    if (material->normal_map) {
+      material->normal_map->set_ps(context, 1, 1);
+    }
+  }
+
+  material->pipeline.setup(context);
+  drawable->ia.setup(context);
+
+  // STATE
+  context->RSSetState(material->rs.Get());
+
+  // draw submesh
+  drawable->ia.draw_submesh(context, command.draw_offset, command.draw_count);
+}
+
 struct GltfShaderConstant {
   std::array<float, 16> MVP;
   std::array<float, 4> BaseColor;

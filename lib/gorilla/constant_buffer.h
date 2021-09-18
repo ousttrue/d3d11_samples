@@ -12,7 +12,7 @@ public:
   ComPtr<ID3D11Buffer> buffer;
   bool create(const ComPtr<ID3D11Device> &device, UINT size);
   void update(const ComPtr<ID3D11DeviceContext> &context, const void *p,
-              UINT size);
+              size_t size);
 
   template <typename T>
   void update(const ComPtr<ID3D11DeviceContext> &context, const T &t) {

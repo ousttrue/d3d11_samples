@@ -19,8 +19,15 @@ target_link_libraries(${TARGET_NAME} PUBLIC d3d11.lib d3dcompiler.lib
 
 # 🍌 banana(asset scene)
 set(TARGET_NAME banana)
-add_library(${TARGET_NAME} banana/asset.cpp banana/gltf.cpp banana/image.cpp
-                           banana/geometry.cpp banana/node.cpp banana/types.cpp)
+add_library(
+  ${TARGET_NAME}
+  banana/asset.cpp
+  banana/gltf.cpp
+  banana/image.cpp
+  banana/geometry.cpp
+  banana/node.cpp
+  banana/types.cpp
+  banana/scene_command)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PRIVATE json mikktspace)
 

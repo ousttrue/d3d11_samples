@@ -1,12 +1,14 @@
 #pragma once
 
-#include <banana/node.h>
-#include <banana/orbit_camera.h>
+#include <banana/scene_command.h>
 #include <d3d11.h>
 #include <gorilla/mesh.h>
 #include <gorilla/render_target.h>
 #include <gorilla/window.h>
+#include <memory>
+#include <span>
 #include <unordered_map>
+#include <vector>
 #include <wrl/client.h>
 
 class ResourceManager {
@@ -32,6 +34,10 @@ public:
   std::shared_ptr<gorilla::Mesh>
   get_or_create(const ComPtr<ID3D11Device> &device,
                 const std::shared_ptr<banana::Mesh> &src);
+
+  void draw(const ComPtr<ID3D11Device> &device,
+            const ComPtr<ID3D11DeviceContext> &context,
+            const banana::DrawCommand &command);
 };
 
 class SceneRenderer {

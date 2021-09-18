@@ -6,6 +6,7 @@
 #include <banana/gltf.h>
 #include <banana/image.h>
 #include <banana/orbit_camera.h>
+#include <banana/scene_command.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
 #include <gorilla/input_assembler.h>
@@ -59,16 +60,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
   auto root = loader.scenes[0].nodes[0];
 
-  SceneRenderer renderer;
-
   // main loop
+  banana::SceneCommand commander;
+  ResourceManager resource;
   auto context = app.context();
   auto camera = app.camera();
   while (app.begin_frame()) {
-    renderer.Render(device, context,
-                    DirectX::XMLoadFloat4x4(&camera->projection()),
-                    DirectX::XMLoadFloat4x4(&camera->view()),
-                    DirectX::XMMatrixIdentity(), root);
+
+    commander.new_frame(camera);
+    commander.traverse(root);
+    for (auto &command : commander.commands) {
+      resource.draw(device, context, command);
+    }
 
     app.end_frame();
   }
