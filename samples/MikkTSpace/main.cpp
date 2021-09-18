@@ -34,7 +34,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (aabb.min.y < 0) {
     root->transform.translation.y -= aabb.min.y;
   }
-  app.get_camera()->fit(aabb);
+  auto half_height = aabb.height() / 2;
+  app.get_camera()->fit(half_height, half_height);
   
 
   SceneRenderer renderer;

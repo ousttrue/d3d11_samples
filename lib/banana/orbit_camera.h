@@ -103,10 +103,9 @@ public:
     calc_projection();
   }
 
-  void fit(AABB &aabb) {
-    auto half_hgiht = aabb.height() * 0.5f;
-    _shift.z = -static_cast<float>(half_hgiht / tan(_fovYRad * 0.5f)) * 1.5f;
-    _shift.y = -half_hgiht;
+  void fit(float y, float half_height) {
+    _shift.z = -static_cast<float>(half_height / tan(_fovYRad * 0.5f)) * 1.5f;
+    _shift.y = -y;
     calc_view();
   }
 };

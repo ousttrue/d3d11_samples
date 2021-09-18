@@ -32,8 +32,9 @@ text_mesh(const ComPtr<ID3D11Device> &device, const char *text, float z) {
 
   std::vector<Vertex> font_data_(9999);
   int num_quads = stb_easy_font_print(
-      -width / 2, -height / 2, (char *)text, nullptr, font_data_.data(),
-      sizeof(font_data_[0]) * font_data_.size());
+      static_cast<float>(-width / 2), static_cast<float>(-height / 2),
+      (char *)text, nullptr, font_data_.data(),
+      static_cast<int>(sizeof(font_data_[0]) * font_data_.size()));
 
   std::vector<Vertex> vert_data_;
   vert_data_.resize(num_quads * 4);
@@ -46,7 +47,7 @@ text_mesh(const ComPtr<ID3D11Device> &device, const char *text, float z) {
   std::vector<uint32_t> index_data_;
   auto num_indices = 6 * num_quads;
   index_data_.resize(num_indices);
-  for (size_t i = 0; 6 * i < index_data_.size(); ++i) {
+  for (uint32_t i = 0; 6 * i < index_data_.size(); ++i) {
     index_data_[6 * i + 0] = 4 * i + 0;
     index_data_[6 * i + 1] = 4 * i + 2;
     index_data_[6 * i + 2] = 4 * i + 1;
