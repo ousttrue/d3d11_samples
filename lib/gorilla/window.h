@@ -10,6 +10,7 @@ namespace gorilla {
 using OnMouseButton_t = std::function<void(bool)>;
 using OnMouseMove_t = std::function<void(int, int)>;
 using OnMouseWheel_t = std::function<void(int)>;
+using OnKeyDown_t = std::function<void(int)>;
 
 class Window {
   HINSTANCE _instance = nullptr;
@@ -20,6 +21,7 @@ class Window {
   OnMouseButton_t _on_middle;
   OnMouseMove_t _on_move;
   OnMouseWheel_t _on_wheel;
+  OnKeyDown_t _on_key;
 
   enum ButtonFlags : int {
     ButtonFlagsNone = 0,
@@ -45,6 +47,8 @@ public:
     _on_move = move;
     _on_wheel = wheel;
   }
+
+  void bind_key(const OnKeyDown_t &key) { _on_key = key; }
 };
 
 } // namespace gorilla

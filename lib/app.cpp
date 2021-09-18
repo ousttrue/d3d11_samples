@@ -38,6 +38,16 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
                      [binder](int x, int y) { binder->Move(x, y); },
                      [binder](int d) { binder->Wheel(d); });
 
+  _window.bind_key([hwnd = _hwnd](int key) {
+    if (key == 27) {
+      // esc
+      SendMessage(hwnd, WM_CLOSE, 0, 0);
+
+    } else {
+      std::cout << key << std::endl;
+    }
+  });
+
   // gizmo
   auto shader = banana::get_string("grid.hlsl");
   if (shader.empty()) {
@@ -115,8 +125,8 @@ bool App::new_frame(
   static_assert(sizeof(Constants) == 16 * 10, "sizeof ConstantsSize");
   Constants constant;
   constant.fovY = _camera._fovYRad;
-  constant.screenSize.x = w;
-  constant.screenSize.y = h;
+  constant.screenSize.x = static_cast<float>(w);
+  constant.screenSize.y = static_cast<float>(h);
   constant.view = _camera._view;
   constant.projection = _camera._projection;
   constant.cameraPosition = _camera.position();

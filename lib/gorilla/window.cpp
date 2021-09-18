@@ -114,6 +114,15 @@ LRESULT Window::proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
       _on_wheel(d);
     }
     return 0;
+
+    //
+    // key events
+    //
+  case WM_CHAR:
+    if (_on_key) {
+      _on_key(static_cast<int>(wParam));
+    }
+    return 0;
   }
 
   return DefWindowProcA(hWnd, message, wParam, lParam);
