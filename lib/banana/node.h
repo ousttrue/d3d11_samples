@@ -9,14 +9,7 @@ struct Transform {
   Float4 rotation = {0, 0, 0, 1}; // quaternon
   Float3 scaling = {1, 1, 1};
 
-  DirectX::XMMATRIX matrix() const {
-    auto T = DirectX::XMMatrixTranslation(translation.x, translation.y,
-                                          translation.z);
-    auto Q = DirectX::XMLoadFloat4((const DirectX::XMFLOAT4 *)&rotation);
-    auto R = DirectX::XMMatrixRotationQuaternion(Q);
-    auto S = DirectX::XMMatrixScaling(scaling.x, scaling.y, scaling.z);
-    return DirectX::XMMatrixMultiply(DirectX::XMMatrixMultiply(S, R), T);
-  }
+  Matrix4x4 matrix() const;
 };
 
 struct Node : std::enable_shared_from_this<Node> {
@@ -32,6 +25,8 @@ struct Node : std::enable_shared_from_this<Node> {
   }
 
   std::shared_ptr<Mesh> mesh;
+
+  void calc_aabb(const Matrix4x4 &parent, AABB *aabb) const;
 };
 
 } // namespace  banana

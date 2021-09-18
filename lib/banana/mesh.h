@@ -21,6 +21,8 @@ struct Mesh {
   std::vector<Vertex> vertices;
   std::vector<Index> indices;
   std::vector<SubMesh> submeshes;
+
+  AABB aabb = {0};
 };
 
 } // namespace banana

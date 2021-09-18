@@ -1,22 +1,5 @@
-#include <DirectXMath.h>
 #include <app.h>
-#include <assert.h>
-#include <banana/asset.h>
-#include <banana/glb.h>
 #include <banana/gltf.h>
-#include <banana/image.h>
-#include <banana/orbit_camera.h>
-#include <gorilla/constant_buffer.h>
-#include <gorilla/device.h>
-#include <gorilla/input_assembler.h>
-#include <gorilla/pipeline.h>
-#include <gorilla/render_target.h>
-#include <gorilla/shader.h>
-#include <gorilla/shader_reflection.h>
-#include <gorilla/swapchain.h>
-#include <gorilla/texture.h>
-#include <gorilla/window.h>
-#include <iostream>
 #include <scene_renderer.h>
 
 auto CLASS_NAME = "CLASS_NAME";
@@ -38,23 +21,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 1;
   }
 
-  //
-  // scene
-  //
-  auto bytes = banana::get_bytes(
-      "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb");
-  if (bytes.empty()) {
-    return 10;
-  }
-  banana::gltf::Glb glb;
-  if (!glb.parse(bytes)) {
-    return 11;
-  }
-  banana::gltf::GltfLoader loader(glb.json, glb.bin);
-  if (!loader.load()) {
-    return 12;
+  banana::gltf::GltfLoader loader;
+  if (!loader.load_from_asset("glTF-Sample-Models/2.0/DamagedHelmet/"
+                              "glTF-Binary/DamagedHelmet.glb")) {
+    return 2;
   }
   auto root = loader.scenes[0].nodes[0];
+
+  // adjust
+  banana::AABB aabb;
+  root->calc_aabb(banana::Matrix4x4::identity(), &aabb);
+  if (aabb.min.y < 0) {
+    root->transform.translation.y -= aabb.min.y;
+  }
+  app.get_camera()->fit(aabb);
+  
 
   SceneRenderer renderer;
 

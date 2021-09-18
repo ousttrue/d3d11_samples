@@ -1,4 +1,5 @@
 #pragma once
+#include "types.h"
 #include <DirectXMath.h>
 #include <limits>
 
@@ -100,6 +101,13 @@ public:
     _w = w;
     _h = h;
     calc_projection();
+  }
+
+  void fit(AABB &aabb) {
+    auto half_hgiht = aabb.height() * 0.5f;
+    _shift.z = -static_cast<float>(half_hgiht / tan(_fovYRad * 0.5f)) * 1.5f;
+    _shift.y = -half_hgiht;
+    calc_view();
   }
 };
 

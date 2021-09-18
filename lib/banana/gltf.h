@@ -21,10 +21,14 @@ struct GltfLoader {
   std::vector<std::shared_ptr<Node>> nodes;
   std::vector<GltfScene> scenes;
 
+  GltfLoader(){}
+
   GltfLoader(std::string_view json, std::span<const uint8_t> bin)
       : json(json), bin(bin.begin(), bin.end()) {}
 
   bool load();
+
+  bool load_from_asset(std::string_view key);
 };
 
 } // namespace banana::gltf

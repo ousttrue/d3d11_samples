@@ -2,9 +2,9 @@
 
 #include <banana/orbit_camera.h>
 #include <d3d11.h>
+#include <gorilla/pipeline.h>
 #include <gorilla/render_target.h>
 #include <gorilla/window.h>
-#include <gorilla/pipeline.h>
 #include <wrl/client.h>
 
 class App {
@@ -24,6 +24,8 @@ class App {
   gorilla::Pipeline _grid;
 
 public:
+  banana::OrbitCamera *get_camera() { return &_camera; }
+
   ComPtr<ID3D11Device> initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
                                   int nCmdShow, const char *CLASS_NAME,
                                   const char *WINDOW_TITLE, int width = 320,

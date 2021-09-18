@@ -1,7 +1,7 @@
 #pragma once
 
-#include <banana/orbit_camera.h>
 #include <banana/node.h>
+#include <banana/orbit_camera.h>
 #include <d3d11.h>
 #include <gorilla/mesh.h>
 #include <gorilla/render_target.h>
@@ -46,7 +46,8 @@ public:
               const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &parent,
               const std::shared_ptr<banana::Node> &node) {
 
-    auto M = DirectX::XMMatrixMultiply(node->transform.matrix(), parent);
+    auto local = node->transform.matrix();
+    auto M = DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4 *)&local), parent);
 
     if (node->mesh) {
       auto drawable = _resource_manager.get_or_create(device, node->mesh);

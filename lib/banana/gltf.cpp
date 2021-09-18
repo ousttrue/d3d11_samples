@@ -1,4 +1,6 @@
 #include "gltf.h"
+#include "asset.h"
+#include "glb.h"
 #include <DirectXMath.h>
 #include <array>
 #include <fstream>
@@ -135,8 +137,10 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       auto position = from_accessor<Float3>(gltf, bin, position_accessor_index);
       vertex_count = position.size();
       mesh->vertices.resize(vertex_offset + position.size());
-      for (size_t i = 0; i < position.size(); ++i) {
-        mesh->vertices[vertex_offset + i].position = position[i];
+      size_t i=0;
+      for (auto &p: position) {
+        mesh->vertices[vertex_offset + (i++)].position = p;
+        mesh->aabb.expand(p);
       }
     }
 
@@ -145,8 +149,9 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       auto tex = from_accessor<Float2>(gltf, bin, tex_accessor_index);
       assert(tex.size() == vertex_count);
       mesh->vertices.resize(vertex_offset + tex.size());
-      for (size_t i = 0; i < tex.size(); ++i) {
-        mesh->vertices[vertex_offset + i].tex0 = tex[i];
+      size_t i=0;
+      for (auto &uv: tex) {
+        mesh->vertices[vertex_offset + i++].tex0 = uv;
       }
     }
 
@@ -281,6 +286,23 @@ bool GltfLoader::load() {
   }
 
   return true;
+}
+
+bool GltfLoader::load_from_asset(std::string_view key) {
+  auto bytes = banana::get_bytes(key);
+  if (bytes.empty()) {
+    return false;
+  }
+
+  Glb glb;
+  if (!glb.parse(bytes)) {
+    return false;
+  }
+
+  this->json = glb.json;
+  this->bin = {glb.bin.begin(), glb.bin.end()};
+
+  return load();
 }
 
 } // namespace banana::gltf

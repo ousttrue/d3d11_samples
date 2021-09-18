@@ -115,8 +115,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     // update
     camera.resize(static_cast<float>(w), static_cast<float>(h));
     constant.fovY = camera._fovYRad;
-    constant.screenSize.x = w;
-    constant.screenSize.y = h;
+    constant.screenSize.x = static_cast<float>(w);
+    constant.screenSize.y = static_cast<float>(h);
     constant.view = camera._view;
     constant.projection = camera._projection;
     constant.cameraPosition = camera.position();
