@@ -32,6 +32,12 @@ UV は、左上原点
   +1
 ```
 
+```hlsl
+cbuffer model {
+  row_major float4 BaseColor;
+}
+```
+
 ```{toctree}
 basic/create_window
 basic/create_device
@@ -47,10 +53,31 @@ basic/input_assembler
 
 ## Object Space
 
+glTF の座標系を採用する。右手系Y-UP
+
+```{toctree}
+  (y)
+   ^ /
+   |/
+ --+-->(x)
+  /|
+ L |
+(z)
+```
+
+```hlsl
+cbuffer object {
+  row_major matrix MVP;
+  // TODO: Light
+}
+```
+
 ```{toctree}
 three_d/orbit_camera
 three_d/depth_test
 ```
+
+## Lighting
 
 ## SceneGraph
 

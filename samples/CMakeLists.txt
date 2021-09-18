@@ -8,12 +8,15 @@ subdirs(
   ConstantBuffer
   Texture
   ShaderReflection
-  Camera
-  Grid
   InputAssembler
+  #
+  Grid
+  Camera
   FontMesh
   DepthTest
   FontTexture
+  #
+  LightingADS
   #
   ImageLoader
   GltfLoader

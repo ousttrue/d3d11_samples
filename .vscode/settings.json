@@ -35,7 +35,8 @@
         "xfacet": "cpp",
         "xlocale": "cpp",
         "xlocbuf": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "*.rh": "cpp"
     },
     "cSpell.words": [
         "DXGI",

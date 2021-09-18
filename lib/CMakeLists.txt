@@ -22,3 +22,8 @@ add_library(${TARGET_NAME} banana/asset.cpp banana/gltf.cpp banana/image.cpp
                            banana/geometry.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PRIVATE json)
+
+# app
+set(TARGET_NAME app)
+add_library(${TARGET_NAME} app.cpp)
+target_link_libraries(${TARGET_NAME} PUBLIC gorilla banana)

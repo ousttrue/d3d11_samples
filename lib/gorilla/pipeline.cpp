@@ -27,6 +27,16 @@ Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
   //   return {};
   // }
 
+  D3D11_RASTERIZER_DESC rs_desc = {};
+  rs_desc.CullMode = D3D11_CULL_NONE;
+  rs_desc.FillMode = D3D11_FILL_SOLID;
+  rs_desc.FrontCounterClockwise = true;
+  rs_desc.ScissorEnable = false;
+  rs_desc.MultisampleEnable = false;
+  if (FAILED(device->CreateRasterizerState(&rs_desc, &_rs))) {
+    return {};
+  }
+
   return {compiled, {}};
 }
 
@@ -67,8 +77,7 @@ Pipeline::compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
   return {compiled, {}};
 }
 
-void Pipeline::create_cb(ShaderStage &stage,
-                         const ComPtr<ID3D11Device> &device,
+void Pipeline::create_cb(ShaderStage &stage, const ComPtr<ID3D11Device> &device,
                          const ComPtr<ID3DBlob> &compiled) {
   if (!stage.reflection.reflect(compiled)) {
     assert(false);
@@ -91,8 +100,7 @@ Pipeline::compile_shader(const ComPtr<ID3D11Device> &device,
       return {false, (const char *)error->GetBufferPointer()};
     }
   }
-  if(gs_entry)
-  {
+  if (gs_entry) {
     auto [compiled, error] = compile_gs(device, "gs", source, gs_entry);
     if (!compiled) {
       return {false, (const char *)error->GetBufferPointer()};
@@ -109,6 +117,8 @@ Pipeline::compile_shader(const ComPtr<ID3D11Device> &device,
 }
 
 void Pipeline::setup(const ComPtr<ID3D11DeviceContext> &context) {
+  context->RSSetState(_rs.Get());
+
   // vs
   context->VSSetShader(_vs.Get(), nullptr, 0);
 

@@ -112,6 +112,13 @@
             "program": "${workspaceFolder}/build/Debug/bin/FontTexture.exe",
         },
         {
+            "name": "LightingADS",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/LightingADS.exe",
+        },
+        {
             "name": "ImageLoader",
             "type": "cppvsdbg",
             "request": "launch",

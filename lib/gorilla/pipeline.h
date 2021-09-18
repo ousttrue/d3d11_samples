@@ -21,6 +21,7 @@ class Pipeline {
 private:
   ComPtr<ID3D11VertexShader> _vs;
   ComPtr<ID3D11InputLayout> _input_layout;
+  ComPtr<ID3D11RasterizerState> _rs;
 
 public:
   ShaderStage vs_stage;
