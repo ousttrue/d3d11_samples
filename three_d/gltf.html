@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>SceneGraph &#8212; d3d11 samples  ドキュメント</title>
+    <title>glTF &#8212; d3d11 samples  ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css" />
     
@@ -19,8 +19,7 @@
     <script src="../_static/bizstyle.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
-    <link rel="next" title="glTF" href="gltf.html" />
-    <link rel="prev" title="Depth Test" href="depth_test.html" />
+    <link rel="prev" title="SceneGraph" href="scene.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
@@ -33,13 +32,10 @@
           <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="gltf.html" title="glTF"
-             accesskey="N">次へ</a> |</li>
-        <li class="right" >
-          <a href="depth_test.html" title="Depth Test"
+          <a href="scene.html" title="SceneGraph"
              accesskey="P">前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">SceneGraph</a></li> 
+        <li class="nav-item nav-item-this"><a href="">glTF</a></li> 
       </ul>
     </div>  
 
@@ -48,55 +44,29 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section class="tex2jax_ignore mathjax_ignore" id="scenegraph">
-<h1>SceneGraph<a class="headerlink" href="#scenegraph" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p>glTF のローダーを作るので導入する。いつもの木構造。</p>
-<ul class="simple">
-<li><p>Node</p>
-<ul>
-<li><p>Transform</p>
-<ul>
-<li><p>Translation</p></li>
-<li><p>Rotation</p></li>
-<li><p>Scale</p></li>
-</ul>
-</li>
-<li><p>Mesh</p>
-<ul>
-<li><p>SubMesh[]</p>
-<ul>
-<li><p>Material</p>
-<ul>
-<li><p>Texture</p></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<section id="constantbuffer">
-<h2>ConstantBuffer<a class="headerlink" href="#constantbuffer" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<section id="world-vs-gs">
-<h3>World(VS|GS)<a class="headerlink" href="#world-vs-gs" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<ul class="simple">
-<li><p>Model: mat4</p></li>
-<li><p>View: mat4</p></li>
-<li><p>Projection: mat4</p></li>
-<li><p>NormalMatrix: mat3</p></li>
-<li><p>MVP: mat4</p></li>
-<li><p>Light</p></li>
-</ul>
+  <section class="tex2jax_ignore mathjax_ignore" id="gltf">
+<h1>glTF<a class="headerlink" href="#gltf" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>glTF ローダー。</p>
+<section id="texture">
+<h2>texture<a class="headerlink" href="#texture" title="このヘッドラインへのパーマリンク">¶</a></h2>
 </section>
-<section id="draw-ps">
-<h3>Draw(PS)<a class="headerlink" href="#draw-ps" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<ul class="simple">
-<li><p>BaseColor</p></li>
-<li><p>BaseTexture</p></li>
-</ul>
+<section id="material">
+<h2>material<a class="headerlink" href="#material" title="このヘッドラインへのパーマリンク">¶</a></h2>
 </section>
+<section id="mesh">
+<h2>mesh<a class="headerlink" href="#mesh" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</section>
+<section id="node">
+<h2>node<a class="headerlink" href="#node" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</section>
+<section id="skinning">
+<h2>skinning<a class="headerlink" href="#skinning" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</section>
+<section id="morphtarget">
+<h2>morphTarget<a class="headerlink" href="#morphtarget" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</section>
+<section id="animation">
+<h2>animation<a class="headerlink" href="#animation" title="このヘッドラインへのパーマリンク">¶</a></h2>
 </section>
 </section>
 
@@ -109,26 +79,25 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">目次</a></h3>
   <ul>
-<li><a class="reference internal" href="#">SceneGraph</a><ul>
-<li><a class="reference internal" href="#constantbuffer">ConstantBuffer</a><ul>
-<li><a class="reference internal" href="#world-vs-gs">World(VS|GS)</a></li>
-<li><a class="reference internal" href="#draw-ps">Draw(PS)</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">glTF</a><ul>
+<li><a class="reference internal" href="#texture">texture</a></li>
+<li><a class="reference internal" href="#material">material</a></li>
+<li><a class="reference internal" href="#mesh">mesh</a></li>
+<li><a class="reference internal" href="#node">node</a></li>
+<li><a class="reference internal" href="#skinning">skinning</a></li>
+<li><a class="reference internal" href="#morphtarget">morphTarget</a></li>
+<li><a class="reference internal" href="#animation">animation</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>前のトピックへ</h4>
-  <p class="topless"><a href="depth_test.html"
-                        title="前の章へ">Depth Test</a></p>
-  <h4>次のトピックへ</h4>
-  <p class="topless"><a href="gltf.html"
-                        title="次の章へ">glTF</a></p>
+  <p class="topless"><a href="scene.html"
+                        title="前の章へ">SceneGraph</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/three_d/scene.md.txt"
+      <li><a href="../_sources/three_d/gltf.md.txt"
             rel="nofollow">ソースコードを表示</a></li>
     </ul>
    </div>
@@ -153,13 +122,10 @@
           <a href="../genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="gltf.html" title="glTF"
-             >次へ</a> |</li>
-        <li class="right" >
-          <a href="depth_test.html" title="Depth Test"
+          <a href="scene.html" title="SceneGraph"
              >前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">SceneGraph</a></li> 
+        <li class="nav-item nav-item-this"><a href="">glTF</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

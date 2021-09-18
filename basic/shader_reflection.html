@@ -19,8 +19,8 @@
     <script src="../_static/bizstyle.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
-    <link rel="next" title="Constant Buffer" href="constant_buffer.html" />
-    <link rel="prev" title="Basic Pipeline" href="basic_pipeline.html" />
+    <link rel="next" title="Basic Pipeline" href="basic_pipeline.html" />
+    <link rel="prev" title="CompileShader" href="compile_shader.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
@@ -33,10 +33,10 @@
           <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="constant_buffer.html" title="Constant Buffer"
+          <a href="basic_pipeline.html" title="Basic Pipeline"
              accesskey="N">次へ</a> |</li>
         <li class="right" >
-          <a href="basic_pipeline.html" title="Basic Pipeline"
+          <a href="compile_shader.html" title="CompileShader"
              accesskey="P">前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Shader Reflection</a></li> 
@@ -50,8 +50,8 @@
             
   <section class="tex2jax_ignore mathjax_ignore" id="shader-reflection">
 <h1>Shader Reflection<a class="headerlink" href="#shader-reflection" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">../../lib/gorilla/shader_reflection.cpp</span><a class="headerlink" href="#id2" title="このコードへのパーマリンク">¶</a></div>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">../../lib/gorilla/shader_reflection.cpp</span><a class="headerlink" href="#id3" title="このコードへのパーマリンク">¶</a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;shader_reflection.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;d3d11shader.h&gt;</span><span class="cp"></span>
 
@@ -229,6 +229,10 @@ vs, gs, ps 等ステージごとに管理する。</p>
 <h3>SamplerSlot<a class="headerlink" href="#samplerslot" title="このヘッドラインへのパーマリンク">¶</a></h3>
 </section>
 </section>
+<section id="id2">
+<h2>インプットレイアウト<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ID3D11InputLayout</span></code> を自動生成する。</p>
+</section>
 </section>
 
 
@@ -247,16 +251,17 @@ vs, gs, ps 等ステージごとに管理する。</p>
 <li><a class="reference internal" href="#samplerslot">SamplerSlot</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#id2">インプットレイアウト</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>前のトピックへ</h4>
-  <p class="topless"><a href="basic_pipeline.html"
-                        title="前の章へ">Basic Pipeline</a></p>
+  <p class="topless"><a href="compile_shader.html"
+                        title="前の章へ">CompileShader</a></p>
   <h4>次のトピックへ</h4>
-  <p class="topless"><a href="constant_buffer.html"
-                        title="次の章へ">Constant Buffer</a></p>
+  <p class="topless"><a href="basic_pipeline.html"
+                        title="次の章へ">Basic Pipeline</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
@@ -285,10 +290,10 @@ vs, gs, ps 等ステージごとに管理する。</p>
           <a href="../genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="constant_buffer.html" title="Constant Buffer"
+          <a href="basic_pipeline.html" title="Basic Pipeline"
              >次へ</a> |</li>
         <li class="right" >
-          <a href="basic_pipeline.html" title="Basic Pipeline"
+          <a href="compile_shader.html" title="CompileShader"
              >前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Shader Reflection</a></li> 

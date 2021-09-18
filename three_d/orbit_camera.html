@@ -85,6 +85,21 @@
     <span class="n">DirectX</span><span class="o">::</span><span class="n">XMStoreFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_view</span><span class="p">,</span> <span class="n">M</span><span class="p">);</span>
   <span class="p">}</span>
 
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3X4</span> <span class="n">normal_matrix</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="c1">// inverse, transpose</span>
+    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3X4</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_11</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_11</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_12</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_12</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_13</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_13</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_21</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_21</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_22</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_22</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_23</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_23</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_31</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_31</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_32</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_32</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_33</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_33</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">n</span><span class="p">;</span>
+  <span class="p">}</span>
+
   <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3</span> <span class="n">position</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
     <span class="k">auto</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixRotationY</span><span class="p">(</span><span class="o">-</span><span class="n">_yaw</span><span class="p">);</span>
     <span class="k">auto</span> <span class="n">P</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixRotationX</span><span class="p">(</span><span class="o">-</span><span class="n">_pitch</span><span class="p">);</span>
@@ -105,7 +120,7 @@
 
   <span class="k">const</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="o">&amp;</span><span class="n">view</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_view</span><span class="p">;</span> <span class="p">}</span>
   <span class="k">const</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="o">&amp;</span><span class="n">projection</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_projection</span><span class="p">;</span> <span class="p">}</span>
-  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">matrix</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">view_projection_matrix</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
     <span class="k">auto</span> <span class="n">V</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMLoadFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_view</span><span class="p">);</span>
     <span class="k">auto</span> <span class="n">P</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMLoadFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_projection</span><span class="p">);</span>
     <span class="k">auto</span> <span class="n">M</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixMultiply</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">P</span><span class="p">);</span>

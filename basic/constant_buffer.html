@@ -20,7 +20,7 @@
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
     <link rel="next" title="Texture" href="texture.html" />
-    <link rel="prev" title="Shader Reflection" href="shader_reflection.html" />
+    <link rel="prev" title="Basic Pipeline" href="basic_pipeline.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
@@ -36,7 +36,7 @@
           <a href="texture.html" title="Texture"
              accesskey="N">次へ</a> |</li>
         <li class="right" >
-          <a href="shader_reflection.html" title="Shader Reflection"
+          <a href="basic_pipeline.html" title="Basic Pipeline"
              accesskey="P">前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Constant Buffer</a></li> 
@@ -83,13 +83,14 @@
   <span class="n">element</span><span class="p">.</span><span class="n">color</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
   <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
   <span class="c1">// 1</span>
-  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-  <span class="n">element</span><span class="p">.</span><span class="n">color</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
-  <span class="c1">// 2</span>
   <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
   <span class="n">element</span><span class="p">.</span><span class="n">color</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
   <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
+  <span class="c1">// 2</span>
+  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="n">element</span><span class="p">.</span><span class="n">color</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
+
   <span class="n">output</span><span class="p">.</span><span class="n">RestartStrip</span><span class="p">();</span>
 <span class="p">}</span>
 
@@ -128,6 +129,20 @@
 </pre></div>
 </div>
 </div>
+<section id="c">
+<h2>C側のメモリレイアウト<a class="headerlink" href="#c" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>16バイトアライメント。
+例えば、hlsl の <code class="docutils literal notranslate"><span class="pre">float3x3</span></code> は,</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">Mat3</span> <span class="p">{</span>
+<span class="kt">float</span> <span class="n">_11</span><span class="p">,</span> <span class="n">_12</span><span class="p">,</span> <span class="n">_13</span><span class="p">,</span> <span class="n">padding</span><span class="p">,</span>
+<span class="n">_21</span><span class="p">,</span> <span class="n">_22</span><span class="p">,</span> <span class="n">_23</span><span class="p">,</span> <span class="n">padding</span><span class="p">,</span>
+<span class="n">_31</span><span class="p">,</span> <span class="n">_32</span><span class="p">,</span> <span class="n">_33</span><span class="p">,</span> <span class="n">padding</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>になることに注意する。
+DirectX::FLOAT3X3 ではなく DirectX::FLOAT3X4 に格納する必要がある。</p>
+</section>
 </section>
 
 
@@ -137,9 +152,17 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Constant Buffer</a><ul>
+<li><a class="reference internal" href="#c">C側のメモリレイアウト</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>前のトピックへ</h4>
-  <p class="topless"><a href="shader_reflection.html"
-                        title="前の章へ">Shader Reflection</a></p>
+  <p class="topless"><a href="basic_pipeline.html"
+                        title="前の章へ">Basic Pipeline</a></p>
   <h4>次のトピックへ</h4>
   <p class="topless"><a href="texture.html"
                         title="次の章へ">Texture</a></p>
@@ -174,7 +197,7 @@
           <a href="texture.html" title="Texture"
              >次へ</a> |</li>
         <li class="right" >
-          <a href="shader_reflection.html" title="Shader Reflection"
+          <a href="basic_pipeline.html" title="Basic Pipeline"
              >前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Constant Buffer</a></li> 

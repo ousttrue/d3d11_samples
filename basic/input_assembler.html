@@ -62,11 +62,9 @@
   <span class="kt">float4</span> <span class="n">Position</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
 <span class="p">};</span>
 
-<span class="k">row_major</span> <span class="kt">matrix</span> <span class="n">MVP</span><span class="p">;</span>
-
 <span class="n">PS_IN</span> <span class="n">vsMain</span><span class="p">(</span><span class="n">VS_IN</span> <span class="n">input</span><span class="p">)</span> <span class="p">{</span>
   <span class="n">PS_IN</span> <span class="n">Output</span><span class="p">;</span>
-  <span class="n">Output</span><span class="p">.</span><span class="n">Position</span> <span class="o">=</span> <span class="nb">mul</span><span class="p">(</span><span class="kt">float4</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">Position</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">MVP</span><span class="p">);</span>
+  <span class="n">Output</span><span class="p">.</span><span class="n">Position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">Position</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
   <span class="k">return</span> <span class="n">Output</span><span class="p">;</span>
 <span class="p">}</span>
 

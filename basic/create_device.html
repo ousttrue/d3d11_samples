@@ -86,13 +86,17 @@
 </pre></div>
 </div>
 </div>
+<section id="createdevice-flag">
+<h2>CreateDevice flag<a class="headerlink" href="#createdevice-flag" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
-<li><p>D3D11_CREATE_DEVICE_DEBUG があるとアプリケーション終了時に COM の Release 忘れが Console に表示される</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">D3D11_CREATE_DEVICE_DEBUG</span></code> があるとアプリケーション終了時に COM の Release 忘れが Console に表示される</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">D3D11_CREATE_DEVICE_BGRA_SUPPORT</span></code> は、D2D デバイスを作る場合は必要</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&lt;wrl/client.h&gt;</span></code> で <code class="docutils literal notranslate"><span class="pre">Microsoft::WRL::ComPtr&lt;T&gt;</span></code> を使うのが楽。</p>
-<ul class="simple">
-<li><p>D3D11_CREATE_DEVICE_BGRA_SUPPORT は、D2D デバイスを作る場合は必要</p></li>
-</ul>
+</section>
+<section id="microsoft-wrl-comptr-t">
+<h2>Microsoft::WRL::ComPtr<T><a class="headerlink" href="#microsoft-wrl-comptr-t" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&lt;wrl/client.h&gt;</span></code></p>
+</section>
 </section>
 
 
@@ -102,6 +106,15 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">CreateDevice</a><ul>
+<li><a class="reference internal" href="#createdevice-flag">CreateDevice flag</a></li>
+<li><a class="reference internal" href="#microsoft-wrl-comptr-t">Microsoft::WRL::ComPtr<T></a></li>
+</ul>
+</li>
+</ul>
+
   <h4>前のトピックへ</h4>
   <p class="topless"><a href="create_window.html"
                         title="前の章へ">CreateWindow</a></p>
