@@ -1,5 +1,6 @@
 #include "resource_manager.h"
 #include <array>
+#include <assert.h>
 #include <banana/asset.h>
 #include <gorilla/input_assembler.h>
 #include <iostream>
@@ -31,6 +32,7 @@ void Mesh::draw(const ComPtr<ID3D11DeviceContext> &context,
     // submesh level
     //
     auto material = submesh.material;
+    assert(material);
     material->pipeline.setup(context);
 
     // update constant buffer
@@ -97,28 +99,11 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
     assert(false);
     return {};
   }
-  auto [vs, vserror] =
-      material->pipeline.compile_vs(device, "vs", shader, "vsMain");
-  if (!vs) {
-    if (vserror) {
-      std::cerr << (const char *)vserror->GetBufferPointer() << std::endl;
-    }
-    return {};
-  }
-  auto [gs, gserror] =
-      material->pipeline.compile_gs(device, "gs", shader, "gsMain");
-  if (!gs) {
-    if (gserror) {
-      std::cerr << (const char *)gserror->GetBufferPointer() << std::endl;
-    }
-    // return 5;
-  }
-  auto [ps, pserror] =
-      material->pipeline.compile_ps(device, "ps", shader, "psMain");
-  if (!ps) {
-    if (pserror) {
-      std::cerr << (const char *)pserror->GetBufferPointer() << std::endl;
-    }
+  auto [ok, error] =
+      material->pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
+  if (!ok) {
+    std::cerr << error << std::endl;
+    assert(false);
     return {};
   }
 
@@ -173,6 +158,7 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
     auto &submesh = mesh->submeshes.emplace_back(SubMesh{});
     submesh.offset = sub.offset;
     submesh.draw_count = sub.draw_count;
+    assert(sub.material);
     if (sub.material) {
       submesh.material = get_or_create(device, sub.material);
     }

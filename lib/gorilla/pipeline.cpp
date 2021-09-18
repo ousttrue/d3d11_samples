@@ -28,7 +28,7 @@ Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
   // }
 
   D3D11_RASTERIZER_DESC rs_desc = {};
-  rs_desc.CullMode = D3D11_CULL_NONE;
+  rs_desc.CullMode = D3D11_CULL_BACK;
   rs_desc.FillMode = D3D11_FILL_SOLID;
   rs_desc.FrontCounterClockwise = true;
   rs_desc.ScissorEnable = false;

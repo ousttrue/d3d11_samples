@@ -1,7 +1,6 @@
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
-#include <banana/orbit_camera.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
 #include <gorilla/input_assembler.h>
@@ -21,9 +20,9 @@ auto HEIGHT = 320;
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 const DirectX::XMFLOAT2 triangle[3] = {
-    {1.0f, 0.0f},
-    {-1.0f, 0.0f},
+    {1.0f, -1.0f},
     {0.0f, 1.0f},
+    {-1.0f, -1.0f},
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -72,16 +71,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 8;
   }
 
-  banana::OrbitCamera camera;
-  banana::MouseBinder binder(camera);
-  window.bind_mouse(
-      std::bind(&banana::MouseBinder::Left, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Middle, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Right, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Move, &binder, std::placeholders::_1,
-                std::placeholders::_2),
-      std::bind(&banana::MouseBinder::Wheel, &binder, std::placeholders::_1));
-
   // main loop
   DXGI_SWAP_CHAIN_DESC desc;
   swapchain->GetDesc(&desc);
@@ -112,10 +101,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         assert(false);
       }
     }
-
-    // update
-    camera.resize(static_cast<float>(w), static_cast<float>(h));
-    pipeline.vs_stage.cb[0].update(context, camera.view_projection_matrix());
 
     // clear RTV
     auto v =

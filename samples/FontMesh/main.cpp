@@ -48,11 +48,11 @@ text_mesh(const ComPtr<ID3D11Device> &device, const char *text, float z) {
   index_data_.resize(num_indices);
   for (size_t i = 0; 6 * i < index_data_.size(); ++i) {
     index_data_[6 * i + 0] = 4 * i + 0;
-    index_data_[6 * i + 1] = 4 * i + 1;
-    index_data_[6 * i + 2] = 4 * i + 2;
+    index_data_[6 * i + 1] = 4 * i + 2;
+    index_data_[6 * i + 2] = 4 * i + 1;
     index_data_[6 * i + 3] = 4 * i + 2;
-    index_data_[6 * i + 4] = 4 * i + 3;
-    index_data_[6 * i + 5] = 4 * i + 0;
+    index_data_[6 * i + 4] = 4 * i + 0;
+    index_data_[6 * i + 5] = 4 * i + 3;
   }
 
   auto ia = std::make_shared<gorilla::InputAssembler>();
@@ -71,7 +71,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  auto shader = banana::get_string("ia.hlsl");
+  auto shader = banana::get_string("depth.hlsl");
   if (shader.empty()) {
     return 1;
   }

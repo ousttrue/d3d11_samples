@@ -16,12 +16,12 @@ struct GS_OUTPUT {
   element.color = float4(1, 0, 0, 1);
   output.Append(element);
   // 1
-  element.position = float4(-1, 1, 0, 1);
-  element.color = float4(0, 1, 0, 1);
-  output.Append(element);
-  // 2
   element.position = float4(1, 1, 0, 1);
   element.color = float4(0, 0, 1, 1);
+  output.Append(element);
+  // 2
+  element.position = float4(-1, 1, 0, 1);
+  element.color = float4(0, 1, 0, 1);
   output.Append(element);
   output.RestartStrip();
 }

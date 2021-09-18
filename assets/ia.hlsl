@@ -6,11 +6,9 @@ struct PS_IN {
   float4 Position : SV_POSITION;
 };
 
-row_major matrix MVP;
-
 PS_IN vsMain(VS_IN input) {
   PS_IN Output;
-  Output.Position = mul(float4(input.Position, 0, 1), MVP);
+  Output.Position = float4(input.Position, 0, 1);
   return Output;
 }
 

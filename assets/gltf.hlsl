@@ -3,7 +3,9 @@ SamplerState s0;
 
 struct VS_IN {
   float3 Position : POSITION;
+  float3 NORMAL : NORMAL;
   float2 Tex : TEXCOORD0;
+  float4 COLOR: COLOR0;
 };
 
 struct PS_IN {

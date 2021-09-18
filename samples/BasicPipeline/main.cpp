@@ -44,29 +44,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   // setup pipeline
   auto shader = banana::get_string("basic.hlsl");
   if (shader.empty()) {
-    return 7;
-  }
-  gorilla::Pipeline pipeline;
-  auto [vs, vserror] = pipeline.compile_vs(device, "vs", shader, "vsMain");
-  if (!vs) {
-    if (vserror) {
-      std::cerr << (const char *)vserror->GetBufferPointer() << std::endl;
-    }
     return 4;
   }
-  auto [gs, gserror] = pipeline.compile_gs(device, "gs", shader, "gsMain");
-  if (!gs) {
-    if (gserror) {
-      std::cerr << (const char *)gserror->GetBufferPointer() << std::endl;
-    }
+  gorilla::Pipeline pipeline;
+  auto [ok, error] =
+      pipeline.compile_shader(device, shader, "vsMain", "gsMain", "psMain");
+  if (!ok) {
+    std::cerr << error << std::endl;
     return 5;
-  }
-  auto [ps, pserror] = pipeline.compile_ps(device, "ps", shader, "psMain");
-  if (!ps) {
-    if (pserror) {
-      std::cerr << (const char *)pserror->GetBufferPointer() << std::endl;
-    }
-    return 6;
   }
 
   // main loop

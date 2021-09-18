@@ -2,17 +2,6 @@
 
 namespace gorilla {
 
-void RenderTarget::clear(const ComPtr<ID3D11DeviceContext> &context,
-                         const float clear[4]) {
-  context->ClearRenderTargetView(_rtv.Get(), clear);
-
-  if (_dsv) {
-    float clearDepth = 1.0f;
-    context->ClearDepthStencilView(
-        _dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, clearDepth, 0);
-  }
-}
-
 bool RenderTarget::create_rtv(const ComPtr<ID3D11Device> &device,
                               const ComPtr<ID3D11Texture2D> &texture) {
   auto hr = device->CreateRenderTargetView(texture.Get(), nullptr, &_rtv);
@@ -59,6 +48,17 @@ bool RenderTarget::create_dsv(const ComPtr<ID3D11Device> &device) {
   dssDesc.StencilEnable = false;
 
   return true;
+}
+
+void RenderTarget::clear(const ComPtr<ID3D11DeviceContext> &context,
+                         const float clear[4]) {
+  context->ClearRenderTargetView(_rtv.Get(), clear);
+
+  if (_dsv) {
+    float clearDepth = 1.0f;
+    context->ClearDepthStencilView(
+        _dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, clearDepth, 0);
+  }
 }
 
 void RenderTarget::setup(const ComPtr<ID3D11DeviceContext> &context, int w,

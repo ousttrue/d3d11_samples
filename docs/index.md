@@ -2,75 +2,31 @@
 
 d3d11 の備忘録。
 
-## Source
+## 準備
 
 ```{toctree}
+:maxdepth: 2
+
 source
-```
-
-## Screen Space
-
-以下の座標系
-
-```
-  (y)
-  +1
-   ^
--1-+>+1(x)
-   |
-  -1
-```
-
-UV は、左上原点
-
-```
-  0
- 0+->+1(x)
-  |
-  v
- +1
- (y)
-```
-
-```hlsl
-cbuffer model {
-  row_major float4 BaseColor;
-}
-```
-
-```{toctree}
+spec
 basic/create_window
 basic/create_device
 basic/create_swapchain
 basic/render_target
 basic/compile_shader
-basic/basic_pipeline
 basic/shader_reflection
+```
+
+## パイプラインとバッファーの取り扱い
+
+```{toctree}
+basic/basic_pipeline
 basic/constant_buffer
 basic/texture
 basic/input_assembler
 ```
 
-## Object Space
-
-glTF の座標系を採用する。右手系Y-UP
-
-```{toctree}
-  (y)
-   ^ /
-   |/
- --+-->(x)
-  /|
- L |
-(z)
-```
-
-```hlsl
-cbuffer object {
-  row_major matrix MVP;
-  // TODO: Light
-}
-```
+## Projection の導入と三次元化
 
 ```{toctree}
 three_d/orbit_camera
@@ -79,10 +35,14 @@ three_d/depth_test
 
 ## Lighting
 
+* ADS(Ambient, Diffuse, Specular)
+* NormalMap
+
 ## SceneGraph
 
 ```{toctree}
 three_d/scene
+three_d/gltf
 ```
 
 # 参考

@@ -15,3 +15,8 @@ vs, gs, ps 等ステージごとに管理する。
 ### TextureSlot
 
 ### SamplerSlot
+
+
+## インプットレイアウト
+
+`ID3D11InputLayout` を自動生成する。
