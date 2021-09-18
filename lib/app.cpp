@@ -1,6 +1,9 @@
 #include "app.h"
+#include <banana/asset.h>
 #include <gorilla/device.h>
+#include <gorilla/pipeline.h>
 #include <gorilla/swapchain.h>
+#include <iostream>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -34,6 +37,18 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
                      [binder](bool isPress) { binder->Right(isPress); },
                      [binder](int x, int y) { binder->Move(x, y); },
                      [binder](int d) { binder->Wheel(d); });
+
+  // gizmo
+  auto shader = banana::get_string("grid.hlsl");
+  if (shader.empty()) {
+    return {};
+  }
+  auto [ok, error] =
+      _grid.compile_shader(_device, shader, "vsMain", "gsMain", "psMain");
+  if (!ok) {
+    std::cerr << error << std::endl;
+    return {};
+  }
 
   return _device;
 }
@@ -84,6 +99,33 @@ bool App::new_frame(
   _render_target.clear(_context, clear);
   _render_target.setup(_context, w, h);
 
+  // gizmo
+#pragma pack(push)
+#pragma pack(16)
+  struct Constants {
+    DirectX::XMFLOAT4X4 view;
+    DirectX::XMFLOAT4X4 projection;
+    DirectX::XMFLOAT3 cameraPosition;
+    float _padding2;
+    DirectX::XMFLOAT2 screenSize;
+    float fovY;
+    float _padding3;
+  };
+#pragma pack(pop)
+  static_assert(sizeof(Constants) == 16 * 10, "sizeof ConstantsSize");
+  Constants constant;
+  constant.fovY = _camera._fovYRad;
+  constant.screenSize.x = w;
+  constant.screenSize.y = h;
+  constant.view = _camera._view;
+  constant.projection = _camera._projection;
+  constant.cameraPosition = _camera.position();
+  _grid.gs_stage.cb[0].update(_context, constant);
+  _grid.ps_stage.cb[0].update(_context, constant);
+  _grid.setup(_context);
+  _grid.draw_empty(_context);
+
+  // draw
   callback(_device, _context, _camera);
 
   // vsync

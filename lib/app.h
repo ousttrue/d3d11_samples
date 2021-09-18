@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <gorilla/render_target.h>
 #include <gorilla/window.h>
+#include <gorilla/pipeline.h>
 #include <wrl/client.h>
 
 class App {
@@ -18,6 +19,9 @@ class App {
   DXGI_SWAP_CHAIN_DESC _desc;
   UINT _frame_count = 0;
   gorilla::RenderTarget _render_target;
+
+  // gizmo
+  gorilla::Pipeline _grid;
 
 public:
   ComPtr<ID3D11Device> initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
