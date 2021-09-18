@@ -52,6 +52,15 @@ three_d/gltf
 * <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>
 * <https://tositeru.github.io/ImasaraDX11/>
 
+# Tool
+
+* <https://renderdoc.org/>
+
+# glTF
+
+* <https://github.com/KhronosGroup/glTF>
+* <https://github.com/KhronosGroup/glTF-Sample-Models>
+
 # Indices and tables
 
 * {ref}`genindex`
