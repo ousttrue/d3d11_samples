@@ -24,14 +24,12 @@ class App {
   gorilla::Pipeline _grid;
 
 public:
-  banana::OrbitCamera *get_camera() { return &_camera; }
-
+  banana::OrbitCamera *camera() { return &_camera; }
+  ComPtr<ID3D11DeviceContext> context() const { return _context; }
   ComPtr<ID3D11Device> initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
                                   int nCmdShow, const char *CLASS_NAME,
                                   const char *WINDOW_TITLE, int width = 1024,
                                   int height = 768);
-  bool
-  new_frame(const std::function<void(const ComPtr<ID3D11Device> &,
-                                     const ComPtr<ID3D11DeviceContext> &,
-                                     const banana::OrbitCamera)> &callback);
+  bool begin_frame();
+  void end_frame();
 };

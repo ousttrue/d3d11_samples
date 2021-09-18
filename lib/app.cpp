@@ -63,10 +63,7 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
   return _device;
 }
 
-bool App::new_frame(
-    const std::function<void(const ComPtr<ID3D11Device> &,
-                             const ComPtr<ID3D11DeviceContext> &,
-                             const banana::OrbitCamera)> &callback) {
+bool App::begin_frame() {
 
   if (!_window.process_messages()) {
     return false;
@@ -135,13 +132,16 @@ bool App::new_frame(
   _grid.setup(_context);
   _grid.draw_empty(_context);
 
+  return true;
+}
+
+void App::end_frame() {
   // draw
-  callback(_device, _context, _camera);
+  // callback(_device, _context, _camera);
 
   // vsync
   _context->Flush();
   _swapchain->Present(1, 0);
 
   _frame_count++;
-  return true;
 }

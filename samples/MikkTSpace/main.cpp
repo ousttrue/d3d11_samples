@@ -13,8 +13,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
 
   App app;
-  auto device = app.initialize(hInstance, lpCmdLine, nCmdShow, CLASS_NAME,
-                               WINDOW_TITLE);
+  auto device =
+      app.initialize(hInstance, lpCmdLine, nCmdShow, CLASS_NAME, WINDOW_TITLE);
   if (!device) {
     return 1;
   }
@@ -33,22 +33,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     root->transform.translation.y -= aabb.min.y;
   }
   auto half_height = aabb.height() / 2;
-  app.get_camera()->fit(half_height, half_height);
-  
+
+  auto camera = app.camera();
+  camera->fit(half_height, half_height);
 
   SceneRenderer renderer;
+  auto context = app.context();
 
   // main loop
-  while (app.new_frame(
-      [&renderer, &root](const ComPtr<ID3D11Device> &device,
-                         const ComPtr<ID3D11DeviceContext> &context,
-                         const banana::OrbitCamera &camera) {
-        renderer.Render(device, context,
-                        DirectX::XMLoadFloat4x4(&camera.projection()),
-                        DirectX::XMLoadFloat4x4(&camera.view()),
-                        DirectX::XMMatrixIdentity(), root);
-      }))
-    ;
+  while (app.begin_frame()) {
+    renderer.Render(device, context,
+                    DirectX::XMLoadFloat4x4(&camera->projection()),
+                    DirectX::XMLoadFloat4x4(&camera->view()),
+                    DirectX::XMMatrixIdentity(), root);
+
+    app.end_frame();
+  }
 
   return 0;
 }

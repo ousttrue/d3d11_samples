@@ -93,21 +93,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   material.Shininess = 1.0f;
 
   // main loop
-  while (app.new_frame([&pipeline, &ia, &world,
-                        &material](const ComPtr<ID3D11Device> &device,
-                                   const ComPtr<ID3D11DeviceContext> &context,
-                                   const banana::OrbitCamera &camera) {
+  auto context = app.context();
+  auto camera = app.camera();
+  while (app.begin_frame()) {
     // update
-    world.MVP = camera.view_projection_matrix();
-    world.NormalMatrix = camera.normal_matrix();
-    world.ModelViewMatrix = camera._view;
+    world.MVP = camera->view_projection_matrix();
+    world.NormalMatrix = camera->normal_matrix();
+    world.ModelViewMatrix = camera->_view;
     pipeline.vs_stage.cb[0].update(context, world);
     pipeline.vs_stage.cb[1].update(context, material);
     // draw
     pipeline.setup(context);
     ia.draw(context);
-  }))
-    ;
+
+    app.end_frame();
+  }
 
   return 0;
 }
