@@ -120,7 +120,7 @@
 <span class="p">}</span>
 
 <span class="kt">void</span> <span class="n">ConstantBuffer</span><span class="o">::</span><span class="n">update</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">,</span>
-                            <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="n">UINT</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
   <span class="n">assert</span><span class="p">(</span><span class="n">desc</span><span class="p">.</span><span class="n">ByteWidth</span> <span class="o">==</span> <span class="n">size</span><span class="p">);</span>
   <span class="n">context</span><span class="o">-&gt;</span><span class="n">UpdateSubresource</span><span class="p">(</span><span class="n">buffer</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 <span class="p">}</span>
