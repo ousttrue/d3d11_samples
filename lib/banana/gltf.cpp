@@ -1,10 +1,13 @@
 #include "gltf.h"
 #include "asset.h"
+#include "banana/types.h"
 #include "glb.h"
 #include <DirectXMath.h>
 #include <array>
 #include <fstream>
+#include <mikktspace.h>
 #include <nlohmann/json.hpp>
+#include <stdexcept>
 
 namespace banana::gltf {
 
@@ -114,6 +117,83 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
   return material;
 }
 
+struct TangentData {
+  size_t index_offset;
+  int index_count;
+  Mesh *mesh;
+};
+
+// Returns the number of faces (triangles/quads) on the mesh to be processed.
+static int getNumFaces(const SMikkTSpaceContext *pContext) {
+  auto data = (TangentData *)pContext->m_pUserData;
+  return data->index_count / 3;
+}
+
+// Returns the number of vertices on face number iFace
+// iFace is a number in the range {0, 1, ..., getNumFaces()-1}
+static int getNumVerticesOfFace(const SMikkTSpaceContext *pContext,
+                                const int iFace) {
+  return 3; // triangle
+}
+
+// returns the position/normal/texcoord of the referenced face of vertex number
+// iVert. iVert is in the range {0,1,2} for triangles and {0,1,2,3} for quads.
+static void getPosition(const SMikkTSpaceContext *pContext, float fvPosOut[],
+                        const int iFace, const int iVert) {
+  auto data = (TangentData *)pContext->m_pUserData;
+  auto i = data->index_offset + iFace * 3 + iVert;
+  auto vertex_index = data->mesh->indices[i];
+  auto &v = data->mesh->vertices[vertex_index];
+  fvPosOut[0] = v.position.x;
+  fvPosOut[1] = v.position.y;
+  fvPosOut[2] = v.position.z;
+}
+
+static void getNormal(const SMikkTSpaceContext *pContext, float fvNormOut[],
+                      const int iFace, const int iVert) {
+  auto data = (TangentData *)pContext->m_pUserData;
+  auto i = data->index_offset + iFace * 3 + iVert;
+  auto vertex_index = data->mesh->indices[i];
+  auto &v = data->mesh->vertices[vertex_index];
+  fvNormOut[0] = v.normal.x;
+  fvNormOut[1] = v.normal.y;
+  fvNormOut[2] = v.normal.z;
+}
+
+static void getTexCoord(const SMikkTSpaceContext *pContext, float fvTexcOut[],
+                        const int iFace, const int iVert) {
+  auto data = (TangentData *)pContext->m_pUserData;
+  auto i = data->index_offset + iFace * 3 + iVert;
+  auto vertex_index = data->mesh->indices[i];
+  auto &v = data->mesh->vertices[vertex_index];
+  fvTexcOut[0] = v.tex0.x;
+  fvTexcOut[1] = v.tex0.y;
+}
+
+// either (or both) of the two setTSpace callbacks can be set.
+// The call-back m_setTSpaceBasic() is sufficient for basic normal mapping.
+
+// This function is used to return the tangent and fSign to the application.
+// fvTangent is a unit length vector.
+// For normal maps it is sufficient to use the following simplified version of
+// the bitangent which is generated at pixel/vertex level. bitangent = fSign *
+// cross(vN, tangent); Note that the results are returned unindexed. It is
+// possible to generate a new index list But averaging/overwriting tangent
+// spaces by using an already existing index list WILL produce INCRORRECT
+// results. DO NOT! use an already existing index list.
+static void setTSpaceBasic(const SMikkTSpaceContext *pContext,
+                           const float fvTangent[], const float fSign,
+                           const int iFace, const int iVert) {
+  auto data = (TangentData *)pContext->m_pUserData;
+  auto i = data->index_offset + iFace * 3 + iVert;
+  auto vertex_index = data->mesh->indices[i];
+  auto &v = data->mesh->vertices[vertex_index];
+  v.tangent.x = fvTangent[0];
+  v.tangent.y = fvTangent[1];
+  v.tangent.z = fvTangent[2];
+  v.tangent.w = fSign;
+}
+
 static std::shared_ptr<Mesh>
 load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
           const nlohmann::json &gltf_mesh,
@@ -122,6 +202,9 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
   size_t vertex_offset = 0;
   size_t index_offset = 0;
   for (auto &gltf_prim : gltf_mesh["primitives"]) {
+    //
+    // concat primitives
+    //
     auto &submesh = mesh->submeshes.emplace_back(SubMesh{});
     if (gltf_prim.contains("material")) {
       int material_index = gltf_prim["material"];
@@ -137,22 +220,28 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       auto position = from_accessor<Float3>(gltf, bin, position_accessor_index);
       vertex_count = position.size();
       mesh->vertices.resize(vertex_offset + position.size());
-      size_t i=0;
-      for (auto &p: position) {
+      size_t i = 0;
+      for (auto &p : position) {
         mesh->vertices[vertex_offset + (i++)].position = p;
         mesh->aabb.expand(p);
       }
     }
 
+    // tex
     if (attributes.contains("TEXCOORD_0")) {
       int tex_accessor_index = attributes["TEXCOORD_0"];
       auto tex = from_accessor<Float2>(gltf, bin, tex_accessor_index);
       assert(tex.size() == vertex_count);
       mesh->vertices.resize(vertex_offset + tex.size());
-      size_t i=0;
-      for (auto &uv: tex) {
+      size_t i = 0;
+      for (auto &uv : tex) {
         mesh->vertices[vertex_offset + i++].tex0 = uv;
       }
+    }
+
+    auto has_tangent = attributes.contains("TANGENT");
+    if (has_tangent) {
+      throw std::runtime_error("not implemented");
     }
 
     if (gltf_prim.contains("indices")) {
@@ -189,6 +278,28 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     }
 
     vertex_offset += vertex_count;
+
+    if (submesh.material && submesh.material->normal_map && !has_tangent) {
+      // calc tangent
+      SMikkTSpaceInterface interface;
+      interface.m_getNumFaces = &getNumFaces;
+      interface.m_getNumVerticesOfFace = &getNumVerticesOfFace;
+      interface.m_getPosition = &getPosition;
+      interface.m_getNormal = &getNormal;
+      interface.m_getTexCoord = &getTexCoord;
+      interface.m_setTSpaceBasic = &setTSpaceBasic;
+
+      SMikkTSpaceContext context;
+      context.m_pInterface = &interface;
+
+      TangentData user_data;
+      user_data.index_count = submesh.draw_count;
+      user_data.index_offset = index_offset - submesh.draw_count;
+      user_data.mesh = mesh.get();
+      context.m_pUserData = &user_data;
+
+      genTangSpaceDefault(&context);
+    }
   }
   return mesh;
 }

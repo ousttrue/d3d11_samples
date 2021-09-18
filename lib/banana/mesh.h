@@ -15,6 +15,7 @@ struct Mesh {
     Float3 normal;
     Float2 tex0;
     Float4 color;
+    Float4 tangent;
   };
   using Index = uint32_t;
 
