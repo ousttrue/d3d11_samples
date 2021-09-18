@@ -24,6 +24,8 @@ basic/basic_pipeline
 basic/constant_buffer
 basic/texture
 basic/input_assembler
+basic/mip_map
+basic/post_effect
 ```
 
 ## Projection の導入と三次元化
