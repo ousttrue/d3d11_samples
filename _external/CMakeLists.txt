@@ -1,1 +1,1 @@
-subdirs(stb json)
+subdirs(stb json MikkTSpace)

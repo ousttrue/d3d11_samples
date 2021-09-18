@@ -94,7 +94,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // main loop
   while (app.new_frame([&pipeline, &ia, &world,
-                        &material](const ComPtr<ID3D11DeviceContext> &context,
+                        &material](const ComPtr<ID3D11Device> &device,
+                                   const ComPtr<ID3D11DeviceContext> &context,
                                    const banana::OrbitCamera &camera) {
     // update
     world.MVP = camera.view_projection_matrix();

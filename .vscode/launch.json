@@ -135,6 +135,13 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "MikkTSpace",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/MikkTSpace.exe",
+        },
+        {
             "name": "GltfScene",
             "type": "cppvsdbg",
             "request": "launch",

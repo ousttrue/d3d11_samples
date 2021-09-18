@@ -1,68 +1,9 @@
-#include "resource_manager.h"
-#include <array>
-#include <assert.h>
+#include "scene_renderer.h"
 #include <banana/asset.h>
-#include <gorilla/input_assembler.h>
+#include <gorilla/mesh.h>
 #include <iostream>
 
-struct GltfShaderConstant {
-  std::array<float, 16> MVP;
-  std::array<float, 4> BaseColor;
-};
-
-template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-
-namespace gorilla::resource {
-
-void Mesh::draw(const ComPtr<ID3D11DeviceContext> &context,
-                const DirectX::XMMATRIX &projection,
-                const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &model) {
-
-  //
-  // mesh level
-  //
-  auto VP = DirectX::XMMatrixMultiply(view, projection);
-  auto MVP = DirectX::XMMatrixMultiply(model, VP);
-  DirectX::XMFLOAT4X4 mvp;
-  DirectX::XMStoreFloat4x4(&mvp, MVP);
-
-  ia.setup(context);
-  for (auto &submesh : submeshes) {
-    //
-    // submesh level
-    //
-    auto material = submesh.material;
-    assert(material);
-    material->pipeline.setup(context);
-
-    // update constant buffer
-    GltfShaderConstant constant;
-    constant.MVP = *((const std::array<float, 16> *)&mvp);
-    constant.BaseColor = material->base_color;
-    for (auto &slot : material->pipeline.vs_stage.cb) {
-      slot.update(context, constant);
-    }
-    for (auto &slot : material->pipeline.gs_stage.cb) {
-      slot.update(context, constant);
-    }
-    for (auto &slot : material->pipeline.ps_stage.cb) {
-      slot.update(context, constant);
-    }
-
-    // SRV
-    if (material->base_color_texture) {
-      material->base_color_texture->set_ps(context, 0, 0);
-    }
-
-    // STATE
-    context->RSSetState(material->rs.Get());
-
-    // draw submesh
-    ia.draw_submesh(context, submesh.offset, submesh.draw_count);
-  }
-}
-
-std::shared_ptr<Texture>
+std::shared_ptr<gorilla::Texture>
 ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
                                const std::shared_ptr<banana::Image> &src) {
 
@@ -75,14 +16,14 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
     return found->second;
   }
 
-  auto texture = std::make_shared<Texture>();
+  auto texture = std::make_shared<gorilla::Texture>();
   _texture_map.insert(std::make_pair(src, texture));
   texture->create(device, src->data(), src->width(), src->height());
 
   return texture;
 }
 
-std::shared_ptr<Material>
+std::shared_ptr<gorilla::Material>
 ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
                                const std::shared_ptr<banana::Material> &src) {
 
@@ -91,7 +32,7 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
     return found->second;
   }
 
-  auto material = std::make_shared<Material>();
+  auto material = std::make_shared<gorilla::Material>();
   _material_map.insert(std::make_pair(src, material));
   // material->pipeline.
   auto shader = banana::get_string(src->shader_name);
@@ -110,9 +51,9 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
   material->base_color_texture = get_or_create(device, src->base_color_texture);
   if (!material->base_color_texture) {
     // default white
-    static std::shared_ptr<Texture> WHITE;
+    static std::shared_ptr<gorilla::Texture> WHITE;
     if (!WHITE) {
-      WHITE = std::make_shared<Texture>();
+      WHITE = std::make_shared<gorilla::Texture>();
       uint8_t white[2 * 2 * 4] = {
           1, 1, 1, 1, //
           1, 1, 1, 1, //
@@ -137,7 +78,7 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
   return material;
 }
 
-std::shared_ptr<Mesh>
+std::shared_ptr<gorilla::Mesh>
 ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
                                const std::shared_ptr<banana::Mesh> &src) {
   auto found = _mesh_map.find(src);
@@ -145,7 +86,7 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
     return found->second;
   }
 
-  auto mesh = std::make_shared<Mesh>();
+  auto mesh = std::make_shared<gorilla::Mesh>();
   _mesh_map.insert(std::make_pair(src, mesh));
   if (!mesh->ia.create_vertices(device, src->vertices)) {
     return {};
@@ -155,7 +96,7 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
   }
 
   for (auto &sub : src->submeshes) {
-    auto &submesh = mesh->submeshes.emplace_back(SubMesh{});
+    auto &submesh = mesh->submeshes.emplace_back(gorilla::SubMesh{});
     submesh.offset = sub.offset;
     submesh.draw_count = sub.draw_count;
     assert(sub.material);
@@ -166,5 +107,3 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
 
   return mesh;
 }
-
-} // namespace gorilla::resource

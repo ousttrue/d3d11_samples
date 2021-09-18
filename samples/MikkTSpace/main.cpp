@@ -20,7 +20,7 @@
 #include <scene_renderer.h>
 
 auto CLASS_NAME = "CLASS_NAME";
-auto WINDOW_TITLE = "GltfScene";
+auto WINDOW_TITLE = "MikkTSpace";
 auto WIDTH = 320;
 auto HEIGHT = 320;
 

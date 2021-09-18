@@ -20,5 +20,5 @@ subdirs(
   #
   ImageLoader
   GltfLoader
-  GltfScene
-  )
+  MikkTSpace
+  GltfScene)

@@ -30,16 +30,17 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
 
   auto binder = std::make_shared<banana::MouseBinder>(_camera);
   _window.bind_mouse([binder](bool isPress) { binder->Left(isPress); },
-                    [binder](bool isPress) { binder->Middle(isPress); },
-                    [binder](bool isPress) { binder->Right(isPress); },
-                    [binder](int x, int y) { binder->Move(x, y); },
-                    [binder](int d) { binder->Wheel(d); });
+                     [binder](bool isPress) { binder->Middle(isPress); },
+                     [binder](bool isPress) { binder->Right(isPress); },
+                     [binder](int x, int y) { binder->Move(x, y); },
+                     [binder](int d) { binder->Wheel(d); });
 
   return _device;
 }
 
 bool App::new_frame(
-    const std::function<void(const ComPtr<ID3D11DeviceContext> &,
+    const std::function<void(const ComPtr<ID3D11Device> &,
+                             const ComPtr<ID3D11DeviceContext> &,
                              const banana::OrbitCamera)> &callback) {
 
   if (!_window.process_messages()) {
@@ -55,7 +56,7 @@ bool App::new_frame(
     _render_target.release();
     // resize swapchain
     _swapchain->ResizeBuffers(_desc.BufferCount, w, h, _desc.BufferDesc.Format,
-                             _desc.Flags);
+                              _desc.Flags);
   }
 
   // ensure create backbuffer
@@ -83,7 +84,7 @@ bool App::new_frame(
   _render_target.clear(_context, clear);
   _render_target.setup(_context, w, h);
 
-  callback(_context, _camera);
+  callback(_device, _context, _camera);
 
   // vsync
   _context->Flush();

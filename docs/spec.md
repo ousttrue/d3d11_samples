@@ -31,6 +31,8 @@ glTF を中心に取り扱いたいので、仕様はそれに合わせる。
 
 右手系Y-UP
 
+`DirectX::XMMatrixPerspectiveFovRH`
+
 ```{toctree}
   (y)
    ^ /

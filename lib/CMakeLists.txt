@@ -11,6 +11,7 @@ add_library(
   gorilla/shader_reflection.cpp
   gorilla/swapchain.cpp
   gorilla/texture.cpp
+  gorilla/mesh.cpp
   gorilla/window.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PUBLIC d3d11.lib d3dcompiler.lib
@@ -25,5 +26,5 @@ target_link_libraries(${TARGET_NAME} PRIVATE json)
 
 # app
 set(TARGET_NAME app)
-add_library(${TARGET_NAME} app.cpp)
+add_library(${TARGET_NAME} app.cpp scene_renderer.cpp)
 target_link_libraries(${TARGET_NAME} PUBLIC gorilla banana)
