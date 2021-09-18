@@ -56,6 +56,7 @@
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-text">../../lib/banana/orbit_camera.h</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
+<span class="cp">#include</span> <span class="cpf">&quot;types.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;DirectXMath.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;limits&gt;</span><span class="cp"></span>
 
@@ -157,6 +158,12 @@
     <span class="n">_w</span> <span class="o">=</span> <span class="n">w</span><span class="p">;</span>
     <span class="n">_h</span> <span class="o">=</span> <span class="n">h</span><span class="p">;</span>
     <span class="n">calc_projection</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="kt">void</span> <span class="n">fit</span><span class="p">(</span><span class="kt">float</span> <span class="n">y</span><span class="p">,</span> <span class="kt">float</span> <span class="n">half_height</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">half_height</span> <span class="o">/</span> <span class="n">tan</span><span class="p">(</span><span class="n">_fovYRad</span> <span class="o">*</span> <span class="mf">0.5f</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1.5f</span><span class="p">;</span>
+    <span class="n">_shift</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
+    <span class="n">calc_view</span><span class="p">();</span>
   <span class="p">}</span>
 <span class="p">};</span>
 
