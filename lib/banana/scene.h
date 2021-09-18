@@ -56,7 +56,9 @@ struct SubMesh {
 struct Mesh {
   struct Vertex {
     Float3 position;
+    Float3 normal;
     Float2 tex0;
+    Float4 color;
   };
   using Index = uint32_t;
 

@@ -1,6 +1,7 @@
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
+#include <banana/geometry.h>
 #include <banana/orbit_camera.h>
 #include <gorilla/constant_buffer.h>
 #include <gorilla/device.h>
@@ -19,73 +20,6 @@ auto WIDTH = 320;
 auto HEIGHT = 320;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
-
-struct Vertex {
-  DirectX::XMFLOAT4 POSITION;
-  DirectX::XMFLOAT4 COLOR;
-  DirectX::XMFLOAT2 UV;
-};
-auto size = 0.4f;
-Vertex vertices[] = {
-    // x
-    {DirectX::XMFLOAT4(-size, -size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
-    {DirectX::XMFLOAT4(-size, -size, size, 1.0f),
-     DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
-    {DirectX::XMFLOAT4(-size, size, size, 1.0f),
-     DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
-    {DirectX::XMFLOAT4(-size, size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
-
-    {DirectX::XMFLOAT4(size, -size, -size, 1.0f),
-     DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
-    {DirectX::XMFLOAT4(size, size, -size, 1.0f),
-     DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
-    {DirectX::XMFLOAT4(size, size, size, 1.0f),
-     DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
-    {DirectX::XMFLOAT4(size, -size, size, 1.0f),
-     DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
-    // y
-    {DirectX::XMFLOAT4(-size, size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
-    {DirectX::XMFLOAT4(-size, size, size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
-    {DirectX::XMFLOAT4(size, size, size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
-    {DirectX::XMFLOAT4(size, size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
-
-    {DirectX::XMFLOAT4(-size, -size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
-    {DirectX::XMFLOAT4(size, -size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
-    {DirectX::XMFLOAT4(size, -size, size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
-    {DirectX::XMFLOAT4(-size, -size, size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
-    // z
-    {DirectX::XMFLOAT4(-size, -size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(0, 1)},
-    {DirectX::XMFLOAT4(-size, size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(0, 0)},
-    {DirectX::XMFLOAT4(size, size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(1, 0)},
-    {DirectX::XMFLOAT4(size, -size, -size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT2(1, 1)},
-
-    {DirectX::XMFLOAT4(-size, -size, size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0, 1)},
-    {DirectX::XMFLOAT4(size, -size, size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 1)},
-    {DirectX::XMFLOAT4(size, size, size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(1, 0)},
-    {DirectX::XMFLOAT4(-size, size, size, 1.0f),
-     DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT2(0, 0)},
-};
-unsigned int indices[] = {
-    0,  1,  2,  2,  3,  0,  4,  5,  6,  6,  7,  4,  8,  9,  10, 10, 11, 8,
-    12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20,
-};
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
@@ -128,13 +62,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 5;
   }
 
+  auto cube = banana::geometry::create_cube(0.4f);
+
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, vertices, sizeof(vertices),
-                          _countof(vertices))) {
-    return 8;
+  if (!ia.create_vertices(device, cube->vertices)) {
+    return 6;
   }
-  if (!ia.create_indices(device, indices, sizeof(indices), _countof(indices))) {
-    return 8;
+  if (!ia.create_indices(device, cube->indices)) {
+    return 7;
   }
 
   banana::OrbitCamera camera;

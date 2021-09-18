@@ -8,7 +8,29 @@ d3d11 の備忘録。
 source
 ```
 
-## Basic
+## Screen Space
+
+以下の座標系
+
+```
+  (y)
+  +1
+   ^
+-1-+>+1(x)
+   |
+  -1
+```
+
+UV は、左上原点
+
+```
+  (y)
+   0
+   |
+ 0-+>+1(x)
+   V
+  +1
+```
 
 ```{toctree}
 basic/create_window
@@ -23,15 +45,18 @@ basic/texture
 basic/input_assembler
 ```
 
-## 3D Mesh
+## Object Space
 
 ```{toctree}
 three_d/orbit_camera
 three_d/depth_test
-three_d/scene
 ```
 
 ## SceneGraph
+
+```{toctree}
+three_d/scene
+```
 
 # 参考
 
