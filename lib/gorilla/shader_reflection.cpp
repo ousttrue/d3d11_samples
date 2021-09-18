@@ -99,8 +99,7 @@ ComPtr<ID3D11InputLayout>
 create_input_layout(const ComPtr<ID3D11Device> &device,
                     const ComPtr<ID3DBlob> &compiled) {
   auto elements = gorilla::get_elements(compiled);
-  if(elements.empty())
-  {
+  if (elements.empty()) {
     return {};
   }
   ComPtr<ID3D11InputLayout> input_layout;
@@ -135,14 +134,16 @@ bool ShaderReflection::reflect(const ComPtr<ID3DBlob> &compiled) {
       auto v = cb->GetVariableByIndex(j);
       D3D11_SHADER_VARIABLE_DESC vdesc;
       v->GetDesc(&vdesc);
+      vdesc.Name = cache_string(vdesc.Name);
       // OutputDebugPrintfA("(%d) %s %d\n", j, vdesc.Name, vdesc.StartOffset);
       cb_slots.back().variables.push_back(vdesc);
     }
   }
 
   for (UINT i = 0; i < shaderdesc.BoundResources; ++i) {
-    D3D11_SHADER_INPUT_BIND_DESC desc;
+    D3D11_SHADER_INPUT_BIND_DESC desc = {};
     pReflector->GetResourceBindingDesc(i, &desc);
+    desc.Name = cache_string(desc.Name);
     switch (desc.Type) {
     case D3D_SIT_TEXTURE:
       srv_slots.push_back(desc);

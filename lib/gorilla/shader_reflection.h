@@ -2,6 +2,7 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
+#include <list>
 #include <string>
 #include <vector>
 #include <wrl/client.h>
@@ -23,6 +24,12 @@ struct ConstantBufferSlot {
 };
 
 class ShaderReflection {
+  std::list<std::string> _string_buffer;
+  char *cache_string(const char *src) {
+    _string_buffer.push_back(src);
+    return (char *)_string_buffer.back().data();
+  }
+
 public:
   std::vector<ConstantBufferSlot> cb_slots;
   std::vector<D3D11_SHADER_INPUT_BIND_DESC> srv_slots;
