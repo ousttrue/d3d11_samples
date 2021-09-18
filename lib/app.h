@@ -21,8 +21,8 @@ class App {
 public:
   ComPtr<ID3D11Device> initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
                                   int nCmdShow, const char *CLASS_NAME,
-                                  const char *WINDOW_TITLE, int width = 0,
-                                  int height = 0);
+                                  const char *WINDOW_TITLE, int width = 320,
+                                  int height = 320);
   bool
   new_frame(const std::function<void(const ComPtr<ID3D11DeviceContext> &,
                                      const banana::OrbitCamera)> &callback);

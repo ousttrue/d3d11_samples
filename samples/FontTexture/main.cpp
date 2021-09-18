@@ -264,7 +264,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     render_target.setup(context, w, h);
 
     context->RSSetState(rs.Get());
-    font.pipeline.vs_stage.cb[0].update(context, camera.matrix());
+    font.pipeline.vs_stage.cb[0].update(context, camera.view_projection_matrix());
     font.setup(context);
     ia->draw(context);
 

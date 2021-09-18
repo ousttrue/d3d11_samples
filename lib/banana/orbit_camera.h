@@ -28,6 +28,21 @@ struct OrbitCamera {
     DirectX::XMStoreFloat4x4(&_view, M);
   }
 
+  DirectX::XMFLOAT3X4 normal_matrix() const {
+    // inverse, transpose
+    DirectX::XMFLOAT3X4 n;
+    n._11 = _view._11;
+    n._12 = _view._12;
+    n._13 = _view._13;
+    n._21 = _view._21;
+    n._22 = _view._22;
+    n._23 = _view._23;
+    n._31 = _view._31;
+    n._32 = _view._32;
+    n._33 = _view._33;
+    return n;
+  }
+
   DirectX::XMFLOAT3 position() const {
     auto Y = DirectX::XMMatrixRotationY(-_yaw);
     auto P = DirectX::XMMatrixRotationX(-_pitch);
@@ -48,7 +63,7 @@ public:
 
   const DirectX::XMFLOAT4X4 &view() const { return _view; }
   const DirectX::XMFLOAT4X4 &projection() const { return _projection; }
-  DirectX::XMFLOAT4X4 matrix() const {
+  DirectX::XMFLOAT4X4 view_projection_matrix() const {
     auto V = DirectX::XMLoadFloat4x4(&_view);
     auto P = DirectX::XMLoadFloat4x4(&_projection);
     auto M = DirectX::XMMatrixMultiply(V, P);

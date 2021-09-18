@@ -9,8 +9,8 @@ std::shared_ptr<Mesh> create_cube(float size) {
   auto right = Float3(1, 0, 0);
   auto bottom = Float3(0, -1, 0);
   auto top = Float3(0, 1, 0);
-  auto forward = Float3(0, 0, -1);
-  auto back = Float3(0, 0, 1);
+  auto forward = Float3(0, 0, 1);
+  auto back = Float3(0, 0, -1);
 
   auto red = Float4(1, 0, 0, 1);
   auto green = Float4(0, 1, 0, 1);
