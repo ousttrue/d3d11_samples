@@ -21,8 +21,6 @@
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "GltfScene";
-auto WIDTH = 320;
-auto HEIGHT = 320;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -33,7 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   App app;
   auto device = app.initialize(hInstance, lpCmdLine, nCmdShow, CLASS_NAME,
-                               WINDOW_TITLE, WIDTH, HEIGHT);
+                               WINDOW_TITLE);
   if (!device) {
     return 1;
   }

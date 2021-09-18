@@ -86,6 +86,7 @@ static std::shared_ptr<Image> load_texture(const nlohmann::json &gltf,
   return image;
 }
 
+// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/material.schema.json
 static std::shared_ptr<Material>
 load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
               const nlohmann::json &gltf_material,
@@ -96,15 +97,26 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
   if (gltf_material.contains("pbrMetallicRoughness")) {
     auto pbrMetallicRoughness = gltf_material["pbrMetallicRoughness"];
     if (pbrMetallicRoughness.contains("baseColorTexture")) {
-      auto baseColorTexture = pbrMetallicRoughness["baseColorTexture"];
-      if (baseColorTexture.contains("index")) {
-        int base_color_texture_index = baseColorTexture["index"];
-        material->base_color_texture = textures[base_color_texture_index];
+      auto texture = pbrMetallicRoughness["baseColorTexture"];
+      if (texture.contains("index")) {
+        int texture_index = texture["index"];
+        material->base_color_texture = textures[texture_index];
       }
     }
     if (gltf_material.contains("baseColorFactor")) {
       material->base_color =
           load_float_array<4, Float4>(gltf_material["baseColorFactor"]);
+    }
+  }
+
+  if (gltf_material.contains("normalTexture")) {
+    auto texture = gltf_material["normalTexture"];
+    if (texture.contains("index")) {
+      int texture_index = texture["index"];
+      material->normal_map = textures[texture_index];
+    }
+    if (texture.contains("scale")) {
+      material->normal_map_scale = texture["scale"];
     }
   }
 
@@ -281,7 +293,7 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
 
     if (submesh.material && submesh.material->normal_map && !has_tangent) {
       // calc tangent
-      SMikkTSpaceInterface interface;
+      SMikkTSpaceInterface interface = {0};
       interface.m_getNumFaces = &getNumFaces;
       interface.m_getNumVerticesOfFace = &getNumVerticesOfFace;
       interface.m_getPosition = &getPosition;
@@ -289,7 +301,7 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       interface.m_getTexCoord = &getTexCoord;
       interface.m_setTSpaceBasic = &setTSpaceBasic;
 
-      SMikkTSpaceContext context;
+      SMikkTSpaceContext context = {0};
       context.m_pInterface = &interface;
 
       TangentData user_data;

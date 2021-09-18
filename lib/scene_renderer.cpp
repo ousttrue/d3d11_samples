@@ -2,6 +2,10 @@
 #include <banana/asset.h>
 #include <gorilla/mesh.h>
 #include <iostream>
+#include <memory>
+#include <system_error>
+
+template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 std::shared_ptr<gorilla::Texture>
 ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
@@ -64,6 +68,7 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
     }
     material->base_color_texture = WHITE;
   }
+  material->normal_map = get_or_create(device, src->normal_map);
 
   D3D11_RASTERIZER_DESC rs_desc = {};
   rs_desc.CullMode = D3D11_CULL_NONE;
@@ -106,4 +111,83 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
   }
 
   return mesh;
+}
+
+struct GltfShaderConstant {
+  std::array<float, 16> MVP;
+  std::array<float, 4> BaseColor;
+};
+
+static void draw(const ComPtr<ID3D11DeviceContext> &context,
+                 const std::shared_ptr<gorilla::Mesh> &drawable,
+                 const DirectX::XMMATRIX &projection,
+                 const DirectX::XMMATRIX &view,
+                 const DirectX::XMMATRIX &model) {
+
+  //
+  // mesh level
+  //
+  auto VP = DirectX::XMMatrixMultiply(view, projection);
+  auto MVP = DirectX::XMMatrixMultiply(model, VP);
+  DirectX::XMFLOAT4X4 mvp;
+  DirectX::XMStoreFloat4x4(&mvp, MVP);
+
+  drawable->ia.setup(context);
+  for (auto &submesh : drawable->submeshes) {
+    //
+    // submesh level
+    //
+    auto material = submesh.material;
+    assert(material);
+    material->pipeline.setup(context);
+
+    // update constant buffer
+    GltfShaderConstant constant;
+    constant.MVP = *((const std::array<float, 16> *)&mvp);
+    constant.BaseColor = material->base_color;
+    for (auto &slot : material->pipeline.vs_stage.cb) {
+      slot.update(context, constant);
+    }
+    for (auto &slot : material->pipeline.gs_stage.cb) {
+      slot.update(context, constant);
+    }
+    for (auto &slot : material->pipeline.ps_stage.cb) {
+      slot.update(context, constant);
+    }
+
+    // SRV
+    if (material->base_color_texture) {
+      material->base_color_texture->set_ps(context, 0, 0);
+    }
+    if (material->normal_map) {
+      material->normal_map->set_ps(context, 1, 1);
+    }
+
+    // STATE
+    context->RSSetState(material->rs.Get());
+
+    // draw submesh
+    drawable->ia.draw_submesh(context, submesh.offset, submesh.draw_count);
+  }
+}
+
+void SceneRenderer::Render(const ComPtr<ID3D11Device> &device,
+                           const ComPtr<ID3D11DeviceContext> &context,
+                           const DirectX::XMMATRIX &projection,
+                           const DirectX::XMMATRIX &view,
+                           const DirectX::XMMATRIX &parent,
+                           const std::shared_ptr<banana::Node> &node) {
+
+  auto local = node->transform.matrix();
+  auto M = DirectX::XMMatrixMultiply(
+      DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4 *)&local), parent);
+
+  if (node->mesh) {
+    auto drawable = _resource_manager.get_or_create(device, node->mesh);
+    draw(context, drawable, projection, view, M);
+  }
+
+  for (auto &child : node->children) {
+    Render(device, context, projection, view, M, child);
+  }
 }

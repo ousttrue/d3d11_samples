@@ -14,9 +14,14 @@ namespace gorilla {
 struct Material {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
   Pipeline pipeline;
+
+  ComPtr<ID3D11RasterizerState> rs;
+
   std::array<float, 4> base_color = {1, 1, 1, 1};
   std::shared_ptr<gorilla::Texture> base_color_texture;
-  ComPtr<ID3D11RasterizerState> rs;
+
+  std::shared_ptr<gorilla::Texture> normal_map;
+  float normal_map_scale = 1.0f;
 };
 
 struct SubMesh {
@@ -29,9 +34,6 @@ struct Mesh {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
   InputAssembler ia;
   std::vector<SubMesh> submeshes;
-  void draw(const ComPtr<ID3D11DeviceContext> &context,
-            const DirectX::XMMATRIX &projection, const DirectX::XMMATRIX &view,
-            const DirectX::XMMATRIX &model);
 };
 
 } // namespace gorilla

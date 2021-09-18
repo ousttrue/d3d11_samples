@@ -28,8 +28,8 @@ public:
 
   ComPtr<ID3D11Device> initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
                                   int nCmdShow, const char *CLASS_NAME,
-                                  const char *WINDOW_TITLE, int width = 320,
-                                  int height = 320);
+                                  const char *WINDOW_TITLE, int width = 1024,
+                                  int height = 768);
   bool
   new_frame(const std::function<void(const ComPtr<ID3D11Device> &,
                                      const ComPtr<ID3D11DeviceContext> &,

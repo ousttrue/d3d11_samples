@@ -44,18 +44,5 @@ public:
               const ComPtr<ID3D11DeviceContext> &context,
               const DirectX::XMMATRIX &projection,
               const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &parent,
-              const std::shared_ptr<banana::Node> &node) {
-
-    auto local = node->transform.matrix();
-    auto M = DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4 *)&local), parent);
-
-    if (node->mesh) {
-      auto drawable = _resource_manager.get_or_create(device, node->mesh);
-      drawable->draw(context, projection, view, M);
-    }
-
-    for (auto &child : node->children) {
-      Render(device, context, projection, view, M, child);
-    }
-  }
+              const std::shared_ptr<banana::Node> &node);
 };
