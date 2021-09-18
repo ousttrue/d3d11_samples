@@ -1,7 +1,7 @@
 #pragma once
 
 #include <banana/orbit_camera.h>
-#include <banana/scene.h>
+#include <banana/node.h>
 #include <d3d11.h>
 #include <gorilla/mesh.h>
 #include <gorilla/render_target.h>

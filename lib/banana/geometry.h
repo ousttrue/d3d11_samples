@@ -1,5 +1,5 @@
 #pragma once
-#include "scene.h"
+#include "mesh.h"
 #include <memory>
 
 namespace banana::geometry {

@@ -1,6 +1,6 @@
 #pragma once
 #include "bytereader.h"
-#include "scene.h"
+#include "node.h"
 #include <memory>
 #include <optional>
 #include <string_view>

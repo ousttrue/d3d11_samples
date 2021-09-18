@@ -42,12 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   // scene
   //
   auto bytes = banana::get_bytes(
-      // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
-      // "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb"
-      // "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
-      "glTF-Sample-Models/2.0/CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb"
-      //
-  );
+      "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb");
   if (bytes.empty()) {
     return 10;
   }

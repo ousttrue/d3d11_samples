@@ -1,30 +1,8 @@
 #pragma once
-#include "image.h"
+#include "mesh.h"
 #include <DirectXMath.h>
-#include <memory>
-#include <optional>
-#include <stdint.h>
-#include <string>
 
 namespace banana {
-
-struct Float2 {
-  float x;
-  float y;
-};
-
-struct Float3 {
-  float x;
-  float y;
-  float z;
-};
-
-struct Float4 {
-  float x;
-  float y;
-  float z;
-  float w;
-};
 
 struct Transform {
   Float3 translation = {0, 0, 0};
@@ -39,32 +17,6 @@ struct Transform {
     auto S = DirectX::XMMatrixScaling(scaling.x, scaling.y, scaling.z);
     return DirectX::XMMatrixMultiply(DirectX::XMMatrixMultiply(S, R), T);
   }
-};
-
-struct Material {
-  std::string shader_name;
-  Float4 base_color = {1, 1, 1, 1};
-  std::shared_ptr<Image> base_color_texture;
-};
-
-struct SubMesh {
-  uint32_t offset = 0;
-  uint32_t draw_count = 0;
-  std::shared_ptr<Material> material;
-};
-
-struct Mesh {
-  struct Vertex {
-    Float3 position;
-    Float3 normal;
-    Float2 tex0;
-    Float4 color;
-  };
-  using Index = uint32_t;
-
-  std::vector<Vertex> vertices;
-  std::vector<Index> indices;
-  std::vector<SubMesh> submeshes;
 };
 
 struct Node : std::enable_shared_from_this<Node> {
