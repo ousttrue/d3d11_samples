@@ -35,10 +35,15 @@ three_d/orbit_camera
 three_d/depth_test
 ```
 
-## Lighting
+## Shading
 
 * ADS(Ambient, Diffuse, Specular)
 * NormalMap
+* Cook-Torrance
+
+```{toctree}
+shading/pbr
+```
 
 ## SceneGraph
 
@@ -46,6 +51,11 @@ three_d/depth_test
 three_d/scene
 three_d/gltf
 ```
+
+# Gizmo
+
+* grid
+* aabb pick (ray intersection)
 
 # 参考
 
