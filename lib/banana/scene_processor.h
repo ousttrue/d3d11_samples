@@ -41,7 +41,7 @@ struct End {
 using Command = std::variant<commands::Begin, commands::SetVariable,
                              commands::SetTexture, commands::End>;
 
-struct SceneCommand {
+struct SceneProcessor {
   Matrix4x4 viewprojection = {};
   Matrix4x4 view = {};
   Matrix3x4 normal_matrix = {};

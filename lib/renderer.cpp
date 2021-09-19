@@ -1,5 +1,4 @@
 #include "renderer.h"
-#include "banana/scene_command.h"
 #include "banana/types.h"
 #include "gorilla/input_assembler.h"
 #include "gorilla/pipeline.h"
@@ -76,6 +75,19 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
   }
 
   return mesh;
+}
+
+void Renderer::render(const ComPtr<ID3D11Device> &device,
+                      const ComPtr<ID3D11DeviceContext> &context,
+                      const std::shared_ptr<banana::Node> &root,
+                      const banana::OrbitCamera *camera,
+                      std::span<const banana::LightInfo> lights) {
+
+  _processor.new_frame(camera, lights);
+  _processor.traverse(root);
+  for (auto &command : _processor.commands) {
+    draw(device, context, command);
+  }
 }
 
 void Renderer::draw(const ComPtr<ID3D11Device> &device,

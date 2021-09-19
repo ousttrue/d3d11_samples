@@ -1,5 +1,3 @@
-#include "banana/scene_command.h"
-#include "banana/types.h"
 #include <app.h>
 #include <banana/gltf.h>
 #include <renderer.h>
@@ -41,16 +39,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // main loop
   Renderer renderer;
-  banana::SceneCommand commander;
   auto context = app.context();
   while (app.begin_frame()) {
-
-    commander.new_frame(camera);
-    commander.traverse(root);
-    for (auto &command : commander.commands) {
-      renderer.draw(device, context, command);
-    }
-
+    renderer.render(device, context, root, camera);
     app.end_frame();
   }
 

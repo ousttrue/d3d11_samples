@@ -1,23 +1,5 @@
-#include <DirectXMath.h>
 #include <app.h>
-#include <assert.h>
-#include <banana/asset.h>
-#include <banana/glb.h>
 #include <banana/gltf.h>
-#include <banana/image.h>
-#include <banana/orbit_camera.h>
-#include <banana/scene_command.h>
-#include <gorilla/constant_buffer.h>
-#include <gorilla/device.h>
-#include <gorilla/input_assembler.h>
-#include <gorilla/pipeline.h>
-#include <gorilla/render_target.h>
-#include <gorilla/shader.h>
-#include <gorilla/shader_reflection.h>
-#include <gorilla/swapchain.h>
-#include <gorilla/texture.h>
-#include <gorilla/window.h>
-#include <iostream>
 #include <renderer.h>
 
 auto CLASS_NAME = "CLASS_NAME";
@@ -37,42 +19,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 1;
   }
 
-  //
-  // scene
-  //
-  auto bytes = banana::get_bytes(
-      // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
-      // "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb"
-      // "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
-      "glTF-Sample-Models/2.0/CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb"
-      //
-  );
-  if (bytes.empty()) {
-    return 10;
-  }
-  banana::gltf::Glb glb;
-  if (!glb.parse(bytes)) {
-    return 11;
-  }
-  banana::gltf::GltfLoader loader(glb.json, glb.bin);
-  if (!loader.load()) {
-    return 12;
+  banana::gltf::GltfLoader loader;
+  if (!loader.load_from_asset(
+          // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
+          // "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb"
+          // "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
+          "glTF-Sample-Models/2.0/CesiumMilkTruck/glTF-Binary/"
+          "CesiumMilkTruck.glb")) {
+    return 2;
   }
   auto root = loader.scenes[0].nodes[0];
 
   // main loop
-  banana::SceneCommand commander;
   Renderer renderer;
   auto context = app.context();
   auto camera = app.camera();
   while (app.begin_frame()) {
-
-    commander.new_frame(camera);
-    commander.traverse(root);
-    for (auto &command : commander.commands) {
-      renderer.draw(device, context, command);
-    }
-
+    renderer.render(device, context, root, camera);
     app.end_frame();
   }
 

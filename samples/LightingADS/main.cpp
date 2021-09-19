@@ -1,15 +1,5 @@
 #include <app.h>
-#include <banana/asset.h>
 #include <banana/geometry.h>
-#include <banana/material.h>
-#include <banana/mesh.h>
-#include <banana/node.h>
-#include <banana/scene_command.h>
-#include <banana/types.h>
-#include <gorilla/input_assembler.h>
-#include <gorilla/pipeline.h>
-#include <iostream>
-#include <memory>
 #include <renderer.h>
 
 auto CLASS_NAME = "CLASS_NAME";
@@ -59,14 +49,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   auto context = app.context();
   auto camera = app.camera();
   Renderer renderer;
-  banana::SceneCommand commander;
   while (app.begin_frame()) {
-    commander.new_frame(camera, lights);
-    commander.traverse(cube);
-    for (auto &command : commander.commands) {
-      renderer.draw(device, context, command);
-    }
-
+    renderer.render(device, context, cube, camera, lights);
     app.end_frame();
   }
 

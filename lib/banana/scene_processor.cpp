@@ -1,11 +1,11 @@
 
-#include "scene_command.h"
+#include "scene_processor.h"
 #include "banana/material.h"
 #include "banana/mesh.h"
 
 namespace banana {
 
-void SceneCommand::new_frame(const banana::OrbitCamera *camera,
+void SceneProcessor::new_frame(const banana::OrbitCamera *camera,
                              std::span<const LightInfo> lights) {
   commands.clear();
 
@@ -15,7 +15,7 @@ void SceneCommand::new_frame(const banana::OrbitCamera *camera,
   this->lights = lights;
 }
 
-void SceneCommand::traverse(const std::shared_ptr<banana::Node> &node,
+void SceneProcessor::traverse(const std::shared_ptr<banana::Node> &node,
                             const Matrix4x4 &parent) {
 
   auto local = node->transform.matrix();
