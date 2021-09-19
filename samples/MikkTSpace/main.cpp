@@ -1,3 +1,4 @@
+#include "banana/types.h"
 #include <app.h>
 #include <banana/gltf.h>
 #include <scene_renderer.h>
@@ -42,10 +43,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // main loop
   while (app.begin_frame()) {
-    renderer.Render(device, context,
-                    DirectX::XMLoadFloat4x4(&camera->projection()),
-                    DirectX::XMLoadFloat4x4(&camera->view()),
-                    DirectX::XMMatrixIdentity(), root);
+    renderer.Render(device, context, camera->projection, camera->view,
+                    banana::Matrix4x4::identity(), root);
 
     app.end_frame();
   }

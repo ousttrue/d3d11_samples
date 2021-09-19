@@ -4,6 +4,7 @@
 #include <d3dcompiler.h>
 #include <list>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <wrl/client.h>
 
@@ -21,6 +22,19 @@ create_input_layout(const Microsoft::WRL::ComPtr<ID3D11Device> &device,
 struct ConstantBufferSlot {
   D3D11_SHADER_BUFFER_DESC desc;
   std::vector<D3D11_SHADER_VARIABLE_DESC> variables;
+  std::vector<uint8_t> backing_store;
+
+  ConstantBufferSlot(const D3D11_SHADER_BUFFER_DESC &d)
+      : desc(d), backing_store(d.Size) {}
+
+  void set_variable(std::string_view name, const void *p, size_t size) {
+    for (auto &v : variables) {
+      if (name == v.Name) {
+        memcpy(backing_store.data() + v.StartOffset, p, size);
+        return;
+      }
+    }
+  }
 };
 
 class ShaderReflection {

@@ -1,3 +1,4 @@
+#include "banana/types.h"
 #include <app.h>
 #include <banana/asset.h>
 #include <banana/geometry.h>
@@ -59,9 +60,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   static_assert(sizeof(LightInfo) == 32);
 
   struct World {
-    DirectX::XMFLOAT4X4 ModelViewMatrix;
+    banana::Matrix4x4 ModelViewMatrix;
     DirectX::XMFLOAT3X4 NormalMatrix;
-    DirectX::XMFLOAT4X4 MVP;
+    banana::Matrix4x4 MVP;
     LightInfo Lights[5];
   };
   // 64 + 64 + 36+12 + 160 = 312
@@ -97,9 +98,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   auto camera = app.camera();
   while (app.begin_frame()) {
     // update
-    world.MVP = camera->view_projection_matrix();
+    world.MVP = camera->view * camera->projection;
     world.NormalMatrix = camera->normal_matrix();
-    world.ModelViewMatrix = camera->_view;
+    world.ModelViewMatrix = camera->view;
     pipeline.vs_stage.cb[0].update(context, world);
     pipeline.vs_stage.cb[1].update(context, material);
     // draw

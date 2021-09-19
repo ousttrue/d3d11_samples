@@ -41,8 +41,7 @@ public:
   ShaderStage ps_stage;
 
 private:
-  void create_cb(ShaderStage &stage,
-                 const ComPtr<ID3D11Device> &device,
+  void create_cb(ShaderStage &stage, const ComPtr<ID3D11Device> &device,
                  const ComPtr<ID3DBlob> &compiled);
 
   std::vector<ID3D11Buffer *> _tmp_list;
@@ -63,6 +62,14 @@ public:
                  const char *vs_entry, const char *gs_entry,
                  const char *ps_entry);
 
+  void set_variable(std::string_view name, const void *p, size_t size);
+  void update(const ComPtr<ID3D11DeviceContext> &context);
+  void set_srv(const ComPtr<ID3D11DeviceContext> &context,
+               std::string_view name,
+               const ComPtr<ID3D11ShaderResourceView> &srv);
+  void set_sampler(const ComPtr<ID3D11DeviceContext> &context,
+                   std::string_view name,
+                   const ComPtr<ID3D11SamplerState> &sampler);
   void setup(const ComPtr<ID3D11DeviceContext> &context);
   void draw_empty(const ComPtr<ID3D11DeviceContext> &context);
 };

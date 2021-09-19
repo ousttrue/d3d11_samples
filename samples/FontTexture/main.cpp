@@ -106,9 +106,11 @@ public:
     std::vector<Vertex> vertices;
     std::vector<uint16_t> indices;
 
-    auto push_glyph = [&vertices, &indices, W=_image_width, H=_image_height](const Glyph &g, float left) {
+    auto push_glyph = [&vertices, &indices, W = _image_width,
+                       H = _image_height](const Glyph &g, float left) {
       // pixel to screen
-      float FACTOR = 0.01f;;
+      float FACTOR = 0.01f;
+      ;
       left *= FACTOR;
       float right = left + g.width * FACTOR;
       float top = static_cast<float>(g.height) * FACTOR;
@@ -264,7 +266,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     render_target.setup(context, w, h);
 
     context->RSSetState(rs.Get());
-    font.pipeline.vs_stage.cb[0].update(context, camera.view_projection_matrix());
+    font.pipeline.vs_stage.cb[0].update(context,
+                                        camera.view * camera.projection);
     font.setup(context);
     ia->draw(context);
 

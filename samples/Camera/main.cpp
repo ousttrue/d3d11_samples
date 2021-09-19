@@ -100,7 +100,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // update
     camera.resize(static_cast<float>(w), static_cast<float>(h));
-    pipeline.gs_stage.cb[0].update(context, camera.view_projection_matrix());
+    pipeline.gs_stage.cb[0].update(context, camera.view * camera.projection);
 
     // clear RTV
     auto v =

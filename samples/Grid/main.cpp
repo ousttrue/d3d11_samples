@@ -1,3 +1,4 @@
+#include "banana/types.h"
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
@@ -69,8 +70,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #pragma pack(push)
 #pragma pack(16)
   struct Constants {
-    DirectX::XMFLOAT4X4 view;
-    DirectX::XMFLOAT4X4 projection;
+    banana::Matrix4x4 view;
+    banana::Matrix4x4 projection;
     DirectX::XMFLOAT3 cameraPosition;
     float _padding2;
     DirectX::XMFLOAT2 screenSize;
@@ -114,11 +115,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // update
     camera.resize(static_cast<float>(w), static_cast<float>(h));
-    constant.fovY = camera._fovYRad;
+    constant.fovY = camera.fovYRad;
     constant.screenSize.x = static_cast<float>(w);
     constant.screenSize.y = static_cast<float>(h);
-    constant.view = camera._view;
-    constant.projection = camera._projection;
+    constant.view = camera.view;
+    constant.projection = camera.projection;
     constant.cameraPosition = camera.position();
 
     pipeline.gs_stage.cb[0].update(context, constant);

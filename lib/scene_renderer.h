@@ -1,5 +1,6 @@
 #pragma once
 
+#include "banana/types.h"
 #include <banana/scene_command.h>
 #include <d3d11.h>
 #include <gorilla/mesh.h>
@@ -24,6 +25,9 @@ class ResourceManager {
                      std::shared_ptr<gorilla::Mesh>>
       _mesh_map;
 
+  std::shared_ptr<gorilla::Mesh> _drawable;
+  std::shared_ptr<gorilla::Material> _material;
+
 public:
   std::shared_ptr<gorilla::Texture>
   get_or_create(const ComPtr<ID3D11Device> &device,
@@ -37,7 +41,7 @@ public:
 
   void draw(const ComPtr<ID3D11Device> &device,
             const ComPtr<ID3D11DeviceContext> &context,
-            const banana::DrawCommand &command);
+            const banana::Command &command);
 };
 
 class SceneRenderer {
@@ -48,7 +52,7 @@ class SceneRenderer {
 public:
   void Render(const ComPtr<ID3D11Device> &device,
               const ComPtr<ID3D11DeviceContext> &context,
-              const DirectX::XMMATRIX &projection,
-              const DirectX::XMMATRIX &view, const DirectX::XMMATRIX &parent,
+              const banana::Matrix4x4 &projection,
+              const banana::Matrix4x4 &view, const banana::Matrix4x4 &parent,
               const std::shared_ptr<banana::Node> &node);
 };

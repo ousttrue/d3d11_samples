@@ -113,7 +113,7 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     auto texture = gltf_material["normalTexture"];
     if (texture.contains("index")) {
       int texture_index = texture["index"];
-      material->normal_map = textures[texture_index];
+      material->normal_map_texture = textures[texture_index];
     }
     if (texture.contains("scale")) {
       material->normal_map_scale = texture["scale"];
@@ -275,7 +275,7 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
         for (auto &i : indices) {
           mesh->indices.push_back(static_cast<uint32_t>(vertex_offset + i));
         }
-        submesh.offset = static_cast<uint32_t>(index_offset);
+        submesh.draw_offset = static_cast<uint32_t>(index_offset);
         submesh.draw_count = static_cast<uint32_t>(indices.size());
         break;
       }
@@ -291,7 +291,7 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
 
     vertex_offset += vertex_count;
 
-    if (submesh.material && submesh.material->normal_map && !has_tangent) {
+    if (submesh.material && submesh.material->normal_map_texture && !has_tangent) {
       // calc tangent
       SMikkTSpaceInterface interface = {0};
       interface.m_getNumFaces = &getNumFaces;

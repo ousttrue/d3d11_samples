@@ -12,7 +12,7 @@ struct Material {
   Float4 base_color = {1, 1, 1, 1};
   std::shared_ptr<Image> base_color_texture;
 
-  std::shared_ptr<Image> normal_map;
+  std::shared_ptr<Image> normal_map_texture;
   float normal_map_scale = 1.0f;
 };
 

@@ -27,7 +27,9 @@ add_library(
   banana/geometry.cpp
   banana/node.cpp
   banana/types.cpp
-  banana/scene_command)
+  banana/scene_command.cpp
+  banana/orbit_camera.cpp
+  )
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PRIVATE json mikktspace)
 

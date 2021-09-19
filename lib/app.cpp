@@ -1,4 +1,5 @@
 #include "app.h"
+#include "banana/types.h"
 #include <banana/asset.h>
 #include <gorilla/device.h>
 #include <gorilla/pipeline.h>
@@ -110,22 +111,22 @@ bool App::begin_frame() {
 #pragma pack(push)
 #pragma pack(16)
   struct Constants {
-    DirectX::XMFLOAT4X4 view;
-    DirectX::XMFLOAT4X4 projection;
+    banana::Matrix4x4 view;
+    banana::Matrix4x4 projection;
     DirectX::XMFLOAT3 cameraPosition;
     float _padding2;
-    DirectX::XMFLOAT2 screenSize;
+    banana::Float2 screenSize;
     float fovY;
     float _padding3;
   };
 #pragma pack(pop)
   static_assert(sizeof(Constants) == 16 * 10, "sizeof ConstantsSize");
   Constants constant;
-  constant.fovY = _camera._fovYRad;
+  constant.fovY = _camera.fovYRad;
   constant.screenSize.x = static_cast<float>(w);
   constant.screenSize.y = static_cast<float>(h);
-  constant.view = _camera._view;
-  constant.projection = _camera._projection;
+  constant.view = _camera.view;
+  constant.projection = _camera.projection;
   constant.cameraPosition = _camera.position();
   _grid.gs_stage.cb[0].update(_context, constant);
   _grid.ps_stage.cb[0].update(_context, constant);

@@ -1,9 +1,13 @@
 #include "scene_renderer.h"
+#include "banana/scene_command.h"
+#include "banana/types.h"
 #include <banana/asset.h>
 #include <gorilla/mesh.h>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <system_error>
+#include <variant>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -68,7 +72,7 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
     }
     material->base_color_texture = WHITE;
   }
-  material->normal_map = get_or_create(device, src->normal_map);
+  material->normal_map = get_or_create(device, src->normal_map_texture);
 
   D3D11_RASTERIZER_DESC rs_desc = {};
   rs_desc.CullMode = D3D11_CULL_NONE;
@@ -102,7 +106,7 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
 
   for (auto &sub : src->submeshes) {
     auto &submesh = mesh->submeshes.emplace_back(gorilla::SubMesh{});
-    submesh.offset = sub.offset;
+    submesh.offset = sub.draw_offset;
     submesh.draw_count = sub.draw_count;
     assert(sub.material);
     if (sub.material) {
@@ -115,42 +119,35 @@ ResourceManager::get_or_create(const ComPtr<ID3D11Device> &device,
 
 void ResourceManager::draw(const ComPtr<ID3D11Device> &device,
                            const ComPtr<ID3D11DeviceContext> &context,
-                           const banana::DrawCommand &command) {
+                           const banana::Command &command) {
 
-  auto drawable = get_or_create(device, command.mesh);
-  auto material = get_or_create(device, command.material);
-  assert(material);
-
-  {
-    // VS
-    auto stage = &material->pipeline.vs_stage;
-    stage->cb[0].update(context, command.vs_backing_store.data(),
-                        command.vs_backing_store.size());
+  if (auto p = std::get_if<banana::commands::SetVariable>(&command)) {
+    auto span = std::visit(
+        [](const auto &x) {
+          return std::span<const uint8_t>{(const uint8_t *)&x, sizeof(x)};
+        },
+        p->value);
+    _material->pipeline.set_variable(p->name, span.data(), span.size());
+  } else if (auto p = std::get_if<banana::commands::SetTexture>(&command)) {
+    auto texture = get_or_create(device, p->image);
+    // texture->set_ps(context, p->srv, p->sampler);
+    _material->pipeline.set_srv(context, p->srv, texture->_srv);
+    _material->pipeline.set_sampler(context, p->sampler, texture->_sampler);
+  } else if (auto p = std::get_if<banana::commands::Begin>(&command)) {
+    assert(p->mesh);
+    assert(p->material);
+    _drawable = get_or_create(device, p->mesh);
+    _material = get_or_create(device, p->material);
+    assert(_material);
+    context->RSSetState(_material->rs.Get());
+  } else if (auto p = std::get_if<banana::commands::End>(&command)) {
+    _material->pipeline.update(context);
+    _material->pipeline.setup(context);
+    _drawable->ia.setup(context);
+    _drawable->ia.draw_submesh(context, p->draw_offset, p->draw_count);
+  } else {
+    throw std::runtime_error("not implemented");
   }
-
-  {
-    // PS
-    auto stage = &material->pipeline.ps_stage;
-    stage->cb[0].update(context, command.ps_backing_store.data(),
-                        command.ps_backing_store.size());
-
-    // SRV
-    if (material->base_color_texture) {
-      material->base_color_texture->set_ps(context, 0, 0);
-    }
-    if (material->normal_map) {
-      material->normal_map->set_ps(context, 1, 1);
-    }
-  }
-
-  material->pipeline.setup(context);
-  drawable->ia.setup(context);
-
-  // STATE
-  context->RSSetState(material->rs.Get());
-
-  // draw submesh
-  drawable->ia.draw_submesh(context, command.draw_offset, command.draw_count);
 }
 
 struct GltfShaderConstant {
@@ -160,17 +157,15 @@ struct GltfShaderConstant {
 
 static void draw(const ComPtr<ID3D11DeviceContext> &context,
                  const std::shared_ptr<gorilla::Mesh> &drawable,
-                 const DirectX::XMMATRIX &projection,
-                 const DirectX::XMMATRIX &view,
-                 const DirectX::XMMATRIX &model) {
+                 const banana::Matrix4x4 &projection,
+                 const banana::Matrix4x4 &view,
+                 const banana::Matrix4x4 &model) {
 
   //
   // mesh level
   //
-  auto VP = DirectX::XMMatrixMultiply(view, projection);
-  auto MVP = DirectX::XMMatrixMultiply(model, VP);
-  DirectX::XMFLOAT4X4 mvp;
-  DirectX::XMStoreFloat4x4(&mvp, MVP);
+  auto vp = view * projection;
+  auto mvp = model * vp;
 
   drawable->ia.setup(context);
   for (auto &submesh : drawable->submeshes) {
@@ -213,21 +208,20 @@ static void draw(const ComPtr<ID3D11DeviceContext> &context,
 
 void SceneRenderer::Render(const ComPtr<ID3D11Device> &device,
                            const ComPtr<ID3D11DeviceContext> &context,
-                           const DirectX::XMMATRIX &projection,
-                           const DirectX::XMMATRIX &view,
-                           const DirectX::XMMATRIX &parent,
+                           const banana::Matrix4x4 &projection,
+                           const banana::Matrix4x4 &view,
+                           const banana::Matrix4x4 &parent,
                            const std::shared_ptr<banana::Node> &node) {
 
   auto local = node->transform.matrix();
-  auto M = DirectX::XMMatrixMultiply(
-      DirectX::XMLoadFloat4x4((DirectX::XMFLOAT4X4 *)&local), parent);
+  auto m = local * parent;
 
   if (node->mesh) {
     auto drawable = _resource_manager.get_or_create(device, node->mesh);
-    draw(context, drawable, projection, view, M);
+    draw(context, drawable, projection, view, m);
   }
 
   for (auto &child : node->children) {
-    Render(device, context, projection, view, M, child);
+    Render(device, context, projection, view, m, child);
   }
 }
