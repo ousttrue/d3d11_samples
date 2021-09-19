@@ -100,11 +100,11 @@
 <p>空の頂点シェーダーをキックすることで、間接的に GeometryShader を始動する。</p>
 <div class="literal-block-wrapper docutils container" id="id4">
 <div class="code-block-caption"><span class="caption-text">../../lib/gorilla/pipeline.cpp</span><a class="headerlink" href="#id4" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span><span class="kt">void</span> <span class="n">Pipeline</span><span class="o">::</span><span class="n">draw_empty</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
-<span class="lineno">2 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetVertexBuffers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">);</span>
-<span class="lineno">3 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetPrimitiveTopology</span><span class="p">(</span><span class="n">D3D11_PRIMITIVE_TOPOLOGY_POINTLIST</span><span class="p">);</span>
-<span class="lineno">4 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">Draw</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-<span class="lineno">5 </span><span class="p">}</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span>      <span class="n">context</span><span class="o">-&gt;</span><span class="n">GSSetShaderResources</span><span class="p">(</span><span class="n">slot</span><span class="p">.</span><span class="n">BindPoint</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">srv</span><span class="p">.</span><span class="n">GetAddressOf</span><span class="p">());</span>
+<span class="lineno">2 </span>      <span class="k">break</span><span class="p">;</span>
+<span class="lineno">3 </span>    <span class="p">}</span>
+<span class="lineno">4 </span>  <span class="p">}</span>
+<span class="lineno">5 </span>  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">slot</span> <span class="p">:</span> <span class="n">ps_stage</span><span class="p">.</span><span class="n">reflection</span><span class="p">.</span><span class="n">srv_slots</span><span class="p">)</span> <span class="p">{</span>
 </pre></div>
 </div>
 </div>

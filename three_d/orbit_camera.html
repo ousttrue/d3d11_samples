@@ -63,108 +63,41 @@
 <span class="k">namespace</span> <span class="n">banana</span> <span class="p">{</span>
 
 <span class="k">struct</span> <span class="n">OrbitCamera</span> <span class="p">{</span>
-  <span class="kt">float</span> <span class="n">_w</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-  <span class="kt">float</span> <span class="n">_h</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-  <span class="kt">float</span> <span class="n">_near</span> <span class="o">=</span> <span class="mf">0.01f</span><span class="p">;</span>
-  <span class="kt">float</span> <span class="n">_far</span> <span class="o">=</span> <span class="mf">100.0f</span><span class="p">;</span>
-  <span class="kt">float</span> <span class="n">_fovYRad</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMConvertToRadians</span><span class="p">(</span><span class="mf">60.0f</span><span class="p">);</span>
-  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">_projection</span><span class="p">;</span>
-  <span class="kt">void</span> <span class="nf">calc_projection</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">auto</span> <span class="n">P</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixPerspectiveFovRH</span><span class="p">(</span><span class="n">_fovYRad</span><span class="p">,</span> <span class="n">_w</span> <span class="o">/</span> <span class="n">_h</span><span class="p">,</span> <span class="n">_near</span><span class="p">,</span> <span class="n">_far</span><span class="p">);</span>
-    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMStoreFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_projection</span><span class="p">,</span> <span class="n">P</span><span class="p">);</span>
-  <span class="p">}</span>
+  <span class="n">Float2</span> <span class="n">screen</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">};</span>
+  <span class="kt">float</span> <span class="n">near</span> <span class="o">=</span> <span class="mf">0.01f</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">far</span> <span class="o">=</span> <span class="mf">100.0f</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">fovYRad</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMConvertToRadians</span><span class="p">(</span><span class="mf">60.0f</span><span class="p">);</span>
+  <span class="n">Matrix4x4</span> <span class="n">projection</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">calc_projection</span><span class="p">();</span>
 
-  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3</span> <span class="n">_shift</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">};</span>
-  <span class="kt">float</span> <span class="n">_yaw</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="kt">float</span> <span class="n">_pitch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">_view</span><span class="p">;</span>
-  <span class="kt">void</span> <span class="nf">calc_view</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">auto</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixRotationY</span><span class="p">(</span><span class="n">_yaw</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">P</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixRotationX</span><span class="p">(</span><span class="n">_pitch</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">T</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixTranslation</span><span class="p">(</span><span class="n">_shift</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">_shift</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">_shift</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">M</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixMultiply</span><span class="p">(</span><span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixMultiply</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">P</span><span class="p">),</span> <span class="n">T</span><span class="p">);</span>
-    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMStoreFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_view</span><span class="p">,</span> <span class="n">M</span><span class="p">);</span>
-  <span class="p">}</span>
+  <span class="n">Float3</span> <span class="n">translation</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">};</span>
+  <span class="kt">float</span> <span class="n">yaw</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">pitch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">Matrix4x4</span> <span class="n">view</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">calc_view</span><span class="p">();</span>
 
   <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3X4</span> <span class="n">normal_matrix</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
     <span class="c1">// inverse, transpose</span>
     <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3X4</span> <span class="n">n</span><span class="p">;</span>
-    <span class="n">n</span><span class="p">.</span><span class="n">_11</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_11</span><span class="p">;</span>
-    <span class="n">n</span><span class="p">.</span><span class="n">_12</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_12</span><span class="p">;</span>
-    <span class="n">n</span><span class="p">.</span><span class="n">_13</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_13</span><span class="p">;</span>
-    <span class="n">n</span><span class="p">.</span><span class="n">_21</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_21</span><span class="p">;</span>
-    <span class="n">n</span><span class="p">.</span><span class="n">_22</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_22</span><span class="p">;</span>
-    <span class="n">n</span><span class="p">.</span><span class="n">_23</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_23</span><span class="p">;</span>
-    <span class="n">n</span><span class="p">.</span><span class="n">_31</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_31</span><span class="p">;</span>
-    <span class="n">n</span><span class="p">.</span><span class="n">_32</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_32</span><span class="p">;</span>
-    <span class="n">n</span><span class="p">.</span><span class="n">_33</span> <span class="o">=</span> <span class="n">_view</span><span class="p">.</span><span class="n">_33</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_11</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">_11</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_12</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">_12</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_13</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">_13</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_21</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">_21</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_22</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">_22</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_23</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">_23</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_31</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">_31</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_32</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">_32</span><span class="p">;</span>
+    <span class="n">n</span><span class="p">.</span><span class="n">_33</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">_33</span><span class="p">;</span>
     <span class="k">return</span> <span class="n">n</span><span class="p">;</span>
   <span class="p">}</span>
 
-  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3</span> <span class="n">position</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
-    <span class="k">auto</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixRotationY</span><span class="p">(</span><span class="o">-</span><span class="n">_yaw</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">P</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixRotationX</span><span class="p">(</span><span class="o">-</span><span class="n">_pitch</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">T</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixTranslation</span><span class="p">(</span><span class="o">-</span><span class="n">_shift</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">_shift</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="n">_shift</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">M</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixMultiply</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixMultiply</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Y</span><span class="p">));</span>
-    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4</span> <span class="n">pos</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">POS</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMLoadFloat4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pos</span><span class="p">);</span>
-    <span class="n">POS</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMVector4Transform</span><span class="p">(</span><span class="n">POS</span><span class="p">,</span> <span class="n">M</span><span class="p">);</span>
-    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMStoreFloat4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pos</span><span class="p">,</span> <span class="n">POS</span><span class="p">);</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">pos</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">pos</span><span class="p">.</span><span class="n">z</span><span class="p">};</span>
-  <span class="p">}</span>
-
-<span class="k">public</span><span class="o">:</span>
-  <span class="n">OrbitCamera</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">calc_projection</span><span class="p">();</span>
-    <span class="n">calc_view</span><span class="p">();</span>
-  <span class="p">}</span>
-
-  <span class="k">const</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="o">&amp;</span><span class="n">view</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_view</span><span class="p">;</span> <span class="p">}</span>
-  <span class="k">const</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="o">&amp;</span><span class="n">projection</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">_projection</span><span class="p">;</span> <span class="p">}</span>
-  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">view_projection_matrix</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
-    <span class="k">auto</span> <span class="n">V</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMLoadFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_view</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">P</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMLoadFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_projection</span><span class="p">);</span>
-    <span class="k">auto</span> <span class="n">M</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMMatrixMultiply</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">P</span><span class="p">);</span>
-    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4X4</span> <span class="n">m</span><span class="p">;</span>
-    <span class="n">DirectX</span><span class="o">::</span><span class="n">XMStoreFloat4x4</span><span class="p">(</span><span class="o">&amp;</span><span class="n">m</span><span class="p">,</span> <span class="n">M</span><span class="p">);</span>
-    <span class="k">return</span> <span class="n">m</span><span class="p">;</span>
-  <span class="p">}</span>
-
-  <span class="kt">void</span> <span class="n">yaw_pitch</span><span class="p">(</span><span class="kt">int</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dy</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">_yaw</span> <span class="o">+=</span> <span class="n">dx</span> <span class="o">/</span> <span class="n">_h</span> <span class="o">*</span> <span class="mi">4</span><span class="p">;</span>
-    <span class="n">_pitch</span> <span class="o">+=</span> <span class="n">dy</span> <span class="o">/</span> <span class="n">_h</span> <span class="o">*</span> <span class="mi">4</span><span class="p">;</span>
-    <span class="n">calc_view</span><span class="p">();</span>
-  <span class="p">}</span>
-
-  <span class="kt">void</span> <span class="n">shift</span><span class="p">(</span><span class="kt">int</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dy</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">_shift</span><span class="p">.</span><span class="n">x</span> <span class="o">-=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dx</span> <span class="o">/</span> <span class="n">_h</span> <span class="o">*</span> <span class="n">tan</span><span class="p">(</span><span class="n">_fovYRad</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">*</span> <span class="mi">2</span><span class="p">);</span>
-    <span class="n">_shift</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">dy</span> <span class="o">/</span> <span class="n">_h</span> <span class="o">*</span> <span class="n">tan</span><span class="p">(</span><span class="n">_fovYRad</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">*</span> <span class="mi">2</span><span class="p">);</span>
-    <span class="n">calc_view</span><span class="p">();</span>
-  <span class="p">}</span>
-
-  <span class="kt">void</span> <span class="n">dolly</span><span class="p">(</span><span class="kt">int</span> <span class="n">d</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">*=</span> <span class="mf">1.1f</span><span class="p">;</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">*=</span> <span class="mf">0.9f</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="n">calc_view</span><span class="p">();</span>
-  <span class="p">}</span>
-
-  <span class="kt">void</span> <span class="n">resize</span><span class="p">(</span><span class="kt">float</span> <span class="n">w</span><span class="p">,</span> <span class="kt">float</span> <span class="n">h</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">w</span> <span class="o">==</span> <span class="n">_w</span> <span class="o">&amp;&amp;</span> <span class="n">h</span> <span class="o">==</span> <span class="n">_h</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="n">_w</span> <span class="o">=</span> <span class="n">w</span><span class="p">;</span>
-    <span class="n">_h</span> <span class="o">=</span> <span class="n">h</span><span class="p">;</span>
-    <span class="n">calc_projection</span><span class="p">();</span>
-  <span class="p">}</span>
-
-  <span class="kt">void</span> <span class="n">fit</span><span class="p">(</span><span class="kt">float</span> <span class="n">y</span><span class="p">,</span> <span class="kt">float</span> <span class="n">half_height</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">_shift</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">half_height</span> <span class="o">/</span> <span class="n">tan</span><span class="p">(</span><span class="n">_fovYRad</span> <span class="o">*</span> <span class="mf">0.5f</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1.5f</span><span class="p">;</span>
-    <span class="n">_shift</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">;</span>
-    <span class="n">calc_view</span><span class="p">();</span>
-  <span class="p">}</span>
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3</span> <span class="n">position</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+  <span class="n">OrbitCamera</span><span class="p">();</span>
+  <span class="kt">void</span> <span class="nf">yaw_pitch</span><span class="p">(</span><span class="kt">int</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dy</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">shift</span><span class="p">(</span><span class="kt">int</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dy</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">dolly</span><span class="p">(</span><span class="kt">int</span> <span class="n">d</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">resize</span><span class="p">(</span><span class="kt">float</span> <span class="n">w</span><span class="p">,</span> <span class="kt">float</span> <span class="n">h</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">fit</span><span class="p">(</span><span class="kt">float</span> <span class="n">y</span><span class="p">,</span> <span class="kt">float</span> <span class="n">half_height</span><span class="p">);</span>
 <span class="p">};</span>
 
 <span class="k">struct</span> <span class="n">MouseBinder</span> <span class="p">{</span>
