@@ -15,7 +15,6 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 std::shared_ptr<gorilla::Texture>
 Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
                         const std::shared_ptr<banana::Image> &src) {
-
   if (!src) {
     return {};
   }
@@ -35,7 +34,6 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
 std::shared_ptr<gorilla::Pipeline>
 Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
                         const std::shared_ptr<banana::Material> &src) {
-
   auto found = _material_map.find(src);
   if (found != _material_map.end()) {
     return found->second;
@@ -43,7 +41,7 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
 
   auto material = std::make_shared<gorilla::Pipeline>();
   _material_map.insert(std::make_pair(src, material));
-  // material->
+
   auto shader = banana::get_string(src->shader_name);
   if (shader.empty()) {
     assert(false);
@@ -56,34 +54,6 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
     assert(false);
     return {};
   }
-
-  // material->base_color_texture = get_or_create(device,
-  // src->base_color_texture); if (!material->base_color_texture) {
-  //   // default white
-  //   static std::shared_ptr<gorilla::Texture> WHITE;
-  //   if (!WHITE) {
-  //     WHITE = std::make_shared<gorilla::Texture>();
-  //     uint8_t white[2 * 2 * 4] = {
-  //         1, 1, 1, 1, //
-  //         1, 1, 1, 1, //
-  //         1, 1, 1, 1, //
-  //         1, 1, 1, 1, //
-  //     };
-  //     WHITE->create(device, white, 2, 2);
-  //   }
-  //   material->base_color_texture = WHITE;
-  // }
-  // material->normal_map = get_or_create(device, src->normal_map_texture);
-
-  // D3D11_RASTERIZER_DESC rs_desc = {};
-  // rs_desc.CullMode = D3D11_CULL_NONE;
-  // rs_desc.FillMode = D3D11_FILL_SOLID;
-  // rs_desc.FrontCounterClockwise = true; // for glTF
-  // rs_desc.ScissorEnable = false;
-  // rs_desc.MultisampleEnable = false;
-  // if (FAILED(device->CreateRasterizerState(&rs_desc, &material->rs))) {
-  //   return {};
-  // }
 
   return material;
 }
@@ -121,7 +91,6 @@ void Renderer::draw(const ComPtr<ID3D11Device> &device,
     _material->set_variable(p->name, span.data(), span.size(), p->offset);
   } else if (auto p = std::get_if<banana::commands::SetTexture>(&command)) {
     auto texture = get_or_create(device, p->image);
-    // texture->set_ps(context, p->srv, p->sampler);
     _material->set_srv(context, p->srv, texture->_srv);
     _material->set_sampler(context, p->sampler, texture->_sampler);
   } else if (auto p = std::get_if<banana::commands::Begin>(&command)) {
@@ -130,7 +99,6 @@ void Renderer::draw(const ComPtr<ID3D11Device> &device,
     _drawable = get_or_create(device, p->mesh);
     _material = get_or_create(device, p->material);
     assert(_material);
-    // context->RSSetState(_material->rs.Get());
   } else if (auto p = std::get_if<banana::commands::End>(&command)) {
     _material->update(context);
     _material->setup(context);
