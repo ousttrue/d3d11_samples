@@ -18,7 +18,7 @@
 #include <gorilla/texture.h>
 #include <gorilla/window.h>
 #include <iostream>
-#include <scene_renderer.h>
+#include <renderer.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "GltfScene";
@@ -62,7 +62,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // main loop
   banana::SceneCommand commander;
-  ResourceManager resource;
+  Renderer renderer;
   auto context = app.context();
   auto camera = app.camera();
   while (app.begin_frame()) {
@@ -70,7 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     commander.new_frame(camera);
     commander.traverse(root);
     for (auto &command : commander.commands) {
-      resource.draw(device, context, command);
+      renderer.draw(device, context, command);
     }
 
     app.end_frame();

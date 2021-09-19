@@ -5,6 +5,16 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 namespace gorilla {
 
+void ConstantBufferSlot::set_variable(std::string_view name, const void *p,
+                                      size_t size, size_t offset) {
+  for (auto &v : variables) {
+    if (name == v.Name) {
+      memcpy(backing_store.data() + v.StartOffset + offset, p, size);
+      return;
+    }
+  }
+}
+
 static ComPtr<ID3D11ShaderReflection>
 get_reflection(const ComPtr<ID3DBlob> &compiled) {
   ComPtr<ID3D11ShaderReflection> reflection;
@@ -122,7 +132,7 @@ bool ShaderReflection::reflect(const ComPtr<ID3DBlob> &compiled) {
   D3D11_SHADER_DESC shaderdesc;
   pReflector->GetDesc(&shaderdesc);
 
-  // analize constant buffer
+  // analyze constant buffer
   for (UINT i = 0; i < shaderdesc.ConstantBuffers; ++i) {
     auto cb = pReflector->GetConstantBufferByIndex(i);
     D3D11_SHADER_BUFFER_DESC desc;

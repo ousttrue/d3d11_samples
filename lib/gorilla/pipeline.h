@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <gorilla/shader_reflection.h>
 #include <string_view>
+#include <vcruntime.h>
 #include <vector>
 #include <wrl/client.h>
 
@@ -62,7 +63,7 @@ public:
                  const char *vs_entry, const char *gs_entry,
                  const char *ps_entry);
 
-  void set_variable(std::string_view name, const void *p, size_t size);
+  void set_variable(std::string_view name, const void *p, size_t size, size_t offset=0);
   void update(const ComPtr<ID3D11DeviceContext> &context);
   void set_srv(const ComPtr<ID3D11DeviceContext> &context,
                std::string_view name,

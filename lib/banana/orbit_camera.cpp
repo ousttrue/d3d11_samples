@@ -1,4 +1,5 @@
 #include "orbit_camera.h"
+#include "banana/types.h"
 
 namespace banana {
 
@@ -15,6 +16,21 @@ void OrbitCamera::calc_view() {
       DirectX::XMMatrixTranslation(translation.x, translation.y, translation.z);
   auto M = DirectX::XMMatrixMultiply(DirectX::XMMatrixMultiply(Y, P), T);
   DirectX::XMStoreFloat4x4((DirectX::XMFLOAT4X4 *)&view, M);
+}
+
+Matrix3x4 OrbitCamera::normal_matrix() const {
+  // TODO: inverse, transpose
+  Matrix3x4 n;
+  n._11 = view._11;
+  n._12 = view._12;
+  n._13 = view._13;
+  n._21 = view._21;
+  n._22 = view._22;
+  n._23 = view._23;
+  n._31 = view._31;
+  n._32 = view._32;
+  n._33 = view._33;
+  return n;
 }
 
 DirectX::XMFLOAT3 OrbitCamera::position() const {

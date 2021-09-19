@@ -8,6 +8,7 @@
 #include <mikktspace.h>
 #include <nlohmann/json.hpp>
 #include <stdexcept>
+#include <utility>
 
 namespace banana::gltf {
 
@@ -86,13 +87,22 @@ static std::shared_ptr<Image> load_texture(const nlohmann::json &gltf,
   return image;
 }
 
+static std::shared_ptr<Material>
+create_default_material(std::string_view name) {
+  auto material = std::make_shared<Material>();
+  material->shader_name = "gltf.hlsl";
+  material->properties.insert(std::make_pair(BASE_COLOR, Float4{1, 1, 1, 1}));
+  material->properties.insert(std::make_pair(NORMAL_MAP_SCALE, 1.0f));
+  return material;
+}
+
 // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/material.schema.json
 static std::shared_ptr<Material>
 load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
               const nlohmann::json &gltf_material,
               const std::vector<std::shared_ptr<Image>> &textures) {
-  auto material = std::make_shared<Material>();
-  material->shader_name = "gltf.hlsl";
+
+  auto material = create_default_material(gltf_material["name"]);
 
   if (gltf_material.contains("pbrMetallicRoughness")) {
     auto pbrMetallicRoughness = gltf_material["pbrMetallicRoughness"];
@@ -100,11 +110,11 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       auto texture = pbrMetallicRoughness["baseColorTexture"];
       if (texture.contains("index")) {
         int texture_index = texture["index"];
-        material->base_color_texture = textures[texture_index];
+        material->textures[BASE_COLOR_TEXTURE] = textures[texture_index];
       }
     }
     if (gltf_material.contains("baseColorFactor")) {
-      material->base_color =
+      material->properties[BASE_COLOR] =
           load_float_array<4, Float4>(gltf_material["baseColorFactor"]);
     }
   }
@@ -113,10 +123,10 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     auto texture = gltf_material["normalTexture"];
     if (texture.contains("index")) {
       int texture_index = texture["index"];
-      material->normal_map_texture = textures[texture_index];
+      material->textures[NORMAL_MAP_TEXTURE] = textures[texture_index];
     }
     if (texture.contains("scale")) {
-      material->normal_map_scale = texture["scale"];
+      material->properties[NORMAL_MAP_SCALE] = (float)texture["scale"];
     }
   }
 
@@ -291,7 +301,10 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
 
     vertex_offset += vertex_count;
 
-    if (submesh.material && submesh.material->normal_map_texture && !has_tangent) {
+    if (submesh.material &&
+        submesh.material->textures.find("normal_map_texture") !=
+            submesh.material->textures.end() &&
+        !has_tangent) {
       // calc tangent
       SMikkTSpaceInterface interface = {0};
       interface.m_getNumFaces = &getNumFaces;

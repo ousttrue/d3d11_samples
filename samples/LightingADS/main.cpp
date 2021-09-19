@@ -1,10 +1,16 @@
-#include "banana/types.h"
 #include <app.h>
 #include <banana/asset.h>
 #include <banana/geometry.h>
+#include <banana/material.h>
+#include <banana/mesh.h>
+#include <banana/node.h>
+#include <banana/scene_command.h>
+#include <banana/types.h>
 #include <gorilla/input_assembler.h>
 #include <gorilla/pipeline.h>
 #include <iostream>
+#include <memory>
+#include <renderer.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "LightingADS";
@@ -26,86 +32,40 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   // setup pipeline
-  gorilla::Pipeline pipeline;
-  {
-    auto shader = banana::get_string("lighting/ads.hlsl");
-    if (shader.empty()) {
-      return 2;
-    }
-    auto [ok, error] =
-        pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
-    if (!ok) {
-      std::cerr << error << std::endl;
-      return 3;
-    }
-  }
+  auto cube = std::make_shared<banana::Node>();
+  cube->transform.translation.y = 0.4f;
+  cube->mesh = banana::geometry::create_cube(0.4f);
+  auto &submesh = cube->mesh->submeshes.emplace_back(banana::SubMesh{});
+  submesh.draw_offset = 0;
+  submesh.draw_count = static_cast<UINT>(cube->mesh->indices.size());
+  submesh.material = std::make_shared<banana::Material>();
+  submesh.material->shader_name = "lighting/ads.hlsl";
+  submesh.material->properties["Kd"] = banana::Float3(0.4f, 0.8f, 0.6f);
+  submesh.material->properties["Ka"] = banana::Float3(0.1f, 0.1f, 0.1f);
+  submesh.material->properties["Ks"] = banana::Float3(0.1f, 0.1f, 0.1f);
+  submesh.material->properties["Shininess"] = 1.0f;
 
-  gorilla::InputAssembler ia;
-  {
-    auto cube = banana::geometry::create_cube(0.4f);
-    if (!ia.create_vertices(device, cube->vertices)) {
-      return 4;
-    }
-    if (!ia.create_indices(device, cube->indices)) {
-      return 5;
-    }
-  }
-
-  struct LightInfo {
-    DirectX::XMFLOAT3 Position;
-    float IsPoint;
-    DirectX::XMFLOAT3 Intensity;
-    float _padding1;
-  };
-  static_assert(sizeof(LightInfo) == 32);
-
-  struct World {
-    banana::Matrix4x4 ModelViewMatrix;
-    DirectX::XMFLOAT3X4 NormalMatrix;
-    banana::Matrix4x4 MVP;
-    LightInfo Lights[5];
-  };
-  // 64 + 64 + 36+12 + 160 = 312
-  static_assert(sizeof(World) == 336);
-  // static_assert(sizeof(Material) == 336);
-
-  struct Material {
-    DirectX::XMFLOAT3 Diffuse;
-    float _padding0;
-    DirectX::XMFLOAT3 Ambient;
-    float _padding1;
-    DirectX::XMFLOAT3 Specular;
-    float Shininess;
-  };
-  static_assert(sizeof(Material) == 48);
-
-  World world;
-  world.Lights[0].Intensity = DirectX::XMFLOAT3(1, 1, 1);
-  world.Lights[0].Position = DirectX::XMFLOAT3(0.5, -1, -1);
-  world.Lights[0].IsPoint = 0;
-  world.Lights[1].Intensity = DirectX::XMFLOAT3(0, 0, 0);
-  world.Lights[2].Intensity = DirectX::XMFLOAT3(0, 0, 0);
-  world.Lights[3].Intensity = DirectX::XMFLOAT3(0, 0, 0);
-  world.Lights[4].Intensity = DirectX::XMFLOAT3(0, 0, 0);
-  Material material;
-  material.Diffuse = DirectX::XMFLOAT3(0.4f, 0.8f, 0.6f);
-  material.Ambient = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
-  material.Specular = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
-  material.Shininess = 1.0f;
+  // World world;
+  banana::LightInfo lights[5] = {0};
+  lights[0].intensity = banana::Float3{1, 1, 1};
+  lights[0].position = banana::Float3{0.5, -1, -1};
+  lights[0].is_point = 0;
+  lights[1].intensity = banana::Float3{0, 0, 0};
+  lights[2].intensity = banana::Float3{0, 0, 0};
+  lights[3].intensity = banana::Float3{0, 0, 0};
+  lights[4].intensity = banana::Float3{0, 0, 0};
 
   // main loop
   auto context = app.context();
   auto camera = app.camera();
+  Renderer renderer;
+  banana::SceneCommand commander;
   while (app.begin_frame()) {
-    // update
-    world.MVP = camera->view * camera->projection;
-    world.NormalMatrix = camera->normal_matrix();
-    world.ModelViewMatrix = camera->view;
-    pipeline.vs_stage.cb[0].update(context, world);
-    pipeline.vs_stage.cb[1].update(context, material);
-    // draw
-    pipeline.setup(context);
-    ia.draw(context);
+    commander.new_frame(camera, lights);
+    commander.traverse(cube);
+    for (auto &command : commander.commands) {
+      renderer.draw(device, context, command);
+    }
 
     app.end_frame();
   }

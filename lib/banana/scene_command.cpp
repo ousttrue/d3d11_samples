@@ -1,14 +1,18 @@
 
 #include "scene_command.h"
+#include "banana/material.h"
 #include "banana/mesh.h"
 
 namespace banana {
 
-void SceneCommand::new_frame(const banana::OrbitCamera *camera) {
+void SceneCommand::new_frame(const banana::OrbitCamera *camera,
+                             std::span<const LightInfo> lights) {
   commands.clear();
 
-  // _camera = camera;
-  viewprojection = camera->view * camera->projection;
+  this->view = camera->view;
+  this->viewprojection = camera->view * camera->projection;
+  this->normal_matrix = camera->normal_matrix();
+  this->lights = lights;
 }
 
 void SceneCommand::traverse(const std::shared_ptr<banana::Node> &node,
@@ -26,18 +30,23 @@ void SceneCommand::traverse(const std::shared_ptr<banana::Node> &node,
       });
 
       commands.push_back(commands::SetVariable{"MVP", m * viewprojection});
-      commands.push_back(
-          commands::SetVariable{"BaseColor", material->base_color});
+      commands.push_back(commands::SetVariable{"ModelViewMatrix", view});
+      commands.push_back(commands::SetVariable{"NormalMatrix", normal_matrix});
 
-      if (material->base_color_texture) {
-        commands.push_back(commands::SetTexture{material->base_color_texture,
-                                                "BaseColorTexture",
-                                                "BaseColorSampler"});
+      size_t offset = 0;
+      for (auto &light : lights) {
+        commands.push_back(commands::SetVariable{"Lights", light, offset});
+        offset += sizeof(LightInfo);
       }
-      if (material->normal_map_texture) {
-        commands.push_back(commands::SetTexture{material->normal_map_texture,
-                                                "NormalMapTexture",
-                                                "NormalMapSampler"});
+
+      // material
+      for (auto [k, v] : material->properties) {
+        commands.push_back(commands::SetVariable{k, v});
+      }
+      for (auto [k, v] : material->textures) {
+        auto srv = k + "Texture";
+        auto sampler = k + "Sampler";
+        commands.push_back(commands::SetTexture{v, srv, sampler});
       }
 
       commands.push_back(

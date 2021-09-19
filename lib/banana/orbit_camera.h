@@ -19,21 +19,7 @@ struct OrbitCamera {
   Matrix4x4 view;
   void calc_view();
 
-  DirectX::XMFLOAT3X4 normal_matrix() const {
-    // inverse, transpose
-    DirectX::XMFLOAT3X4 n;
-    n._11 = view._11;
-    n._12 = view._12;
-    n._13 = view._13;
-    n._21 = view._21;
-    n._22 = view._22;
-    n._23 = view._23;
-    n._31 = view._31;
-    n._32 = view._32;
-    n._33 = view._33;
-    return n;
-  }
-
+  Matrix3x4 normal_matrix() const;
   DirectX::XMFLOAT3 position() const;
   OrbitCamera();
   void yaw_pitch(int dx, int dy);

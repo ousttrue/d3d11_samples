@@ -1,5 +1,6 @@
 #pragma once
 #include <limits>
+#include <variant>
 
 namespace banana {
 
@@ -19,6 +20,12 @@ struct Float4 {
   float y;
   float z;
   float w;
+};
+
+struct Matrix3x4 {
+  float _11, _12, _13, _14;
+  float _21, _22, _23, _24;
+  float _31, _32, _33, _34;
 };
 
 struct Matrix4x4 {
@@ -64,5 +71,16 @@ struct AABB {
     }
   }
 };
+
+struct LightInfo {
+  Float3 position;
+  float is_point;
+  Float3 intensity;
+  float _padding1;
+};
+static_assert(sizeof(LightInfo) == 32);
+
+using Variable = std::variant<float, Float2, Float3, Float4, Matrix4x4,
+                              Matrix3x4, LightInfo>;
 
 } // namespace banana

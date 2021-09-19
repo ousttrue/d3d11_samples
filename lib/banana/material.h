@@ -3,17 +3,28 @@
 #include "types.h"
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <variant>
 
 namespace banana {
 
+const auto BASE_COLOR = "BaseColor";
+const auto BASE_COLOR_TEXTURE = "BaseColor";
+const auto NORMAL_MAP_TEXTURE = "NormalMap";
+const auto NORMAL_MAP_SCALE = "NormalMapScale";
+
 struct Material {
+  std::string name;
   std::string shader_name;
 
-  Float4 base_color = {1, 1, 1, 1};
-  std::shared_ptr<Image> base_color_texture;
+  // Use same name in shader variables
+  std::unordered_map<std::string, Variable> properties;
 
-  std::shared_ptr<Image> normal_map_texture;
-  float normal_map_scale = 1.0f;
+  // Use same name SRV and Sampler.
+  // SRV suffix is "Texture"
+  // Sampler suffix is "Sampler"
+  // ex. BaseColorTexture and BaseColorSampler
+  std::unordered_map<std::string, std::shared_ptr<Image>> textures;
 };
 
 } // namespace banana

@@ -1,7 +1,8 @@
+#include "banana/scene_command.h"
 #include "banana/types.h"
 #include <app.h>
 #include <banana/gltf.h>
-#include <scene_renderer.h>
+#include <renderer.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "MikkTSpace";
@@ -38,13 +39,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   auto camera = app.camera();
   camera->fit(half_height, half_height);
 
-  SceneRenderer renderer;
-  auto context = app.context();
-
   // main loop
+  Renderer renderer;
+  banana::SceneCommand commander;
+  auto context = app.context();
   while (app.begin_frame()) {
-    renderer.Render(device, context, camera->projection, camera->view,
-                    banana::Matrix4x4::identity(), root);
+
+    commander.new_frame(camera);
+    commander.traverse(root);
+    for (auto &command : commander.commands) {
+      renderer.draw(device, context, command);
+    }
 
     app.end_frame();
   }

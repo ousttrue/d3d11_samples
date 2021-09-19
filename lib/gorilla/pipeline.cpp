@@ -116,15 +116,16 @@ Pipeline::compile_shader(const ComPtr<ID3D11Device> &device,
   return {true, {}};
 }
 
-void Pipeline::set_variable(std::string_view name, const void *p, size_t size) {
+void Pipeline::set_variable(std::string_view name, const void *p, size_t size,
+                            size_t offset) {
   for (auto &slot : vs_stage.reflection.cb_slots) {
-    slot.set_variable(name, p, size);
+    slot.set_variable(name, p, size, offset);
   }
   for (auto &slot : gs_stage.reflection.cb_slots) {
-    slot.set_variable(name, p, size);
+    slot.set_variable(name, p, size, offset);
   }
   for (auto &slot : ps_stage.reflection.cb_slots) {
-    slot.set_variable(name, p, size);
+    slot.set_variable(name, p, size, offset);
   }
 }
 

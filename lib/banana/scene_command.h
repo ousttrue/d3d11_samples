@@ -14,27 +14,26 @@ namespace banana {
 
 namespace commands {
 
-using Variable = std::variant<float, Float2, Float3, Float4, Matrix4x4>;
-
 struct Begin {
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<Material> material;
 };
 
 struct SetVariable {
-  std::string_view name;
+  std::string name;
   Variable value;
+  size_t offset = 0;
 };
 
 struct SetTexture {
   std::shared_ptr<Image> image;
-  std::string_view srv;
-  std::string_view sampler;
+  std::string srv;
+  std::string sampler;
 };
 
 struct End {
-  uint32_t draw_offset;
-  uint32_t draw_count;
+  uint32_t draw_offset = {};
+  uint32_t draw_count = {};
 };
 
 } // namespace commands
@@ -43,11 +42,16 @@ using Command = std::variant<commands::Begin, commands::SetVariable,
                              commands::SetTexture, commands::End>;
 
 struct SceneCommand {
-  std::vector<Command> commands;
   Matrix4x4 viewprojection = {};
-  void new_frame(const OrbitCamera *camera);
+  Matrix4x4 view = {};
+  Matrix3x4 normal_matrix = {};
+  std::span<const LightInfo> lights;
 
-  void traverse(const std::shared_ptr<Node> &root,
+  std::vector<Command> commands;
+  void new_frame(const OrbitCamera *camera,
+                 std::span<const LightInfo> lights = {});
+
+  void traverse(const std::shared_ptr<Node> &node,
                 const Matrix4x4 &parent = Matrix4x4::identity());
 };
 

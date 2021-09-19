@@ -14,7 +14,7 @@ struct PS_IN {
 struct LightInfo {
   // w == 1 ? point : directional
   float4 Position;
-  float3 Intensity;
+  float4 Intensity;
 };
 
 cbuffer World {
