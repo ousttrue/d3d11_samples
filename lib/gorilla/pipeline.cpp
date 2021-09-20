@@ -144,52 +144,6 @@ void Pipeline::update(const ComPtr<ID3D11DeviceContext> &context) {
   }
 }
 
-void Pipeline::set_srv(const ComPtr<ID3D11DeviceContext> &context,
-                       std::string_view name,
-                       const ComPtr<ID3D11ShaderResourceView> &srv) {
-  for (auto &slot : vs_stage.reflection.srv_slots) {
-    if (name == slot.Name) {
-      context->VSSetShaderResources(slot.BindPoint, 1, srv.GetAddressOf());
-      break;
-    }
-  }
-  for (auto &slot : gs_stage.reflection.srv_slots) {
-    if (name == slot.Name) {
-      context->GSSetShaderResources(slot.BindPoint, 1, srv.GetAddressOf());
-      break;
-    }
-  }
-  for (auto &slot : ps_stage.reflection.srv_slots) {
-    if (name == slot.Name) {
-      context->PSSetShaderResources(slot.BindPoint, 1, srv.GetAddressOf());
-      break;
-    }
-  }
-}
-
-void Pipeline::set_sampler(const ComPtr<ID3D11DeviceContext> &context,
-                           std::string_view name,
-                           const ComPtr<ID3D11SamplerState> &sampler) {
-  for (auto &slot : vs_stage.reflection.sampler_slots) {
-    if (name == slot.Name) {
-      context->VSSetSamplers(slot.BindPoint, 1, sampler.GetAddressOf());
-      break;
-    }
-  }
-  for (auto &slot : gs_stage.reflection.sampler_slots) {
-    if (name == slot.Name) {
-      context->GSSetSamplers(slot.BindPoint, 1, sampler.GetAddressOf());
-      break;
-    }
-  }
-  for (auto &slot : ps_stage.reflection.sampler_slots) {
-    if (name == slot.Name) {
-      context->PSSetSamplers(slot.BindPoint, 1, sampler.GetAddressOf());
-      break;
-    }
-  }
-}
-
 void Pipeline::setup(const ComPtr<ID3D11DeviceContext> &context) {
   context->RSSetState(_rs.Get());
 
