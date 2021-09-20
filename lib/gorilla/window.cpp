@@ -1,4 +1,5 @@
 #include "window.h"
+#include <chrono>
 
 namespace gorilla {
 
@@ -32,9 +33,8 @@ LRESULT Window::proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     return 0;
 
   case WM_SIZE:
-    // if (auto pD3D = (DXGIManager *)GetWindowLongPtr(hWnd, GWL_USERDATA)) {
-    //   pD3D->Resize(LOWORD(lParam), HIWORD(lParam));
-    // }
+    _state.width = LOWORD(lParam);
+    _state.height = HIWORD(lParam);
     return 0;
 
   case WM_PAINT: {
@@ -48,81 +48,93 @@ LRESULT Window::proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
   // MOUSE EVENTS
   //
   case WM_MOUSEMOVE: {
-    if (_on_move) {
-      auto pos = MAKEPOINTS(lParam);
-      _on_move(pos.x, pos.y);
+    auto pos = MAKEPOINTS(lParam);
+    _state.mouse_x = pos.x;
+    _state.mouse_y = pos.y;
+    for (auto &callback : _on_move) {
+      callback(pos.x, pos.y);
     }
     return 0;
   }
-  case WM_LBUTTONDOWN:
-    if (_on_left) {
-      _button |= ButtonFlagsLeft;
-      SetCapture(hWnd);
-      _on_left(true);
-    }
-    return 0;
 
-  case WM_RBUTTONDOWN:
-    if (_on_right) {
-      _button |= ButtonFlagsRight;
-      SetCapture(hWnd);
-      _on_right(true);
+  case WM_LBUTTONDOWN: {
+    _state.mouse_button_flag |= MouseButtonLeftDown;
+    SetCapture(hWnd);
+    for (auto &callback : _on_left) {
+      callback(true);
     }
     return 0;
+  }
 
-  case WM_MBUTTONDOWN:
-    if (_on_middle) {
-      _button |= ButtonFlagsMiddle;
-      SetCapture(hWnd);
-      _on_middle(true);
+  case WM_RBUTTONDOWN: {
+    _state.mouse_button_flag |= MouseButtonRightDown;
+    SetCapture(hWnd);
+    for (auto &callback : _on_right) {
+      callback(true);
     }
     return 0;
+  }
 
-  case WM_LBUTTONUP:
-    if (_on_left) {
-      _button &= ~ButtonFlagsLeft;
-      if (_button == ButtonFlagsNone) {
-        ReleaseCapture();
-      }
-      _on_left(false);
+  case WM_MBUTTONDOWN: {
+    _state.mouse_button_flag |= MouseButtonMiddleDown;
+    SetCapture(hWnd);
+    for (auto &callback : _on_middle) {
+      callback(true);
     }
     return 0;
+  }
 
-  case WM_RBUTTONUP:
-    if (_on_right) {
-      _button &= ~ButtonFlagsRight;
-      if (_button == ButtonFlagsNone) {
-        ReleaseCapture();
-      }
-      _on_right(false);
+  case WM_LBUTTONUP: {
+    _state.mouse_button_flag &= ~MouseButtonLeftDown;
+    if (_state.mouse_button_flag == MouseButtonNone) {
+      ReleaseCapture();
+    }
+    for (auto &callback : _on_left) {
+      callback(false);
     }
     return 0;
+  }
 
-  case WM_MBUTTONUP:
-    if (_on_middle) {
-      _button &= ~ButtonFlagsMiddle;
-      if (_button == ButtonFlagsNone) {
-        ReleaseCapture();
-      }
-      _on_middle(false);
+  case WM_RBUTTONUP: {
+    _state.mouse_button_flag &= ~MouseButtonRightDown;
+    if (_state.mouse_button_flag == MouseButtonNone) {
+      ReleaseCapture();
+    }
+    for (auto &callback : _on_right) {
+      callback(false);
     }
     return 0;
+  }
 
-  case WM_MOUSEWHEEL:
-    if (_on_wheel) {
-      auto d = GET_WHEEL_DELTA_WPARAM(wParam);
-      _on_wheel(d);
+  case WM_MBUTTONUP: {
+    _state.mouse_button_flag &= ~MouseButtonMiddleDown;
+    if (_state.mouse_button_flag == MouseButtonNone) {
+      ReleaseCapture();
+    }
+    for (auto &callback : _on_middle) {
+      callback(false);
     }
     return 0;
+  }
 
-    //
-    // key events
-    //
-  case WM_CHAR:
-    if (_on_key) {
-      _on_key(static_cast<int>(wParam));
+  case WM_MOUSEWHEEL: {
+    auto d = GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+    _state.wheel = d;
+    for (auto &callback : _on_wheel) {
+      callback(d);
     }
     return 0;
+  }
+
+  //
+  // key events
+  //
+  case WM_CHAR: {
+    for (auto &callback : _on_key) {
+      callback(static_cast<int>(wParam));
+    }
+    return 0;
+  }
   }
 
   return DefWindowProcA(hWnd, message, wParam, lParam);
@@ -160,7 +172,10 @@ HWND Window::create(HINSTANCE instance, const char *class_name,
   return _hwnd;
 }
 
-bool Window::process_messages() {
+bool Window::process_messages(ScreenState *pstate) {
+
+  _state.time = std::chrono::system_clock::now();
+
   MSG msg = {};
   while (true) {
     if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -172,6 +187,11 @@ bool Window::process_messages() {
     } else {
       break;
     }
+  }
+
+  if (pstate) {
+    *pstate = _state;
+    _state.wheel = 0;
   }
 
   return true;

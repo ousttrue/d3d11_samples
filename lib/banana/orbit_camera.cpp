@@ -4,8 +4,8 @@
 namespace banana {
 
 void OrbitCamera::calc_projection() {
-  auto P = DirectX::XMMatrixPerspectiveFovRH(fovYRad, screen.x / screen.y, near,
-                                             far);
+  auto P = DirectX::XMMatrixPerspectiveFovRH(fovYRad, screen.x / screen.y,
+                                             _near, _far);
   DirectX::XMStoreFloat4x4((DirectX::XMFLOAT4X4 *)&projection, P);
 }
 
@@ -51,13 +51,13 @@ OrbitCamera::OrbitCamera() {
   calc_view();
 }
 
-void OrbitCamera::yaw_pitch(int dx, int dy) {
+void OrbitCamera::yaw_pitch(float dx, float dy) {
   yaw += dx / screen.y * 4;
   pitch += dy / screen.y * 4;
   calc_view();
 }
 
-void OrbitCamera::shift(int dx, int dy) {
+void OrbitCamera::shift(float dx, float dy) {
   translation.x -=
       static_cast<float>(dx / screen.y * tan(fovYRad / 2) * translation.z * 2);
   translation.y +=
@@ -65,7 +65,7 @@ void OrbitCamera::shift(int dx, int dy) {
   calc_view();
 }
 
-void OrbitCamera::dolly(int d) {
+void OrbitCamera::dolly(float d) {
   if (d < 0) {
     translation.z *= 1.1f;
   } else if (d > 0) {
@@ -86,6 +86,36 @@ void OrbitCamera::fit(float y, float half_height) {
   translation.z = -half_height / static_cast<float>(tan(fovYRad * 0.5f)) * 1.5f;
   translation.y = -y;
   calc_view();
+}
+
+void OrbitCamera::update(float x, float y, float w, float h, bool left,
+                         bool right, bool middle, float wheel) {
+
+  resize(w, h);
+
+  _left = left;
+  _right = right;
+  _middle = middle;
+
+  if (_x == std::numeric_limits<float>::quiet_NaN()) {
+    _x = x;
+    _y = y;
+    return;
+  }
+
+  auto dx = x - _x;
+  _x = x;
+  auto dy = y - _y;
+  _y = y;
+  if (_right) {
+    yaw_pitch(dx, dy);
+  }
+  if (_middle) {
+    shift(dx, dy);
+  }
+  if (wheel) {
+    dolly(wheel);
+  }
 }
 
 } // namespace banana

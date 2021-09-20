@@ -61,8 +61,8 @@ void RenderTarget::clear(const ComPtr<ID3D11DeviceContext> &context,
   }
 }
 
-void RenderTarget::setup(const ComPtr<ID3D11DeviceContext> &context, int w,
-                         int h) {
+void RenderTarget::setup(const ComPtr<ID3D11DeviceContext> &context, float w,
+                         float h) {
   // set backbuffer & depthbuffer
   ID3D11RenderTargetView *rtv_list[] = {_rtv.Get()};
   context->OMSetRenderTargets(1, rtv_list, _dsv.Get());
@@ -71,8 +71,8 @@ void RenderTarget::setup(const ComPtr<ID3D11DeviceContext> &context, int w,
   D3D11_VIEWPORT viewports[1] = {{0}};
   viewports[0].TopLeftX = 0;
   viewports[0].TopLeftY = 0;
-  viewports[0].Width = (float)w;
-  viewports[0].Height = (float)h;
+  viewports[0].Width = w;
+  viewports[0].Height = h;
   viewports[0].MinDepth = 0;
   viewports[0].MaxDepth = 1.0f;
   context->RSSetViewports(_countof(viewports), viewports);

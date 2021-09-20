@@ -148,5 +148,12 @@
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/GltfScene.exe",
         },
+        {
+            "name": "ImGui",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/ImGui.exe",
+        },
     ]
 }

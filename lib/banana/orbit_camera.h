@@ -6,9 +6,15 @@
 namespace banana {
 
 struct OrbitCamera {
+  bool _left = false;
+  bool _right = false;
+  bool _middle = false;
+  float _x = std::numeric_limits<float>::quiet_NaN();
+  float _y = std::numeric_limits<float>::quiet_NaN();
+
   Float2 screen = {1, 1};
-  float near = 0.01f;
-  float far = 100.0f;
+  float _near = 0.01f;
+  float _far = 100.0f;
   float fovYRad = DirectX::XMConvertToRadians(60.0f);
   Matrix4x4 projection;
   void calc_projection();
@@ -22,45 +28,14 @@ struct OrbitCamera {
   Matrix3x4 normal_matrix() const;
   DirectX::XMFLOAT3 position() const;
   OrbitCamera();
-  void yaw_pitch(int dx, int dy);
-  void shift(int dx, int dy);
-  void dolly(int d);
+  void yaw_pitch(float dx, float dy);
+  void shift(float dx, float dy);
+  void dolly(float d);
   void resize(float w, float h);
   void fit(float y, float half_height);
-};
 
-struct MouseBinder {
-  bool _left = false;
-  bool _right = false;
-  bool _middle = false;
-  int _x = std::numeric_limits<int>::min();
-  int _y = std::numeric_limits<int>::min();
-  OrbitCamera &_camera;
-
-public:
-  MouseBinder(banana::OrbitCamera &camera) : _camera(camera) {}
-  void Left(bool isPress) { _left = isPress; }
-  void Middle(bool isPress) { _middle = isPress; }
-  void Right(bool isPress) { _right = isPress; }
-  void Move(int x, int y) {
-    if (_x == std::numeric_limits<int>::min()) {
-      _x = x;
-      _y = y;
-      return;
-    }
-
-    auto dx = x - _x;
-    _x = x;
-    auto dy = y - _y;
-    _y = y;
-    if (_right) {
-      _camera.yaw_pitch(dx, dy);
-    }
-    if (_middle) {
-      _camera.shift(dx, dy);
-    }
-  }
-  void Wheel(int d) { _camera.dolly(d); }
+  void update(float x, float y, float w, float h, bool left, bool right,
+              bool middle, float wheel);
 };
 
 } // namespace banana

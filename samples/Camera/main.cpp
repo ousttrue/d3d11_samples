@@ -58,14 +58,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   banana::OrbitCamera camera;
-  banana::MouseBinder binder(camera);
-  window.bind_mouse(
-      std::bind(&banana::MouseBinder::Left, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Middle, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Right, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Move, &binder, std::placeholders::_1,
-                std::placeholders::_2),
-      std::bind(&banana::MouseBinder::Wheel, &binder, std::placeholders::_1));
 
   // main loop
   DXGI_SWAP_CHAIN_DESC desc;
