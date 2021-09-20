@@ -16,7 +16,7 @@ subdirs(
   DepthTest
   FontTexture
   #
-  LightingADS
+  LightingVertexADS
   #
   ImageLoader
   GltfLoader

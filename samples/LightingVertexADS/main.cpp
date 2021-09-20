@@ -31,7 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   submesh.draw_offset = 0;
   submesh.draw_count = static_cast<UINT>(cube->mesh->indices.size());
   submesh.material = std::make_shared<banana::Material>();
-  submesh.material->shader_name = "lighting/ads.hlsl";
+  submesh.material->shader_name = "lighting/vertex_ads.hlsl";
   submesh.material->properties["Kd"] = banana::Float3(0.4f, 0.8f, 0.6f);
   submesh.material->properties["Ka"] = banana::Float3(0.1f, 0.1f, 0.1f);
   submesh.material->properties["Ks"] = banana::Float3(0.1f, 0.1f, 0.1f);
