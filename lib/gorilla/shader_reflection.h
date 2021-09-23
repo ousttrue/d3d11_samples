@@ -41,7 +41,29 @@ class ShaderReflection {
 public:
   std::vector<ConstantBufferSlot> cb_slots;
   std::vector<D3D11_SHADER_INPUT_BIND_DESC> srv_slots;
+  bool try_get_srv(std::string_view name, UINT *slot) {
+    UINT i = 0;
+    for (auto &srv : srv_slots) {
+      if (name == srv.Name) {
+        *slot = i;
+        return true;
+      }
+      ++i;
+    }
+    return false;
+  }
   std::vector<D3D11_SHADER_INPUT_BIND_DESC> sampler_slots;
+  bool try_get_sampler(std::string_view name, UINT *slot) {
+    UINT i = 0;
+    for (auto &sampler : sampler_slots) {
+      if (name == sampler.Name) {
+        *slot = i;
+        return true;
+      }
+      ++i;
+    }
+    return false;
+  }
 
   bool reflect(const Microsoft::WRL::ComPtr<ID3DBlob> &compiled);
 };

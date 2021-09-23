@@ -1,6 +1,11 @@
 #include <app.h>
 #include <banana/geometry.h>
+#include <banana/mesh.h>
+#include <banana/orbit_camera.h>
+#include <gorilla/window.h>
+#include <memory>
 #include <renderer.h>
+#include <teapot.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "LightingADS";
@@ -22,20 +27,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   // setup pipeline
-  auto cube = std::make_shared<banana::Node>();
-  cube->transform.translation.y = 0.4f;
-  cube->mesh = banana::geometry::create_cube(0.4f);
-  auto &submesh = cube->mesh->submeshes.emplace_back(banana::SubMesh{});
+  auto node = std::make_shared<banana::Node>();
+  node->transform.translation.y = 0.4f;
+
+  auto mesh = std::make_shared<banana::Mesh>();
+  mesh->assign(teapot::vertices(), teapot::indices());
+  node->mesh = mesh;
+
+  // node->mesh = banana::geometry::create_cube(0.4f);
+
+  auto &submesh = node->mesh->submeshes.emplace_back(banana::SubMesh{});
   submesh.draw_offset = 0;
-  submesh.draw_count = static_cast<UINT>(cube->mesh->indices.size());
+  submesh.draw_count = static_cast<UINT>(node->mesh->indices.size());
   submesh.material = std::make_shared<banana::Material>();
-  submesh.material->shader_name = "lighting/ads.hlsl";
+  submesh.material->shader_name = "lighting/vertex_ads.hlsl";
   submesh.material->properties["Kd"] = banana::Float3(0.4f, 0.8f, 0.6f);
   submesh.material->properties["Ka"] = banana::Float3(0.1f, 0.1f, 0.1f);
-  submesh.material->properties["Ks"] = banana::Float3(0.1f, 0.1f, 0.1f);
-  submesh.material->properties["Shininess"] = 1.0f;
+  submesh.material->properties["Ks"] = banana::Float3(1.0f, 1.0f, 1.0f);
+  submesh.material->properties["Shininess"] = 10.0f;
 
-  // World world;
+  // world
   banana::LightInfo lights[5] = {0};
   lights[0].intensity = banana::Float3{1, 1, 1};
   lights[0].position = banana::Float3{0.5, -1, -1};
@@ -47,10 +58,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // main loop
   auto context = app.context();
-  auto camera = app.camera();
+  banana::OrbitCamera camera;
   Renderer renderer;
-  while (app.begin_frame()) {
-    renderer.render(device, context, cube, camera, lights);
+  gorilla::ScreenState state;
+  while (app.begin_frame(&state)) {
+    update_camera(&camera, state);
+    renderer.render(device, context, node, &camera, lights);
     app.end_frame();
   }
 

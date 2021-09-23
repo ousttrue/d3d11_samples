@@ -1,3 +1,4 @@
+#include "app.h"
 #include "banana/types.h"
 #include <DirectXMath.h>
 #include <assert.h>
@@ -58,14 +59,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   banana::OrbitCamera camera;
-  banana::MouseBinder binder(camera);
-  window.bind_mouse(
-      std::bind(&banana::MouseBinder::Left, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Middle, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Right, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Move, &binder, std::placeholders::_1,
-                std::placeholders::_2),
-      std::bind(&banana::MouseBinder::Wheel, &binder, std::placeholders::_1));
 
 #pragma pack(push)
 #pragma pack(16)
@@ -86,17 +79,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   DXGI_SWAP_CHAIN_DESC desc;
   swapchain->GetDesc(&desc);
   gorilla::RenderTarget render_target;
-  for (UINT frame_count = 0; window.process_messages(); ++frame_count) {
+  gorilla::ScreenState state;
+  for (UINT frame_count = 0; window.process_messages(&state); ++frame_count) {
 
-    RECT rect;
-    GetClientRect(hwnd, &rect);
-    int w = rect.right - rect.left;
-    int h = rect.bottom - rect.top;
-    if (w != desc.BufferDesc.Width || h != desc.BufferDesc.Height) {
+    if (state.width != desc.BufferDesc.Width || state.height != desc.BufferDesc.Height) {
       // clear backbuffer reference
       render_target.release();
       // resize swapchain
-      swapchain->ResizeBuffers(desc.BufferCount, w, h, desc.BufferDesc.Format,
+      swapchain->ResizeBuffers(desc.BufferCount, state.width, state.height, desc.BufferDesc.Format,
                                desc.Flags);
     }
 
@@ -114,10 +104,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
 
     // update
-    camera.resize(static_cast<float>(w), static_cast<float>(h));
+    update_camera(&camera, state);
     constant.fovY = camera.fovYRad;
-    constant.screenSize.x = static_cast<float>(w);
-    constant.screenSize.y = static_cast<float>(h);
+    constant.screenSize.x = state.width;
+    constant.screenSize.y = state.height;
     constant.view = camera.view;
     constant.projection = camera.projection;
     constant.cameraPosition = camera.position();
@@ -131,7 +121,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         0.5f;
     float clear[] = {0.5, v, 0.5, 1.0f};
     render_target.clear(context, clear);
-    render_target.setup(context, w, h);
+    render_target.setup(context, state.width, state.height);
 
     // draw
     pipeline.setup(context);

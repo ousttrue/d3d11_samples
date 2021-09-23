@@ -65,12 +65,6 @@ public:
 
   void set_variable(std::string_view name, const void *p, size_t size, size_t offset=0);
   void update(const ComPtr<ID3D11DeviceContext> &context);
-  void set_srv(const ComPtr<ID3D11DeviceContext> &context,
-               std::string_view name,
-               const ComPtr<ID3D11ShaderResourceView> &srv);
-  void set_sampler(const ComPtr<ID3D11DeviceContext> &context,
-                   std::string_view name,
-                   const ComPtr<ID3D11SamplerState> &sampler);
   void setup(const ComPtr<ID3D11DeviceContext> &context);
   void draw_empty(const ComPtr<ID3D11DeviceContext> &context);
 };

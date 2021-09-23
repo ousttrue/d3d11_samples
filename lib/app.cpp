@@ -1,5 +1,6 @@
 #include "app.h"
 #include "banana/types.h"
+#include "gorilla/window.h"
 #include <banana/asset.h>
 #include <gorilla/device.h>
 #include <gorilla/pipeline.h>
@@ -32,12 +33,12 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
   }
   _swapchain->GetDesc(&_desc);
 
-  auto binder = std::make_shared<banana::MouseBinder>(_camera);
-  _window.bind_mouse([binder](bool isPress) { binder->Left(isPress); },
-                     [binder](bool isPress) { binder->Middle(isPress); },
-                     [binder](bool isPress) { binder->Right(isPress); },
-                     [binder](int x, int y) { binder->Move(x, y); },
-                     [binder](int d) { binder->Wheel(d); });
+  // auto binder = std::make_shared<banana::MouseBinder>(_camera);
+  // _window.bind_mouse([binder](bool isPress) { binder->Left(isPress); },
+  //                    [binder](bool isPress) { binder->Middle(isPress); },
+  //                    [binder](bool isPress) { binder->Right(isPress); },
+  //                    [binder](int x, int y) { binder->Move(x, y); },
+  //                    [binder](int d) { binder->Wheel(d); });
 
   _window.bind_key([hwnd = _hwnd](int key) {
     if (key == 27) {
@@ -64,9 +65,9 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
   return _device;
 }
 
-bool App::begin_frame() {
+bool App::begin_frame(gorilla::ScreenState *pstate) {
 
-  if (!_window.process_messages()) {
+  if (!_window.process_messages(pstate)) {
     return false;
   }
 
@@ -98,7 +99,6 @@ bool App::begin_frame() {
     }
   }
 
-  _camera.resize(static_cast<float>(w), static_cast<float>(h));
   // clear RTV
   auto v =
       (static_cast<float>(sin(_frame_count / 180.0f * DirectX::XM_PI)) + 1) *
@@ -121,28 +121,28 @@ bool App::begin_frame() {
   };
 #pragma pack(pop)
   static_assert(sizeof(Constants) == 16 * 10, "sizeof ConstantsSize");
-  Constants constant;
-  constant.fovY = _camera.fovYRad;
-  constant.screenSize.x = static_cast<float>(w);
-  constant.screenSize.y = static_cast<float>(h);
-  constant.view = _camera.view;
-  constant.projection = _camera.projection;
-  constant.cameraPosition = _camera.position();
-  _grid.gs_stage.cb[0].update(_context, constant);
-  _grid.ps_stage.cb[0].update(_context, constant);
-  _grid.setup(_context);
-  _grid.draw_empty(_context);
+  // Constants constant;
+  // constant.fovY = _camera.fovYRad;
+  // constant.screenSize.x = static_cast<float>(w);
+  // constant.screenSize.y = static_cast<float>(h);
+  // constant.view = _camera.view;
+  // constant.projection = _camera.projection;
+  // constant.cameraPosition = _camera.position();
+  // _grid.gs_stage.cb[0].update(_context, constant);
+  // _grid.ps_stage.cb[0].update(_context, constant);
+  // _grid.setup(_context);
+  // _grid.draw_empty(_context);
 
   return true;
 }
 
 void App::end_frame() {
-  // draw
-  // callback(_device, _context, _camera);
+  _context->Flush();
 
   // vsync
-  _context->Flush();
   _swapchain->Present(1, 0);
 
   _frame_count++;
 }
+
+void App::clear_depth() { _render_target.clear_depth(_context); }

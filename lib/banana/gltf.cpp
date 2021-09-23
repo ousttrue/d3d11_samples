@@ -12,6 +12,19 @@
 
 namespace banana::gltf {
 
+struct Vertex {
+  Float3 position;
+  Float3 normal;
+  Float2 tex0;
+  Float4 color;
+  Float4 tangent;
+};
+using Index = uint32_t;
+const size_t NORMAL_OFFSET = offsetof(Vertex, normal);
+const size_t TEX0_OFFSET = offsetof(Vertex, tex0);
+const size_t COLOR_OFFSET = offsetof(Vertex, color);
+const size_t TANGENT_OFFSET = offsetof(Vertex, tangent);
+
 // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/
 
 template <size_t N, typename T> T load_float_array(const nlohmann::json &j) {
@@ -165,10 +178,11 @@ static void getPosition(const SMikkTSpaceContext *pContext, float fvPosOut[],
   auto data = (TangentData *)pContext->m_pUserData;
   auto i = data->index_offset + iFace * 3 + iVert;
   auto vertex_index = data->mesh->indices[i];
-  auto &v = data->mesh->vertices[vertex_index];
-  fvPosOut[0] = v.position.x;
-  fvPosOut[1] = v.position.y;
-  fvPosOut[2] = v.position.z;
+  auto v = (Float3 *)(data->mesh->vertices.data() +
+                      vertex_index * data->mesh->vertex_stride);
+  fvPosOut[0] = v->x;
+  fvPosOut[1] = v->y;
+  fvPosOut[2] = v->z;
 }
 
 static void getNormal(const SMikkTSpaceContext *pContext, float fvNormOut[],
@@ -176,10 +190,11 @@ static void getNormal(const SMikkTSpaceContext *pContext, float fvNormOut[],
   auto data = (TangentData *)pContext->m_pUserData;
   auto i = data->index_offset + iFace * 3 + iVert;
   auto vertex_index = data->mesh->indices[i];
-  auto &v = data->mesh->vertices[vertex_index];
-  fvNormOut[0] = v.normal.x;
-  fvNormOut[1] = v.normal.y;
-  fvNormOut[2] = v.normal.z;
+  auto n = (Float3 *)(data->mesh->vertices.data() +
+                      vertex_index * data->mesh->vertex_stride + NORMAL_OFFSET);
+  fvNormOut[0] = n->x;
+  fvNormOut[1] = n->y;
+  fvNormOut[2] = n->z;
 }
 
 static void getTexCoord(const SMikkTSpaceContext *pContext, float fvTexcOut[],
@@ -187,9 +202,10 @@ static void getTexCoord(const SMikkTSpaceContext *pContext, float fvTexcOut[],
   auto data = (TangentData *)pContext->m_pUserData;
   auto i = data->index_offset + iFace * 3 + iVert;
   auto vertex_index = data->mesh->indices[i];
-  auto &v = data->mesh->vertices[vertex_index];
-  fvTexcOut[0] = v.tex0.x;
-  fvTexcOut[1] = v.tex0.y;
+  auto uv = (Float2 *)(data->mesh->vertices.data() +
+                       vertex_index * data->mesh->vertex_stride + TEX0_OFFSET);
+  fvTexcOut[0] = uv->x;
+  fvTexcOut[1] = uv->y;
 }
 
 // either (or both) of the two setTSpace callbacks can be set.
@@ -208,12 +224,15 @@ static void setTSpaceBasic(const SMikkTSpaceContext *pContext,
                            const int iFace, const int iVert) {
   auto data = (TangentData *)pContext->m_pUserData;
   auto i = data->index_offset + iFace * 3 + iVert;
-  auto vertex_index = data->mesh->indices[i];
-  auto &v = data->mesh->vertices[vertex_index];
-  v.tangent.x = fvTangent[0];
-  v.tangent.y = fvTangent[1];
-  v.tangent.z = fvTangent[2];
-  v.tangent.w = fSign;
+  auto vertex_index = *(
+      (uint32_t *)(data->mesh->indices.data() + i * data->mesh->index_stride));
+  auto t =
+      (Float4 *)(data->mesh->vertices.data() +
+                 vertex_index * data->mesh->vertex_stride + TANGENT_OFFSET);
+  t->x = fvTangent[0];
+  t->y = fvTangent[1];
+  t->z = fvTangent[2];
+  t->w = fSign;
 }
 
 static std::shared_ptr<Mesh>
@@ -221,6 +240,7 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
           const nlohmann::json &gltf_mesh,
           const std::vector<std::shared_ptr<Material>> &materials) {
   auto mesh = std::make_shared<Mesh>();
+  mesh->vertex_stride = sizeof(Vertex);
   size_t vertex_offset = 0;
   size_t index_offset = 0;
   for (auto &gltf_prim : gltf_mesh["primitives"]) {
@@ -241,10 +261,11 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       int position_accessor_index = attributes["POSITION"];
       auto position = from_accessor<Float3>(gltf, bin, position_accessor_index);
       vertex_count = position.size();
-      mesh->vertices.resize(vertex_offset + position.size());
+      mesh->vertices.resize((vertex_offset + position.size()) * sizeof(Vertex));
       size_t i = 0;
+      auto vertices = (Vertex *)mesh->vertices.data();
       for (auto &p : position) {
-        mesh->vertices[vertex_offset + (i++)].position = p;
+        vertices[vertex_offset + (i++)].position = p;
         mesh->aabb.expand(p);
       }
     }
@@ -254,10 +275,11 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       int tex_accessor_index = attributes["TEXCOORD_0"];
       auto tex = from_accessor<Float2>(gltf, bin, tex_accessor_index);
       assert(tex.size() == vertex_count);
-      mesh->vertices.resize(vertex_offset + tex.size());
+      // mesh->vertices.resize(vertex_offset + tex.size());
       size_t i = 0;
+      auto vertices = (Vertex *)mesh->vertices.data();
       for (auto &uv : tex) {
-        mesh->vertices[vertex_offset + i++].tex0 = uv;
+        vertices[vertex_offset + i++].tex0 = uv;
       }
     }
 
@@ -279,11 +301,16 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
 
       case 5123: // UNSIGNED_SHORT
       {
+        mesh->index_stride = 2;
         auto indices =
             from_accessor<uint16_t>(gltf, bin, indices_accessor_index);
-        mesh->indices.reserve(index_offset + indices.size());
-        for (auto &i : indices) {
-          mesh->indices.push_back(static_cast<uint32_t>(vertex_offset + i));
+        mesh->indices.resize((index_offset + indices.size()) *
+                             mesh->index_stride);
+        auto dst = (uint16_t *)mesh->indices.data();
+        size_t i = 0;
+        for (auto &index : indices) {
+          dst[index_offset + i++] =
+              static_cast<uint16_t>(vertex_offset + index);
         }
         submesh.draw_offset = static_cast<uint32_t>(index_offset);
         submesh.draw_count = static_cast<uint32_t>(indices.size());

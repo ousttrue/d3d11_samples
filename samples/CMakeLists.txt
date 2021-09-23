@@ -9,6 +9,7 @@ subdirs(
   Texture
   ShaderReflection
   InputAssembler
+  DynamicMesh
   #
   Grid
   Camera
@@ -16,9 +17,12 @@ subdirs(
   DepthTest
   FontTexture
   #
-  LightingADS
+  LightingVertexADS
   #
   ImageLoader
   GltfLoader
   MikkTSpace
-  GltfScene)
+  GltfScene
+  ImGui
+  TinyGizmo
+  )

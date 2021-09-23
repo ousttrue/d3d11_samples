@@ -13,13 +13,13 @@
 #include <iostream>
 
 auto CLASS_NAME = "CLASS_NAME";
-auto WINDOW_TITLE = "InputAssembler";
+auto WINDOW_TITLE = "DynamicMesh";
 auto WIDTH = 320;
 auto HEIGHT = 320;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-const DirectX::XMFLOAT2 triangle[3] = {
+DirectX::XMFLOAT2 triangle[3] = {
     {1.0f, -1.0f},
     {0.0f, 1.0f},
     {-1.0f, -1.0f},
@@ -66,7 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, sizeof(triangle[0]), triangle, sizeof(triangle))) {
+  if (!ia.create_dynamic_vertices(device, sizeof(triangle[0]), sizeof(triangle))) {
     return 8;
   }
 
@@ -109,6 +109,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     render_target.setup(context, w, h);
 
     pipeline.setup(context);
+
+    // update
+    auto rad = frame_count / 180.0f * DirectX::XM_PI * 10;
+    triangle[0].x = sin(rad);
+    ia.update_vertices(context, triangle);
+
     ia.draw(context);
 
     // vsync

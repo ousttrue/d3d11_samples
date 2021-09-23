@@ -8,7 +8,6 @@ struct Transform {
   Float3 translation = {0, 0, 0};
   Float4 rotation = {0, 0, 0, 1}; // quaternon
   Float3 scaling = {1, 1, 1};
-
   Matrix4x4 matrix() const;
 };
 

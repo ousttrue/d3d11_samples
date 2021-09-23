@@ -33,6 +33,22 @@ class Renderer {
   std::shared_ptr<gorilla::InputAssembler> _drawable;
   std::shared_ptr<gorilla::Pipeline> _material;
 
+  struct TextureList {
+    std::vector<ID3D11ShaderResourceView *> srv;
+    std::vector<ID3D11SamplerState *> sampler;
+
+    void clear(const gorilla::ShaderReflection &r) {
+      srv.clear();
+      srv.resize(r.srv_slots.size());
+
+      sampler.clear();
+      sampler.resize((r.sampler_slots.size()));
+    }
+  };
+  TextureList _vs_list;
+  TextureList _gs_list;
+  TextureList _ps_list;
+
 public:
   std::shared_ptr<gorilla::Texture>
   get_or_create(const ComPtr<ID3D11Device> &device,

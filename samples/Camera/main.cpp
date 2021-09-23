@@ -22,11 +22,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  auto shader = banana::get_string("mvp.hlsl");
-  if (shader.empty()) {
-    return 7;
-  }
-
   gorilla::Window window;
   auto hwnd = window.create(hInstance, CLASS_NAME, WINDOW_TITLE, WIDTH, HEIGHT);
   if (!hwnd) {
@@ -49,40 +44,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   // setup pipeline
+  auto shader = banana::get_string("mvp.hlsl");
+  if (shader.empty()) {
+    return 7;
+  }
   gorilla::Pipeline pipeline;
-  auto [ok, error] = pipeline.compile_shader(device, shader, "vsMain", "gsMain", "psMain");
-  if(!ok)
-  {
+  auto [ok, error] =
+      pipeline.compile_shader(device, shader, "vsMain", "gsMain", "psMain");
+  if (!ok) {
     std::cerr << error << std::endl;
     return 4;
   }
 
   banana::OrbitCamera camera;
-  banana::MouseBinder binder(camera);
-  window.bind_mouse(
-      std::bind(&banana::MouseBinder::Left, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Middle, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Right, &binder, std::placeholders::_1),
-      std::bind(&banana::MouseBinder::Move, &binder, std::placeholders::_1,
-                std::placeholders::_2),
-      std::bind(&banana::MouseBinder::Wheel, &binder, std::placeholders::_1));
 
   // main loop
   DXGI_SWAP_CHAIN_DESC desc;
   swapchain->GetDesc(&desc);
   gorilla::RenderTarget render_target;
-  for (UINT frame_count = 0; window.process_messages(); ++frame_count) {
+  gorilla::ScreenState state;
+  for (UINT frame_count = 0; window.process_messages(&state); ++frame_count) {
 
-    RECT rect;
-    GetClientRect(hwnd, &rect);
-    int w = rect.right - rect.left;
-    int h = rect.bottom - rect.top;
-    if (w != desc.BufferDesc.Width || h != desc.BufferDesc.Height) {
+    if (state.width != desc.BufferDesc.Width ||
+        state.height != desc.BufferDesc.Height) {
       // clear backbuffer reference
       render_target.release();
       // resize swapchain
-      swapchain->ResizeBuffers(desc.BufferCount, w, h, desc.BufferDesc.Format,
-                               desc.Flags);
+      swapchain->ResizeBuffers(desc.BufferCount, state.width, state.height,
+                               desc.BufferDesc.Format, desc.Flags);
     }
 
     // ensure create backbuffer
@@ -99,7 +88,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
 
     // update
-    camera.resize(static_cast<float>(w), static_cast<float>(h));
+    camera.update(state.mouse_x, state.mouse_y, state.width, state.height,
+                  state.mouse_button_flag & gorilla::MouseButtonLeftDown,
+                  state.mouse_button_flag & gorilla::MouseButtonRightDown,
+                  state.mouse_button_flag & gorilla::MouseButtonMiddleDown,
+                  state.wheel);
+
     pipeline.gs_stage.cb[0].update(context, camera.view * camera.projection);
 
     // clear RTV
@@ -108,7 +102,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         0.5f;
     float clear[] = {0.5, v, 0.5, 1.0f};
     render_target.clear(context, clear);
-    render_target.setup(context, w, h);
+    render_target.setup(context, state.width, state.height);
 
     // draw
     pipeline.setup(context);

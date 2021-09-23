@@ -1,3 +1,5 @@
+#include "banana/orbit_camera.h"
+#include "gorilla/window.h"
 #include <app.h>
 #include <banana/gltf.h>
 #include <renderer.h>
@@ -33,9 +35,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   // main loop
   Renderer renderer;
   auto context = app.context();
-  auto camera = app.camera();
-  while (app.begin_frame()) {
-    renderer.render(device, context, root, camera);
+  banana::OrbitCamera camera;
+  gorilla::ScreenState state;
+  while (app.begin_frame(&state)) {
+    update_camera(&camera, state);
+    renderer.render(device, context, root, &camera);
     app.end_frame();
   }
 
