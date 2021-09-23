@@ -70,18 +70,14 @@
             "program": "${workspaceFolder}/build/Debug/bin/Texture.exe",
         },
         {
+            "name": "-- 3D --"
+        },
+        {
             "name": "Camera",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/Camera.exe",
-        },
-        {
-            "name": "Grid",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/Grid.exe",
         },
         {
             "name": "InputAssembler",
@@ -98,32 +94,11 @@
             "program": "${workspaceFolder}/build/Debug/bin/DynamicMesh.exe",
         },
         {
-            "name": "FontMesh",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/FontMesh.exe",
-        },
-        {
             "name": "DepthTest",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/DepthTest.exe",
-        },
-        {
-            "name": "FontTexture",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/FontTexture.exe",
-        },
-        {
-            "name": "LightingVertexADS",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/LightingVertexADS.exe",
         },
         {
             "name": "ImageLoader",
@@ -134,12 +109,56 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "-- Shading --"
+        },
+        {
+            "name": "LightingVertexADS",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/LightingVertexADS.exe",
+        },
+        {
+            "name": "-- Util --"
+        },
+        {
+            "name": "FontMesh",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/FontMesh.exe",
+        },
+        {
+            "name": "FontTexture",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/FontTexture.exe",
+        },
+        {
+            "name": "ImGui",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/ImGui.exe",
+        },
+        {
+            "name": "Grid",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/Grid.exe",
+        },
+        {
             "name": "GltfLoader",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/GltfLoader.exe",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "-- App --"
         },
         {
             "name": "MikkTSpace",
@@ -154,13 +173,6 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/GltfScene.exe",
-        },
-        {
-            "name": "ImGui",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/ImGui.exe",
         },
         {
             "name": "TinyGizmo",

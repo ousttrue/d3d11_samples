@@ -1,6 +1,7 @@
 #pragma once
 
 #include <banana/orbit_camera.h>
+#include <chrono>
 #include <d3d11.h>
 #include <gorilla/pipeline.h>
 #include <gorilla/render_target.h>
@@ -23,7 +24,10 @@ class App {
   // gizmo
   gorilla::Pipeline _grid;
 
+  std::chrono::system_clock::time_point _last = {};
+
 public:
+  ~App();
   gorilla::Window &window() { return _window; }
   ComPtr<ID3D11DeviceContext> context() const { return _context; }
   ComPtr<ID3D11Device> initialize(HINSTANCE hInstance, LPSTR lpCmdLine,

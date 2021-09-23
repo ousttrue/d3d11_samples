@@ -34,4 +34,4 @@ target_link_libraries(${TARGET_NAME} PRIVATE json mikktspace)
 # app
 set(TARGET_NAME app)
 add_library(${TARGET_NAME} app.cpp renderer.cpp)
-target_link_libraries(${TARGET_NAME} PUBLIC gorilla banana)
+target_link_libraries(${TARGET_NAME} PUBLIC gorilla banana imgui)

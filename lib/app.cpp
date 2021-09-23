@@ -1,13 +1,22 @@
 #include "app.h"
-#include "banana/types.h"
-#include "gorilla/window.h"
 #include <banana/asset.h>
+#include <banana/types.h>
 #include <gorilla/device.h>
 #include <gorilla/pipeline.h>
 #include <gorilla/swapchain.h>
+#include <gorilla/window.h>
+#include <imgui.h>
+#include <imgui_impl_dx11.h>
 #include <iostream>
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+App::~App() {
+  // Cleanup
+  ImGui_ImplDX11_Shutdown();
+  // ImGui_ImplWin32_Shutdown();
+  ImGui::DestroyContext();
+}
 
 ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
                                      int nCmdShow, const char *CLASS_NAME,
@@ -50,6 +59,46 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
     }
   });
 
+  // imgui
+  {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    // io.ConfigFlags |=
+    //     ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable
+    // Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport
+                                                        // / Platform Windows
+    // io.ConfigViewportsNoAutoMerge = true;
+    // io.ConfigViewportsNoTaskBarIcon = true;
+    // io.ConfigViewportsNoDefaultParent = true;
+    // io.ConfigDockingAlwaysTabBar = true;
+    // io.ConfigDockingTransparentPayload = true;
+    // io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;     // FIXME-DPI:
+    // Experimental. THIS CURRENTLY DOESN'T WORK AS EXPECTED. DON'T USE IN USER
+    // APP! io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports; //
+    // FIXME-DPI: Experimental.
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    // ImGui::StyleColorsClassic();
+
+    // When viewports are enabled we tweak WindowRounding/WindowBg so platform
+    // windows can look identical to regular ones.
+    ImGuiStyle &style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+      style.WindowRounding = 0.0f;
+      style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    // Setup Platform/Renderer backends
+    // ImGui_ImplWin32_Init(hwnd);
+    ImGui_ImplDX11_Init(_device.Get(), _context.Get());
+  }
+
   // gizmo
   auto shader = banana::get_string("grid.hlsl");
   if (shader.empty()) {
@@ -71,16 +120,48 @@ bool App::begin_frame(gorilla::ScreenState *pstate) {
     return false;
   }
 
-  RECT rect;
-  GetClientRect(_hwnd, &rect);
-  int w = rect.right - rect.left;
-  int h = rect.bottom - rect.top;
-  if (w != _desc.BufferDesc.Width || h != _desc.BufferDesc.Height) {
+  if (pstate->width != _desc.BufferDesc.Width ||
+      pstate->height != _desc.BufferDesc.Height) {
     // clear backbuffer reference
     _render_target.release();
     // resize swapchain
-    _swapchain->ResizeBuffers(_desc.BufferCount, w, h, _desc.BufferDesc.Format,
-                              _desc.Flags);
+    _swapchain->ResizeBuffers(_desc.BufferCount,
+                              static_cast<UINT>(pstate->width),
+                              static_cast<UINT>(pstate->height),
+                              _desc.BufferDesc.Format, _desc.Flags);
+  }
+
+  // imgui
+  {
+    ImGuiIO &io = ImGui::GetIO();
+
+    //
+    // update custom backend
+    //
+    if (_last == std::chrono::system_clock::time_point{}) {
+
+    } else {
+      io.DeltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+                         pstate->time - _last)
+                         .count() *
+                     0.001f;
+    }
+    if (io.DeltaTime == 0) {
+      io.DeltaTime = 0.016f;
+    }
+    _last = pstate->time;
+    io.DisplaySize = {pstate->width, pstate->height};
+    io.MousePos = {pstate->mouse_x, pstate->mouse_y};
+    io.MouseDown[0] = pstate->mouse_button_flag & gorilla::MouseButtonLeftDown;
+    io.MouseDown[1] = pstate->mouse_button_flag & gorilla::MouseButtonRightDown;
+    io.MouseWheel = pstate->wheel;
+
+    // update
+
+    // Start the Dear ImGui frame
+    ImGui_ImplDX11_NewFrame();
+    // ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
   }
 
   // ensure create backbuffer
@@ -105,7 +186,7 @@ bool App::begin_frame(gorilla::ScreenState *pstate) {
       0.5f;
   float clear[] = {0.5, v, 0.5, 1.0f};
   _render_target.clear(_context, clear);
-  _render_target.setup(_context, w, h);
+  _render_target.setup(_context, pstate->width, pstate->height);
 
   // gizmo
 #pragma pack(push)
@@ -137,6 +218,10 @@ bool App::begin_frame(gorilla::ScreenState *pstate) {
 }
 
 void App::end_frame() {
+  // imgui
+  ImGui::Render();
+  ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
   _context->Flush();
 
   // vsync

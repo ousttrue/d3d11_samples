@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d11.h>
+#include <span>
 #include <vector>
 #include <wrl/client.h>
 
@@ -69,6 +70,18 @@ public:
 
   void update_indices(const ComPtr<ID3D11DeviceContext> &context, const void *p,
                       size_t size);
+
+  template <typename V, typename I>
+  bool create(const ComPtr<ID3D11Device> &device, std::span<V> v,
+              std::span<I> i) {
+    if (!create_vertices(device, v.data(), v.size())) {
+      return false;
+    }
+    if (!create_indices(device, i.data(), i.size())) {
+      return false;
+    }
+    return true;
+  }
 
   // draw
   void setup(const ComPtr<ID3D11DeviceContext> &context);

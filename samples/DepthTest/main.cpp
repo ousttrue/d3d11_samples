@@ -1,4 +1,5 @@
 #include "app.h"
+#include "banana/types.h"
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
@@ -27,11 +28,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  auto shader = banana::get_string("depth.hlsl");
-  if (shader.empty()) {
-    return 1;
-  }
-
   gorilla::Window window;
   auto hwnd =
       window.create(hInstance, "WINDOW_CLASS", WINDOW_TITLE, WIDTH, HEIGHT);
@@ -56,6 +52,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // setup pipeline
   gorilla::Pipeline pipeline;
+  auto shader = banana::get_string("depth.hlsl");
+  if (shader.empty()) {
+    return 1;
+  }
   auto [ok, error] =
       pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
   if (!ok) {

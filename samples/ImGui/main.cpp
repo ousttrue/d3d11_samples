@@ -1,14 +1,22 @@
-#include "banana/orbit_camera.h"
-#include "gorilla/window.h"
 #include <app.h>
+#include <banana/asset.h>
 #include <banana/gltf.h>
+#include <banana/orbit_camera.h>
 #include <chrono>
+#include <gorilla/device.h>
+#include <gorilla/pipeline.h>
+#include <gorilla/swapchain.h>
+#include <gorilla/window.h>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
+#include <iostream>
 #include <renderer.h>
+#include <teapot.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "ImGui";
+auto WIDTH = 320;
+auto HEIGHT = 320;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -166,42 +174,108 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-  App app;
-  auto device =
-      app.initialize(hInstance, lpCmdLine, nCmdShow, CLASS_NAME, WINDOW_TITLE);
-  if (!device) {
+  gorilla::Window window;
+  auto hwnd = window.create(hInstance, CLASS_NAME, WINDOW_TITLE, WIDTH, HEIGHT);
+  if (!hwnd) {
     return 1;
   }
 
-  banana::gltf::GltfLoader loader;
-  if (!loader.load_from_asset(
-          // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
-          // "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb"
-          // "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
-          "glTF-Sample-Models/2.0/CesiumMilkTruck/glTF-Binary/"
-          "CesiumMilkTruck.glb")) {
+  ShowWindow(hwnd, nCmdShow);
+  UpdateWindow(hwnd);
+
+  auto device = gorilla::create_device();
+  if (!device) {
     return 2;
   }
-  auto root = loader.scenes[0].nodes[0];
+  ComPtr<ID3D11DeviceContext> context;
+  device->GetImmediateContext(&context);
+
+  auto swapchain = gorilla::create_swapchain(device, hwnd);
+  if (!swapchain) {
+    return 3;
+  }
+
+  // setup pipeline
+  struct TeapotConstant {
+    banana::Matrix4x4 MVP;
+    banana::Matrix4x4 M;
+  };
+  TeapotConstant c;
+  auto shader = banana::get_string("teapot.hlsl");
+  if (shader.empty()) {
+    return 1;
+  }
+  gorilla::Pipeline pipeline;
+  auto [ok, error] =
+      pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
+  if (!ok) {
+    std::cerr << error << std::endl;
+    return 5;
+  }
+  gorilla::InputAssembler ia;
+  if (!ia.create(device, teapot::vertices(), teapot::indices())) {
+    return 6;
+  }
 
   // main loop
-  Renderer renderer;
-  auto context = app.context();
   Gui gui(device, context);
   banana::OrbitCamera camera;
+  DXGI_SWAP_CHAIN_DESC desc;
+  swapchain->GetDesc(&desc);
+  gorilla::RenderTarget render_target;
   gorilla::ScreenState state;
-  while (app.begin_frame(&state)) {
-    // updage gui
-    camera.resize(state.width, state.height);
+  for (UINT frame_count = 0; window.process_messages(&state); ++frame_count) {
+
+    if (state.width != desc.BufferDesc.Width ||
+        state.height != desc.BufferDesc.Height) {
+      // clear backbuffer reference
+      render_target.release();
+      // resize swapchain
+      swapchain->ResizeBuffers(desc.BufferCount, static_cast<UINT>(state.width),
+                               static_cast<UINT>(state.height),
+                               desc.BufferDesc.Format, desc.Flags);
+    }
+
+    // ensure create backbuffer
+    if (!render_target.get()) {
+      ComPtr<ID3D11Texture2D> backbuffer;
+      auto hr = swapchain->GetBuffer(0, IID_PPV_ARGS(&backbuffer));
+      if (FAILED(hr)) {
+        assert(false);
+      }
+
+      if (!render_target.create_rtv(device, backbuffer)) {
+        assert(false);
+      }
+      if (!render_target.create_dsv(device)) {
+        assert(false);
+      }
+    }
+
+    // update
+    c.MVP = camera.view * camera.projection;
+    c.M = banana::Matrix4x4::identity();
+    pipeline.vs_stage.cb[0].update(context, c);
+
+    // clear RTV
+    auto v =
+        (static_cast<float>(sin(frame_count / 180.0f * DirectX::XM_PI)) + 1) *
+        0.5f;
+    float clear[] = {0.5, v, 0.5, 1.0f};
+    render_target.clear(context, clear);
+    render_target.setup(context, state.width, state.height);
 
     // draw
-    renderer.render(device, context, root, &camera);
+    pipeline.setup(context);
+    ia.draw(context);
 
     if (!gui.draw(context, state)) {
       update_camera(&camera, state);
     }
 
-    app.end_frame();
+    // vsync
+    context->Flush();
+    swapchain->Present(1, 0);
   }
 
   return 0;
