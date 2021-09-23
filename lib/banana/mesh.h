@@ -9,6 +9,7 @@ struct SubMesh {
   uint32_t draw_offset = 0;
   uint32_t draw_count = 0;
   std::shared_ptr<Material> material;
+  MaterialStates state;
 };
 
 struct Mesh {

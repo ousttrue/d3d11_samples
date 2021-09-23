@@ -4,6 +4,7 @@
 #include <banana/scene_processor.h>
 #include <banana/types.h>
 #include <d3d11.h>
+#include <gorilla/drawable.h>
 #include <gorilla/input_assembler.h>
 #include <gorilla/pipeline.h>
 #include <gorilla/render_target.h>
@@ -26,12 +27,15 @@ class Renderer {
   std::unordered_map<std::shared_ptr<banana::Material>,
                      std::shared_ptr<gorilla::Pipeline>>
       _material_map;
+
+  std::unordered_map<banana::MaterialStates, std::shared_ptr<gorilla::State>> _state_map;
   std::unordered_map<std::shared_ptr<banana::Mesh>,
                      std::shared_ptr<gorilla::InputAssembler>>
       _mesh_map;
 
-  std::shared_ptr<gorilla::InputAssembler> _drawable;
-  std::shared_ptr<gorilla::Pipeline> _material;
+  std::shared_ptr<gorilla::InputAssembler> _ia;
+  std::shared_ptr<gorilla::Pipeline> _pipeline;
+  std::shared_ptr<gorilla::State> _state;
 
   struct TextureList {
     std::vector<ID3D11ShaderResourceView *> srv;
@@ -56,6 +60,8 @@ public:
   std::shared_ptr<gorilla::Pipeline>
   get_or_create(const ComPtr<ID3D11Device> &device,
                 const std::shared_ptr<banana::Material> &src);
+  std::shared_ptr<gorilla::State>
+  get_or_create(const ComPtr<ID3D11Device> &device, const banana::MaterialStates &src);
   std::shared_ptr<gorilla::InputAssembler>
   get_or_create(const ComPtr<ID3D11Device> &device,
                 const std::shared_ptr<banana::Mesh> &src);

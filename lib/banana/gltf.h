@@ -12,11 +12,13 @@ struct GltfScene {
   std::vector<std::shared_ptr<Node>> nodes;
 };
 
+using MaterialWithState = std::tuple<std::shared_ptr<Material>, MaterialStates>;
+
 struct GltfLoader {
   std::string json;
   std::vector<uint8_t> bin;
   std::vector<std::shared_ptr<Image>> textures;
-  std::vector<std::shared_ptr<Material>> materials;
+  std::vector<MaterialWithState> materials;
   std::vector<std::shared_ptr<Mesh>> meshes;
   std::vector<std::shared_ptr<Node>> nodes;
   std::vector<GltfScene> scenes;

@@ -199,14 +199,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   };
   TeapotConstant c;
   gorilla::Drawable drawable;
+  if(!drawable.state.create(device))
+  {
+    return 4;
+  }
   auto [ok, error] =
       drawable.pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
   if (!ok) {
     std::cerr << error << std::endl;
-    return 4;
+    return 5;
   }
   if (!drawable.ia.create(device, teapot::vertices(), teapot::indices())) {
-    return 5;
+    return 6;
   }
 
   //
@@ -221,11 +225,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     c.MVP = camera.view * camera.projection;
     c.M = banana::Matrix4x4::identity();
     drawable.pipeline.vs_stage.cb[0].update(context, c);
-
-    // draw
     float clear[] = {gui.clear_color.x * gui.clear_color.w,
                      gui.clear_color.y * gui.clear_color.w,
                      gui.clear_color.z * gui.clear_color.w, 1.0f};
+
+    // draw
     renderer.begin_frame(state, clear);
     drawable.draw(context);
     bool gui_focus = gui.draw(context, state);

@@ -17,6 +17,7 @@ namespace commands {
 struct Begin {
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<Material> material;
+  MaterialStates state;
 };
 
 struct SetVariable {

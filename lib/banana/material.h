@@ -13,6 +13,13 @@ const auto BASE_COLOR_TEXTURE = "BaseColor";
 const auto NORMAL_MAP_TEXTURE = "NormalMap";
 const auto NORMAL_MAP_SCALE = "NormalMapScale";
 
+enum MaterialStates {
+  MaterialStatesNone = 0,
+  MaterialStatesDoubleFace = 1,
+  MaterialStatesAlphaBlend = 1 << 1,
+  MaterialStatesMask = 2 << 1,
+};
+
 struct Material {
   std::string name;
   std::string shader_name;

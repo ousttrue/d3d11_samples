@@ -1,5 +1,6 @@
 #include "gltf.h"
 #include "asset.h"
+#include "banana/material.h"
 #include "banana/types.h"
 #include "glb.h"
 #include <DirectXMath.h>
@@ -100,22 +101,21 @@ static std::shared_ptr<Image> load_texture(const nlohmann::json &gltf,
   return image;
 }
 
-static std::shared_ptr<Material>
-create_default_material(std::string_view name) {
+static MaterialWithState create_default_material(std::string_view name) {
   auto material = std::make_shared<Material>();
   material->shader_name = "gltf.hlsl";
   material->properties.insert(std::make_pair(BASE_COLOR, Float4{1, 1, 1, 1}));
   material->properties.insert(std::make_pair(NORMAL_MAP_SCALE, 1.0f));
-  return material;
+  return {material, MaterialStatesNone};
 }
 
 // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/material.schema.json
-static std::shared_ptr<Material>
+static MaterialWithState
 load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
               const nlohmann::json &gltf_material,
               const std::vector<std::shared_ptr<Image>> &textures) {
 
-  auto material = create_default_material(gltf_material["name"]);
+  auto [material, s] = create_default_material(gltf_material["name"]);
 
   if (gltf_material.contains("pbrMetallicRoughness")) {
     auto pbrMetallicRoughness = gltf_material["pbrMetallicRoughness"];
@@ -143,13 +143,23 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     }
   }
 
-  if (gltf_material.contains("doubleSided")) {
-    if ((bool)gltf_material["doubleSided"]) {
-      throw std::runtime_error("not implemented");
+  if (gltf_material.contains("alphaMode")) {
+    std::string alphaMode = gltf_material["alphaMode"];
+    if (alphaMode == "OPAQUE") {
+    } else if (alphaMode == "MASK") {
+      s = (MaterialStates)(s | MaterialStatesMask);
+    } else if (alphaMode == "BLEND") {
+      s = (MaterialStates)(s | MaterialStatesAlphaBlend);
     }
   }
 
-  return material;
+  if (gltf_material.contains("doubleSided")) {
+    if ((bool)gltf_material["doubleSided"]) {
+      s = (MaterialStates)(s | MaterialStatesDoubleFace);
+    }
+  }
+
+  return {material, s};
 }
 
 struct TangentData {
@@ -238,7 +248,7 @@ static void setTSpaceBasic(const SMikkTSpaceContext *pContext,
 static std::shared_ptr<Mesh>
 load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
           const nlohmann::json &gltf_mesh,
-          const std::vector<std::shared_ptr<Material>> &materials) {
+          const std::vector<MaterialWithState> &materials) {
   auto mesh = std::make_shared<Mesh>();
   mesh->vertex_stride = sizeof(Vertex);
   size_t vertex_offset = 0;
@@ -250,7 +260,9 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     auto &submesh = mesh->submeshes.emplace_back(SubMesh{});
     if (gltf_prim.contains("material")) {
       int material_index = gltf_prim["material"];
-      submesh.material = materials[material_index];
+      auto [material, s] = materials[material_index];
+      submesh.material = material;
+      submesh.state = s;
     }
 
     auto attributes = gltf_prim["attributes"];

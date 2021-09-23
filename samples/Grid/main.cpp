@@ -4,12 +4,8 @@
 #include <assert.h>
 #include <banana/asset.h>
 #include <banana/orbit_camera.h>
-#include <gorilla/constant_buffer.h>
-#include <gorilla/device.h>
-#include <gorilla/pipeline.h>
-#include <gorilla/render_target.h>
-#include <gorilla/shader.h>
-#include <gorilla/swapchain.h>
+#include <gorilla/drawable.h>
+#include <gorilla/renderer.h>
 #include <gorilla/window.h>
 #include <iostream>
 
@@ -29,37 +25,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!hwnd) {
     return 1;
   }
-
   ShowWindow(hwnd, nCmdShow);
   UpdateWindow(hwnd);
 
-  auto device = gorilla::create_device();
+  gorilla::Renderer renderer;
+  auto [device, context] = renderer.create(hwnd);
   if (!device) {
     return 2;
-  }
-  ComPtr<ID3D11DeviceContext> context;
-  device->GetImmediateContext(&context);
-
-  auto swapchain = gorilla::create_swapchain(device, hwnd);
-  if (!swapchain) {
-    return 3;
   }
 
   // setup pipeline
   auto shader = banana::get_string("grid.hlsl");
   if (shader.empty()) {
-    return 7;
+    return 3;
   }
-  gorilla::Pipeline pipeline;
-  auto [ok, error] =
-      pipeline.compile_shader(device, shader, "vsMain", "gsMain", "psMain");
-  if (!ok) {
-    std::cerr << error << std::endl;
+  gorilla::Drawable drawable;
+  if (!drawable.state.create(device, true)) {
     return 4;
   }
-
-  banana::OrbitCamera camera;
-
+  auto [ok, error] = drawable.pipeline.compile_shader(device, shader, "vsMain",
+                                                      "gsMain", "psMain");
+  if (!ok) {
+    std::cerr << error << std::endl;
+    return 5;
+  }
 #pragma pack(push)
 #pragma pack(16)
   struct Constants {
@@ -76,32 +65,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   Constants constant;
 
   // main loop
-  DXGI_SWAP_CHAIN_DESC desc;
-  swapchain->GetDesc(&desc);
-  gorilla::RenderTarget render_target;
+  banana::OrbitCamera camera;
   gorilla::ScreenState state;
   for (UINT frame_count = 0; window.process_messages(&state); ++frame_count) {
-
-    if (state.width != desc.BufferDesc.Width || state.height != desc.BufferDesc.Height) {
-      // clear backbuffer reference
-      render_target.release();
-      // resize swapchain
-      swapchain->ResizeBuffers(desc.BufferCount, state.width, state.height, desc.BufferDesc.Format,
-                               desc.Flags);
-    }
-
-    // ensure create backbuffer
-    if (!render_target.get()) {
-      ComPtr<ID3D11Texture2D> backbuffer;
-      auto hr = swapchain->GetBuffer(0, IID_PPV_ARGS(&backbuffer));
-      if (FAILED(hr)) {
-        assert(false);
-      }
-
-      if (!render_target.create_rtv(device, backbuffer)) {
-        assert(false);
-      }
-    }
 
     // update
     update_camera(&camera, state);
@@ -111,24 +77,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     constant.view = camera.view;
     constant.projection = camera.projection;
     constant.cameraPosition = camera.position();
-
-    pipeline.gs_stage.cb[0].update(context, constant);
-    pipeline.ps_stage.cb[0].update(context, constant);
+    drawable.pipeline.gs_stage.cb[0].update(context, constant);
+    drawable.pipeline.ps_stage.cb[0].update(context, constant);
 
     // clear RTV
     auto v =
         (static_cast<float>(sin(frame_count / 180.0f * DirectX::XM_PI)) + 1) *
         0.5f;
     float clear[] = {0.5, v, 0.5, 1.0f};
-    render_target.clear(context, clear);
-    render_target.setup(context, state.width, state.height);
-
-    // draw
-    pipeline.setup(context);
-    pipeline.draw_empty(context);
-
-    // vsync
-    swapchain->Present(1, 0);
+    renderer.begin_frame(state, clear);
+    drawable.draw(context);
+    renderer.end_frame();
   }
 
   return 0;

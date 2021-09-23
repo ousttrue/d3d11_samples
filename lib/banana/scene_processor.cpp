@@ -30,6 +30,7 @@ void SceneProcessor::traverse(const std::shared_ptr<banana::Node> &node,
       commands.push_back(commands::Begin{
           node->mesh,
           material,
+          submesh.state,
       });
 
       commands.push_back(commands::SetVariable{"MVP", m * viewprojection});

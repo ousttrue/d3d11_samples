@@ -20,6 +20,8 @@ class InputAssembler {
   DXGI_FORMAT _index_format = DXGI_FORMAT_R32_UINT;
 
 public:
+  bool is_enable() const { return _vb; }
+
   // vertices
   bool create_dynamic_vertices(const ComPtr<ID3D11Device> &device,
                                size_t stride, size_t dynamic_size);

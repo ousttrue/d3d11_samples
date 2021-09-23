@@ -1,5 +1,7 @@
 #include "renderer.h"
+#include "banana/material.h"
 #include "banana/types.h"
+#include "gorilla/drawable.h"
 #include "gorilla/input_assembler.h"
 #include "gorilla/pipeline.h"
 #include <banana/asset.h>
@@ -55,6 +57,26 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
   }
 
   return material;
+}
+
+std::shared_ptr<gorilla::State>
+Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
+                        const banana::MaterialStates &src) {
+  auto found = _state_map.find(src);
+  if (found != _state_map.end()) {
+    return found->second;
+  }
+
+  auto state = std::make_shared<gorilla::State>();
+  _state_map.insert(std::make_pair(src, state));
+  if (src & banana::MaterialStatesDoubleFace) {
+    state->rs_desc.CullMode = D3D11_CULL_NONE;
+  }
+  if (!state->create(device, src & banana::MaterialStatesAlphaBlend)) {
+    return {};
+  }
+
+  return state;
 }
 
 std::shared_ptr<gorilla::InputAssembler>
@@ -118,55 +140,58 @@ void Renderer::draw(const ComPtr<ID3D11Device> &device,
           return std::span<const uint8_t>{(const uint8_t *)&x, sizeof(x)};
         },
         p->value);
-    _material->set_variable(p->name, span.data(), span.size(), p->offset);
+    _pipeline->set_variable(p->name, span.data(), span.size(), p->offset);
   } else if (auto p = std::get_if<banana::commands::SetTexture>(&command)) {
     auto texture = get_or_create(device, p->image);
     UINT slot;
     // vs
-    if (_material->vs_stage.reflection.try_get_srv(p->srv, &slot)) {
+    if (_pipeline->vs_stage.reflection.try_get_srv(p->srv, &slot)) {
       _vs_list.srv[slot] = texture->_srv.Get();
     }
-    if (_material->vs_stage.reflection.try_get_sampler(p->sampler, &slot)) {
+    if (_pipeline->vs_stage.reflection.try_get_sampler(p->sampler, &slot)) {
       _vs_list.sampler[slot] = texture->_sampler.Get();
     }
     // gs
-    if (_material->gs_stage.reflection.try_get_srv(p->srv, &slot)) {
+    if (_pipeline->gs_stage.reflection.try_get_srv(p->srv, &slot)) {
       _gs_list.srv[slot] = texture->_srv.Get();
     }
-    if (_material->gs_stage.reflection.try_get_sampler(p->sampler, &slot)) {
+    if (_pipeline->gs_stage.reflection.try_get_sampler(p->sampler, &slot)) {
       _gs_list.sampler[slot] = texture->_sampler.Get();
     }
     // ps
-    if (_material->ps_stage.reflection.try_get_srv(p->srv, &slot)) {
+    if (_pipeline->ps_stage.reflection.try_get_srv(p->srv, &slot)) {
       _ps_list.srv[slot] = texture->_srv.Get();
     }
-    if (_material->ps_stage.reflection.try_get_sampler(p->sampler, &slot)) {
+    if (_pipeline->ps_stage.reflection.try_get_sampler(p->sampler, &slot)) {
       _ps_list.sampler[slot] = texture->_sampler.Get();
     }
   } else if (auto p = std::get_if<banana::commands::Begin>(&command)) {
     assert(p->mesh);
     assert(p->material);
-    _drawable = get_or_create(device, p->mesh);
+    _ia = get_or_create(device, p->mesh);
     if (p->mesh->vertex_updated) {
-      _drawable->update_vertices(context, p->mesh->vertices.data(),
-                                 p->mesh->vertices.size());
+      _ia->update_vertices(context, p->mesh->vertices.data(),
+                           p->mesh->vertices.size());
       p->mesh->vertex_updated = false;
     }
     if (p->mesh->index_updated) {
-      _drawable->update_indices(context, p->mesh->indices.data(),
-                                p->mesh->indices.size());
+      _ia->update_indices(context, p->mesh->indices.data(),
+                          p->mesh->indices.size());
       p->mesh->index_updated = false;
     }
 
-    _material = get_or_create(device, p->material);
-    assert(_material);
-    _vs_list.clear(_material->vs_stage.reflection);
-    _gs_list.clear(_material->gs_stage.reflection);
-    _ps_list.clear(_material->ps_stage.reflection);
+    _pipeline = get_or_create(device, p->material);
+    assert(_pipeline);
+    _vs_list.clear(_pipeline->vs_stage.reflection);
+    _gs_list.clear(_pipeline->gs_stage.reflection);
+    _ps_list.clear(_pipeline->ps_stage.reflection);
+
+    _state = get_or_create(device, p->state);
   } else if (auto p = std::get_if<banana::commands::End>(&command)) {
-    _material->update(context);
-    _material->setup(context);
-    _drawable->setup(context);
+    _pipeline->update(context);
+    _pipeline->setup(context);
+    _ia->setup(context);
+    _state->setup(context);
     // vs
     context->VSSetShaderResources(0, static_cast<UINT>(_vs_list.srv.size()),
                                   _vs_list.srv.data());
@@ -182,7 +207,7 @@ void Renderer::draw(const ComPtr<ID3D11Device> &device,
                                   _ps_list.srv.data());
     context->PSSetSamplers(0, static_cast<UINT>(_ps_list.sampler.size()),
                            _ps_list.sampler.data());
-    _drawable->draw_submesh(context, p->draw_offset, p->draw_count);
+    _ia->draw_submesh(context, p->draw_offset, p->draw_count);
   } else {
     throw std::runtime_error("not implemented");
   }
