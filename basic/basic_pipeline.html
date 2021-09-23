@@ -100,11 +100,11 @@
 <p>空の頂点シェーダーをキックすることで、間接的に GeometryShader を始動する。</p>
 <div class="literal-block-wrapper docutils container" id="id4">
 <div class="code-block-caption"><span class="caption-text">../../lib/gorilla/pipeline.cpp</span><a class="headerlink" href="#id4" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span>    <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">==</span> <span class="n">slot</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span> <span class="p">{</span>
-<span class="lineno">2 </span>      <span class="n">context</span><span class="o">-&gt;</span><span class="n">GSSetShaderResources</span><span class="p">(</span><span class="n">slot</span><span class="p">.</span><span class="n">BindPoint</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">srv</span><span class="p">.</span><span class="n">GetAddressOf</span><span class="p">());</span>
-<span class="lineno">3 </span>      <span class="k">break</span><span class="p">;</span>
-<span class="lineno">4 </span>    <span class="p">}</span>
-<span class="lineno">5 </span>  <span class="p">}</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="lineno">1 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">VSSetConstantBuffers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">UINT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_tmp_list</span><span class="p">.</span><span class="n">size</span><span class="p">()),</span>
+<span class="lineno">2 </span>                                <span class="n">_tmp_list</span><span class="p">.</span><span class="n">data</span><span class="p">());</span>
+<span class="lineno">3 </span>  <span class="n">context</span><span class="o">-&gt;</span><span class="n">IASetInputLayout</span><span class="p">(</span><span class="n">_input_layout</span><span class="p">.</span><span class="n">Get</span><span class="p">());</span>
+<span class="lineno">4 </span>
+<span class="lineno">5 </span>  <span class="c1">// gs</span>
 </pre></div>
 </div>
 </div>

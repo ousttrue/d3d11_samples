@@ -63,61 +63,46 @@
 <span class="k">namespace</span> <span class="n">banana</span> <span class="p">{</span>
 
 <span class="k">struct</span> <span class="n">OrbitCamera</span> <span class="p">{</span>
-  <span class="n">Float2</span> <span class="n">screen</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">};</span>
-  <span class="kt">float</span> <span class="n">near</span> <span class="o">=</span> <span class="mf">0.01f</span><span class="p">;</span>
-  <span class="kt">float</span> <span class="n">far</span> <span class="o">=</span> <span class="mf">100.0f</span><span class="p">;</span>
-  <span class="kt">float</span> <span class="n">fovYRad</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMConvertToRadians</span><span class="p">(</span><span class="mf">60.0f</span><span class="p">);</span>
-  <span class="n">Matrix4x4</span> <span class="n">projection</span><span class="p">;</span>
-  <span class="kt">void</span> <span class="nf">calc_projection</span><span class="p">();</span>
-
+  <span class="c1">//</span>
+  <span class="c1">// view</span>
+  <span class="c1">//</span>
   <span class="n">Float3</span> <span class="n">translation</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">};</span>
   <span class="kt">float</span> <span class="n">yaw</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
   <span class="kt">float</span> <span class="n">pitch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
   <span class="n">Matrix4x4</span> <span class="n">view</span><span class="p">;</span>
   <span class="kt">void</span> <span class="nf">calc_view</span><span class="p">();</span>
-
   <span class="n">Matrix3x4</span> <span class="nf">normal_matrix</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
   <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3</span> <span class="n">position</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
-  <span class="n">OrbitCamera</span><span class="p">();</span>
-  <span class="kt">void</span> <span class="nf">yaw_pitch</span><span class="p">(</span><span class="kt">int</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dy</span><span class="p">);</span>
-  <span class="kt">void</span> <span class="nf">shift</span><span class="p">(</span><span class="kt">int</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dy</span><span class="p">);</span>
-  <span class="kt">void</span> <span class="nf">dolly</span><span class="p">(</span><span class="kt">int</span> <span class="n">d</span><span class="p">);</span>
-  <span class="kt">void</span> <span class="nf">resize</span><span class="p">(</span><span class="kt">float</span> <span class="n">w</span><span class="p">,</span> <span class="kt">float</span> <span class="n">h</span><span class="p">);</span>
-  <span class="kt">void</span> <span class="nf">fit</span><span class="p">(</span><span class="kt">float</span> <span class="n">y</span><span class="p">,</span> <span class="kt">float</span> <span class="n">half_height</span><span class="p">);</span>
-<span class="p">};</span>
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT4</span> <span class="n">rotation</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">yaw_pitch</span><span class="p">(</span><span class="kt">float</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">float</span> <span class="n">dy</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">shift</span><span class="p">(</span><span class="kt">float</span> <span class="n">dx</span><span class="p">,</span> <span class="kt">float</span> <span class="n">dy</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">dolly</span><span class="p">(</span><span class="kt">float</span> <span class="n">d</span><span class="p">);</span>
 
-<span class="k">struct</span> <span class="n">MouseBinder</span> <span class="p">{</span>
+  <span class="c1">//</span>
+  <span class="c1">// screen | mouse</span>
+  <span class="c1">//</span>
+  <span class="n">Float2</span> <span class="n">screen</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">};</span>
   <span class="kt">bool</span> <span class="n">_left</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
   <span class="kt">bool</span> <span class="n">_right</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
   <span class="kt">bool</span> <span class="n">_middle</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-  <span class="kt">int</span> <span class="n">_x</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">();</span>
-  <span class="kt">int</span> <span class="n">_y</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">();</span>
-  <span class="n">OrbitCamera</span> <span class="o">&amp;</span><span class="n">_camera</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">_x</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">quiet_NaN</span><span class="p">();</span>
+  <span class="kt">float</span> <span class="n">_y</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">quiet_NaN</span><span class="p">();</span>
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3</span> <span class="n">get_ray_direction</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
 
-<span class="k">public</span><span class="o">:</span>
-  <span class="n">MouseBinder</span><span class="p">(</span><span class="n">banana</span><span class="o">::</span><span class="n">OrbitCamera</span> <span class="o">&amp;</span><span class="n">camera</span><span class="p">)</span> <span class="o">:</span> <span class="n">_camera</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span> <span class="p">{}</span>
-  <span class="kt">void</span> <span class="n">Left</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isPress</span><span class="p">)</span> <span class="p">{</span> <span class="n">_left</span> <span class="o">=</span> <span class="n">isPress</span><span class="p">;</span> <span class="p">}</span>
-  <span class="kt">void</span> <span class="n">Middle</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isPress</span><span class="p">)</span> <span class="p">{</span> <span class="n">_middle</span> <span class="o">=</span> <span class="n">isPress</span><span class="p">;</span> <span class="p">}</span>
-  <span class="kt">void</span> <span class="n">Right</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isPress</span><span class="p">)</span> <span class="p">{</span> <span class="n">_right</span> <span class="o">=</span> <span class="n">isPress</span><span class="p">;</span> <span class="p">}</span>
-  <span class="kt">void</span> <span class="n">Move</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">_x</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">())</span> <span class="p">{</span>
-      <span class="n">_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
-      <span class="n">_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
-      <span class="k">return</span><span class="p">;</span>
-    <span class="p">}</span>
+  <span class="c1">//</span>
+  <span class="c1">// projection</span>
+  <span class="c1">//</span>
+  <span class="kt">float</span> <span class="n">_near</span> <span class="o">=</span> <span class="mf">0.01f</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">_far</span> <span class="o">=</span> <span class="mf">100.0f</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">fovYRad</span> <span class="o">=</span> <span class="n">DirectX</span><span class="o">::</span><span class="n">XMConvertToRadians</span><span class="p">(</span><span class="mf">60.0f</span><span class="p">);</span>
+  <span class="n">Matrix4x4</span> <span class="n">projection</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">calc_projection</span><span class="p">();</span>
+  <span class="kt">void</span> <span class="nf">resize</span><span class="p">(</span><span class="kt">float</span> <span class="n">w</span><span class="p">,</span> <span class="kt">float</span> <span class="n">h</span><span class="p">);</span>
 
-    <span class="k">auto</span> <span class="n">dx</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">_x</span><span class="p">;</span>
-    <span class="n">_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
-    <span class="k">auto</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">_y</span><span class="p">;</span>
-    <span class="n">_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">_right</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">_camera</span><span class="p">.</span><span class="n">yaw_pitch</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">_middle</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">_camera</span><span class="p">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">);</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-  <span class="kt">void</span> <span class="n">Wheel</span><span class="p">(</span><span class="kt">int</span> <span class="n">d</span><span class="p">)</span> <span class="p">{</span> <span class="n">_camera</span><span class="p">.</span><span class="n">dolly</span><span class="p">(</span><span class="n">d</span><span class="p">);</span> <span class="p">}</span>
+  <span class="n">OrbitCamera</span><span class="p">();</span>
+  <span class="kt">void</span> <span class="nf">fit</span><span class="p">(</span><span class="kt">float</span> <span class="n">y</span><span class="p">,</span> <span class="kt">float</span> <span class="n">half_height</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">update</span><span class="p">(</span><span class="kt">float</span> <span class="n">x</span><span class="p">,</span> <span class="kt">float</span> <span class="n">y</span><span class="p">,</span> <span class="kt">float</span> <span class="n">w</span><span class="p">,</span> <span class="kt">float</span> <span class="n">h</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">left</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">right</span><span class="p">,</span>
+              <span class="kt">bool</span> <span class="n">middle</span><span class="p">,</span> <span class="kt">float</span> <span class="n">wheel</span><span class="p">);</span>
 <span class="p">};</span>
 
 <span class="p">}</span> <span class="c1">// namespace banana</span>
