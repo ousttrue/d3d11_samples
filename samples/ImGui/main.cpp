@@ -3,29 +3,30 @@
 #include <banana/gltf.h>
 #include <banana/orbit_camera.h>
 #include <chrono>
-#include <gorilla/input_assembler.h>
-#include <gorilla/pipeline.h>
+#include <gorilla/drawable.h>
 #include <gorilla/renderer.h>
 #include <gorilla/window.h>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <iostream>
+#include <string_view>
 #include <teapot.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "ImGui";
-auto WIDTH = 320;
-auto HEIGHT = 320;
+auto WIDTH = 1024;
+auto HEIGHT = 768;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 class Gui {
   bool show_demo_window = true;
   bool show_another_window = false;
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
   std::chrono::system_clock::time_point last = {};
 
 public:
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
   Gui(const ComPtr<ID3D11Device> &device,
       const ComPtr<ID3D11DeviceContext> &context) {
     // Setup Dear ImGui context
@@ -187,29 +188,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 2;
   }
 
-  // setup pipeline
+  // drawable
+  auto shader = banana::get_string("teapot.hlsl");
+  if (shader.empty()) {
+    return 3;
+  }
   struct TeapotConstant {
     banana::Matrix4x4 MVP;
     banana::Matrix4x4 M;
   };
   TeapotConstant c;
-  auto shader = banana::get_string("teapot.hlsl");
-  if (shader.empty()) {
-    return 1;
-  }
-  gorilla::Pipeline pipeline;
+  gorilla::Drawable drawable;
   auto [ok, error] =
-      pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
+      drawable.pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
   if (!ok) {
     std::cerr << error << std::endl;
+    return 4;
+  }
+  if (!drawable.ia.create(device, teapot::vertices(), teapot::indices())) {
     return 5;
   }
-  gorilla::InputAssembler ia;
-  if (!ia.create(device, teapot::vertices(), teapot::indices())) {
-    return 6;
-  }
 
+  //
   // main loop
+  //
   Gui gui(device, context);
   banana::OrbitCamera camera;
   gorilla::ScreenState state;
@@ -218,24 +220,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     // update
     c.MVP = camera.view * camera.projection;
     c.M = banana::Matrix4x4::identity();
-    pipeline.vs_stage.cb[0].update(context, c);
+    drawable.pipeline.vs_stage.cb[0].update(context, c);
 
-    // clear RTV
-    auto v =
-        (static_cast<float>(sin(frame_count / 180.0f * DirectX::XM_PI)) + 1) *
-        0.5f;
-    float clear[] = {0.5, v, 0.5, 1.0f};
-
+    // draw
+    float clear[] = {gui.clear_color.x * gui.clear_color.w,
+                     gui.clear_color.y * gui.clear_color.w,
+                     gui.clear_color.z * gui.clear_color.w, 1.0f};
     renderer.begin_frame(state, clear);
-    {
-      // draw
-      pipeline.setup(context);
-      ia.draw(context);
-      if (!gui.draw(context, state)) {
-        update_camera(&camera, state);
-      }
-    }
+    drawable.draw(context);
+    bool gui_focus = gui.draw(context, state);
     renderer.end_frame();
+
+    if (!gui_focus) {
+      // mouse event to camera
+      update_camera(&camera, state);
+    }
   }
 
   return 0;
