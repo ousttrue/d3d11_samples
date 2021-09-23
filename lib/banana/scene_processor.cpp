@@ -2,6 +2,7 @@
 #include "scene_processor.h"
 #include "banana/material.h"
 #include "banana/mesh.h"
+#include "banana/types.h"
 
 namespace banana {
 
@@ -12,6 +13,8 @@ void SceneProcessor::new_frame(const banana::OrbitCamera *camera,
   this->view = camera->view;
   this->viewprojection = camera->view * camera->projection;
   this->normal_matrix = camera->normal_matrix();
+  auto cp = camera->position();
+  this->camera_position = *((Float3*)&cp);
   this->lights = lights;
 }
 
@@ -30,8 +33,10 @@ void SceneProcessor::traverse(const std::shared_ptr<banana::Node> &node,
       });
 
       commands.push_back(commands::SetVariable{"MVP", m * viewprojection});
+      commands.push_back(commands::SetVariable{"VP", viewprojection});
       commands.push_back(commands::SetVariable{"ModelViewMatrix", view});
       commands.push_back(commands::SetVariable{"NormalMatrix", normal_matrix});
+      commands.push_back(commands::SetVariable{"CameraPosition", camera_position});
 
       size_t offset = 0;
       for (auto &light : lights) {

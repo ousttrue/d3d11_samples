@@ -66,10 +66,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   auto cube = banana::geometry::create_cube(0.4f);
 
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, cube->vertex_stride, cube->vertices.data(), cube->vertices.size())) {
+  if (!ia.create_vertices(device, cube->vertex_stride, cube->vertices.data(),
+                          cube->vertices.size())) {
     return 6;
   }
-  if (!ia.create_indices(device, cube->index_stride, cube->indices.data(), cube->indices.size())) {
+  if (!ia.create_indices(device, cube->index_stride, cube->indices.data(),
+                         cube->indices.size())) {
     return 7;
   }
 
@@ -98,7 +100,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       // clear backbuffer reference
       render_target.release();
       // resize swapchain
-      swapchain->ResizeBuffers(desc.BufferCount, state.width, state.height,
+      swapchain->ResizeBuffers(desc.BufferCount, static_cast<UINT>(state.width),
+                               static_cast<UINT>(state.height),
                                desc.BufferDesc.Format, desc.Flags);
     }
 

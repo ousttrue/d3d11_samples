@@ -67,13 +67,29 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
 
   auto mesh = std::make_shared<gorilla::InputAssembler>();
   _mesh_map.insert(std::make_pair(src, mesh));
-  if (!mesh->create_vertices(device, src->vertex_stride, src->vertices.data(),
-                             src->vertices.size())) {
-    return {};
+
+  if (src->vertex_dynamic_buffer_size) {
+    if (!mesh->create_dynamic_vertices(device, src->vertex_stride,
+                                       src->vertex_dynamic_buffer_size)) {
+      return {};
+    }
+  } else {
+    if (!mesh->create_vertices(device, src->vertex_stride, src->vertices.data(),
+                               src->vertices.size())) {
+      return {};
+    }
   }
-  if (!mesh->create_indices(device, src->index_stride, src->indices.data(),
-                            src->indices.size())) {
-    return {};
+
+  if (src->index_dynamic_buffer_size) {
+    if (!mesh->create_dynamic_indices(device, src->index_stride,
+                                      src->index_dynamic_buffer_size)) {
+      return {};
+    }
+  } else {
+    if (!mesh->create_indices(device, src->index_stride, src->indices.data(),
+                              src->indices.size())) {
+      return {};
+    }
   }
 
   return mesh;
@@ -131,6 +147,17 @@ void Renderer::draw(const ComPtr<ID3D11Device> &device,
     assert(p->mesh);
     assert(p->material);
     _drawable = get_or_create(device, p->mesh);
+    if (p->mesh->vertex_updated) {
+      _drawable->update_vertices(context, p->mesh->vertices.data(),
+                                 p->mesh->vertices.size());
+      p->mesh->vertex_updated = false;
+    }
+    if (p->mesh->index_updated) {
+      _drawable->update_indices(context, p->mesh->indices.data(),
+                                p->mesh->indices.size());
+      p->mesh->index_updated = false;
+    }
+
     _material = get_or_create(device, p->material);
     assert(_material);
     _vs_list.clear(_material->vs_stage.reflection);

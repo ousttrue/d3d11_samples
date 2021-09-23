@@ -30,23 +30,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   // setup pipeline
   auto node = std::make_shared<banana::Node>();
-  node->transform.translation.y = 0.4f;
-
-  auto mesh = std::make_shared<banana::Mesh>();
-  mesh->assign(teapot::vertices(), teapot::indices());
-  node->mesh = mesh;
-
-  // node->mesh = banana::geometry::create_cube(0.4f);
-
-  auto &submesh = node->mesh->submeshes.emplace_back(banana::SubMesh{});
-  submesh.draw_offset = 0;
-  submesh.draw_count = static_cast<UINT>(node->mesh->indices.size());
-  submesh.material = std::make_shared<banana::Material>();
-  submesh.material->shader_name = "lighting/vertex_ads.hlsl";
-  submesh.material->properties["Kd"] = banana::Float3(0.4f, 0.8f, 0.6f);
-  submesh.material->properties["Ka"] = banana::Float3(0.1f, 0.1f, 0.1f);
-  submesh.material->properties["Ks"] = banana::Float3(1.0f, 1.0f, 1.0f);
-  submesh.material->properties["Shininess"] = 10.0f;
+  {
+    node->transform.translation.y = 0.4f;
+    auto mesh = std::make_shared<banana::Mesh>();
+    mesh->assign(teapot::vertices(), teapot::indices());
+    node->mesh = mesh;
+    auto &submesh = node->mesh->submeshes.emplace_back(banana::SubMesh{});
+    submesh.draw_offset = 0;
+    submesh.draw_count = static_cast<UINT>(node->mesh->index_count());
+    submesh.material = std::make_shared<banana::Material>();
+    submesh.material->shader_name = "lighting/vertex_ads.hlsl";
+    submesh.material->properties["Kd"] = banana::Float3(0.4f, 0.8f, 0.6f);
+    submesh.material->properties["Ka"] = banana::Float3(0.1f, 0.1f, 0.1f);
+    submesh.material->properties["Ks"] = banana::Float3(1.0f, 1.0f, 1.0f);
+    submesh.material->properties["Shininess"] = 10.0f;
+  }
 
   // world
   banana::LightInfo lights[5] = {0};
@@ -62,7 +60,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   tinygizmo::gizmo_context gizmo_context;
   tinygizmo::gizmo_application_state gizmo_state;
   auto gizmo_node = std::make_shared<banana::Node>();
-  gizmo_node->mesh = std::make_shared<banana::Mesh>();
+  {
+    gizmo_node->mesh = std::make_shared<banana::Mesh>();
+    gizmo_node->mesh->vertex_dynamic_buffer_size= sizeof(tinygizmo::Vertex) * 65535;
+    gizmo_node->mesh->index_dynamic_buffer_size = sizeof(uint32_t) * 65535;
+    auto &submesh = gizmo_node->mesh->submeshes.emplace_back(banana::SubMesh{});
+    submesh.material = std::make_shared<banana::Material>();
+    submesh.material->shader_name = "tinygizmo.hlsl";
+  }
 
   // main loop
   auto context = app.context();
@@ -104,8 +109,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     renderer.render(device, context, node, &camera, lights);
     app.clear_depth();
     {
-      auto [vertices, indices] = gizmo_context.draw();
-      gizmo_node->mesh->assign(vertices, indices);
+      auto [vertices, indices] = gizmo_context.draw();      
+      gizmo_node->mesh->assign(vertices, indices, true);
       renderer.render(device, context, gizmo_node, &camera, lights);
     }
 

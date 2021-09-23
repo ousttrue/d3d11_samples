@@ -66,8 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, sizeof(triangle[0]), triangle,
-                          sizeof(triangle), sizeof(triangle))) {
+  if (!ia.create_dynamic_vertices(device, sizeof(triangle[0]), sizeof(triangle))) {
     return 8;
   }
 

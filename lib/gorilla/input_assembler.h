@@ -8,19 +8,23 @@ class InputAssembler {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
   D3D11_BUFFER_DESC _vdesc = {0};
-  ComPtr<ID3D11Buffer> _pVertexBuf;
+  ComPtr<ID3D11Buffer> _vb;
   UINT _vertex_count = 0;
-  UINT _strides[1] = {0};
+  UINT _vertex_stride = 0;
 
   D3D11_BUFFER_DESC _idesc = {0};
-  ComPtr<ID3D11Buffer> _pIndexBuf;
+  ComPtr<ID3D11Buffer> _ib;
   UINT _index_count = 0;
+  UINT _index_stride = 0;
   DXGI_FORMAT _index_format = DXGI_FORMAT_R32_UINT;
 
 public:
   // vertices
+  bool create_dynamic_vertices(const ComPtr<ID3D11Device> &device,
+                               size_t stride, size_t dynamic_size);
+
   bool create_vertices(const ComPtr<ID3D11Device> &device, size_t stride,
-                       const void *p, size_t size, size_t dynamic_size = 0);
+                       const void *p, size_t size);
 
   template <typename T>
   bool create_vertices(const ComPtr<ID3D11Device> &device, const T *p,
@@ -36,7 +40,7 @@ public:
   }
 
   void update_vertices(const ComPtr<ID3D11DeviceContext> &context,
-                       const void *p, int size);
+                       const void *p, size_t size);
 
   template <typename T>
   void update_vertices(const ComPtr<ID3D11DeviceContext> &context, const T &t) {
@@ -44,6 +48,9 @@ public:
   }
 
   // indices
+  bool create_dynamic_indices(const ComPtr<ID3D11Device> &device, size_t stride,
+                              size_t dynamic_size);
+
   bool create_indices(const ComPtr<ID3D11Device> &device, size_t stride,
                       const void *p, size_t size);
 
@@ -60,8 +67,8 @@ public:
     return create_indices(device, indices.data(), indices.size());
   }
 
-  void update_indices(const ComPtr<ID3D11DeviceContext> &context,
-                       const void *p, int size);
+  void update_indices(const ComPtr<ID3D11DeviceContext> &context, const void *p,
+                      size_t size);
 
   // draw
   void setup(const ComPtr<ID3D11DeviceContext> &context);

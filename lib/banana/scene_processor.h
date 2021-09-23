@@ -45,6 +45,7 @@ struct SceneProcessor {
   Matrix4x4 viewprojection = {};
   Matrix4x4 view = {};
   Matrix3x4 normal_matrix = {};
+  Float3 camera_position = {};
   std::span<const LightInfo> lights;
 
   std::vector<Command> commands;
