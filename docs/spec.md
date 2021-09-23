@@ -33,7 +33,7 @@ glTF を中心に取り扱いたいので、仕様はそれに合わせる。
 
 `DirectX::XMMatrixPerspectiveFovRH`
 
-```{toctree}
+```
   (y)
    ^ /
    |/
@@ -51,23 +51,15 @@ rs_desc.CullMode = D3D11_CULL_BACK;
 rs_desc.FrontCounterClockwise = true;
 ```
 
-## Constant Buffer(予定)
+## Constant Buffer
 
-以下の２つの ConstantBuffer を併用する
+変数名で解決することにした。
+各 `HLSL` は、あらかじめ決まった変数名を使う。
 
-### world level
-
-```hlsl
-cbuffer object {
-  row_major matrix MVP;
-  // TODO: Light
-}
-```
-
-### draw level
-
-```hlsl
-cbuffer model {
-  row_major float4 BaseColor;
-}
+```c++
+commands.push_back(commands::SetVariable{"MVP", m * viewprojection});
+commands.push_back(commands::SetVariable{"VP", viewprojection});
+commands.push_back(commands::SetVariable{"ModelViewMatrix", view});
+commands.push_back(commands::SetVariable{"NormalMatrix", normal_matrix});
+commands.push_back(commands::SetVariable{"CameraPosition", camera_position});
 ```
