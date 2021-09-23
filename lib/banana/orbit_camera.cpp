@@ -78,12 +78,14 @@ DirectX::XMFLOAT4 OrbitCamera::rotation() const {
 // screen
 //
 DirectX::XMFLOAT3 OrbitCamera::get_ray_direction() const {
-  auto R = DirectX::XMMatrixRotationRollPitchYaw(pitch, yaw, 0);
-  R = DirectX::XMMatrixTranspose(R);
-  float x = 2 * (_x / screen.x) - 1;
+  auto Y = DirectX::XMMatrixRotationY(-yaw);
+  auto P = DirectX::XMMatrixRotationX(-pitch);
+  auto R = DirectX::XMMatrixMultiply(P, Y);
+  float ty = static_cast<float>(tan(fovYRad * 0.5));
+  float tx = ty / screen.y * screen.x;
   float y = -(2 * _y / screen.y - 1);
-  float t = static_cast<float>(1.0f / tan(fovYRad * 0.5));
-  DirectX::XMFLOAT3 v = {x * t, y * t, -1};
+  float x = (2 * _x / screen.x - 1);
+  DirectX::XMFLOAT3 v = {x * tx, y * ty, -1};
   auto V = DirectX::XMLoadFloat3(&v);
   V = DirectX::XMVector3Transform(V, R);
   DirectX::XMFLOAT3 dir;

@@ -103,14 +103,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       gizmo_context.update(gizmo_state);
     }
 
+    // draw old position
+    renderer.render(device, context, node, &camera, lights);
+
+    // update
     tinygizmo::position("teaport", gizmo_context, &node->transform.rotation.x,
                         &node->transform.translation.x);
 
-    renderer.render(device, context, node, &camera, lights);
     app.clear_depth();
     {
       auto [vertices, indices] = gizmo_context.draw();      
+      // this is delay a frame
       gizmo_node->mesh->assign(vertices, indices, true);
+      // draw old position
       renderer.render(device, context, gizmo_node, &camera, lights);
     }
 
