@@ -9,6 +9,7 @@ subdirs(
   Texture
   ShaderReflection
   InputAssembler
+  DynamicMesh
   #
   Grid
   Camera
