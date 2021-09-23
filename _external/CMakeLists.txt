@@ -1,1 +1,1 @@
-subdirs(stb json MikkTSpace imgui)
+subdirs(stb json MikkTSpace imgui teapot)

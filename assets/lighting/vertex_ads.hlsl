@@ -3,6 +3,7 @@ struct VS_IN {
   float3 NORMAL : NORMAL;
   float2 UV0 : TEXCOORD0;
   float4 COLOR : COLOR0;
+  float4 TANGENT : TANGENT;
 };
 
 struct PS_IN {
@@ -31,13 +32,10 @@ cbuffer Material {
   float Shininess;
 }
 
-float lambert(float3 viewNormal, float3 toLight) {
-  return max(dot(viewNormal, toLight), 0);
-}
+float lambert(float3 n, float3 s) { return max(dot(n, s), 0); }
 
-float specular(float3 viewNormal, float3 fromPosition, float3 fromLight) {
-  float3 v = normalize(fromPosition);
-  float3 r = reflect(fromLight, viewNormal);
+float specular(float3 n, float3 s, float3 v) {
+  float3 r = reflect(-s, n);
   return pow(max(dot(r, v), 0), Shininess);
 }
 
@@ -50,11 +48,12 @@ float3 lightVector(LightInfo light, float3 viewPosition) {
   }
 }
 
-float3 ads(LightInfo light, float3 viewPosition, float3 viewNormal) {
-  float3 toLight = lightVector(light, viewPosition);
+float3 ads(LightInfo light, float3 viewPosition, float3 n) {
+  float3 s = lightVector(light, viewPosition);
 
-  return light.Intensity * (Ka + Kd * lambert(viewNormal, toLight) +
-                            Ks * specular(viewNormal, -viewPosition, -toLight));
+  return light.Intensity * (Ka                   //
+                            + Kd * lambert(n, s) //
+                            + Ks * specular(n, s, normalize(-viewPosition)));
 }
 
 PS_IN vsMain(VS_IN IN) {
