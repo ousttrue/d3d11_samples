@@ -52,8 +52,8 @@
 <h1>InputAssembler<a class="headerlink" href="#inputassembler" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>頂点バッファを使う。
 <code class="docutils literal notranslate"><span class="pre">VertexShader</span></code> =&gt; <code class="docutils literal notranslate"><span class="pre">PixelShader</span></code> とデータが流れる。</p>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">../../assets/ia.hlsl</span><a class="headerlink" href="#id2" title="このコードへのパーマリンク">¶</a></div>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">../../assets/ia.hlsl</span><a class="headerlink" href="#id3" title="このコードへのパーマリンク">¶</a></div>
 <div class="highlight-hlsl notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">VS_IN</span> <span class="p">{</span>
   <span class="kt">float2</span> <span class="n">Position</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
 <span class="p">};</span>
@@ -75,6 +75,13 @@
 <section id="id1">
 <h2>頂点レイアウト<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 </section>
+<section id="indexbuffer">
+<h2>IndexBuffer<a class="headerlink" href="#indexbuffer" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</section>
+<section id="id2">
+<h2>ダイナミック<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>MorphTarget や Skinning(CPU) で使う。また、 <a class="reference internal" href="../tinygizmo.html"><span class="doc std std-doc">TinyGizmo</span></a> でも使う。</p>
+</section>
 </section>
 
 
@@ -88,6 +95,8 @@
   <ul>
 <li><a class="reference internal" href="#">InputAssembler</a><ul>
 <li><a class="reference internal" href="#id1">頂点レイアウト</a></li>
+<li><a class="reference internal" href="#indexbuffer">IndexBuffer</a></li>
+<li><a class="reference internal" href="#id2">ダイナミック</a></li>
 </ul>
 </li>
 </ul>

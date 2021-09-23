@@ -57,7 +57,7 @@
 <li class="toctree-l2"><a class="reference internal" href="spec.html#uv">UV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spec.html#world-space">World Space</a></li>
 <li class="toctree-l2"><a class="reference internal" href="spec.html#id2">三角形の表</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spec.html#constant-buffer">Constant Buffer(予定)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spec.html#constant-buffer">Constant Buffer</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="basic/create_window.html">CreateWindow</a></li>
@@ -97,8 +97,17 @@
 <li class="toctree-l1"><a class="reference internal" href="basic/texture.html">Texture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic/input_assembler.html">InputAssembler</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="basic/input_assembler.html#id1">頂点レイアウト</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/input_assembler.html#indexbuffer">IndexBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/input_assembler.html#id2">ダイナミック</a></li>
 </ul>
 </li>
+</ul>
+</div>
+</section>
+<section id="id3">
+<h2>その他<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="basic/mip_map.html">MipMap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic/post_effect.html">PostEffect</a></li>
 </ul>
@@ -116,7 +125,8 @@
 <section id="shading">
 <h2>Shading<a class="headerlink" href="#shading" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
-<li><p>ADS(Ambient, Diffuse, Specular)</p></li>
+<li><p>VertexADS(Ambient, Diffuse, Specular)</p></li>
+<li><p>PixelADS(Ambient, Diffuse, Specular)</p></li>
 <li><p>NormalMap</p></li>
 <li><p>Cook-Torrance</p></li>
 </ul>
@@ -165,9 +175,20 @@
 <li><p>grid</p></li>
 <li><p>aabb pick (ray intersection)</p></li>
 </ul>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tinygizmo.html">TinyGizmo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#id1">仕組み</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#translation">Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#rotation">Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#scale">Scale</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </section>
-<section class="tex2jax_ignore mathjax_ignore" id="id3">
-<h1>参考<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<section class="tex2jax_ignore mathjax_ignore" id="id4">
+<h1>参考<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces">https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces</a></p></li>
 <li><p><a class="reference external" href="https://tositeru.github.io/ImasaraDX11/">https://tositeru.github.io/ImasaraDX11/</a></p></li>
@@ -207,13 +228,14 @@
 <li><a class="reference internal" href="#">Root</a><ul>
 <li><a class="reference internal" href="#id1">準備</a></li>
 <li><a class="reference internal" href="#id2">パイプラインとバッファーの取り扱い</a></li>
+<li><a class="reference internal" href="#id3">その他</a></li>
 <li><a class="reference internal" href="#projection">Projection の導入と三次元化</a></li>
 <li><a class="reference internal" href="#shading">Shading</a></li>
 <li><a class="reference internal" href="#scenegraph">SceneGraph</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#gizmo">Gizmo</a></li>
-<li><a class="reference internal" href="#id3">参考</a></li>
+<li><a class="reference internal" href="#id4">参考</a></li>
 <li><a class="reference internal" href="#tool">Tool</a></li>
 <li><a class="reference internal" href="#gltf">glTF</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>

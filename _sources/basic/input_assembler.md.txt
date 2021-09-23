@@ -9,3 +9,10 @@
 ```
 
 ## 頂点レイアウト
+
+
+## IndexBuffer
+
+## ダイナミック
+
+MorphTarget や Skinning(CPU) で使う。また、 [TinyGizmo](../tinygizmo) でも使う。

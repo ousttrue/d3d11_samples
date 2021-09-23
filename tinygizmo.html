@@ -1,0 +1,131 @@
+
+
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>TinyGizmo &#8212; d3d11 samples  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <script src="_static/bizstyle.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="glTF" href="three_d/gltf.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="three_d/gltf.html" title="glTF"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">TinyGizmo</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="tinygizmo">
+<h1>TinyGizmo<a class="headerlink" href="#tinygizmo" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>Gizmo ライブラリとしては小さくて改造しやすい <a class="reference external" href="https://github.com/ddiakopoulos/tinygizmo">tinygizmo</a> (OpenGL3 + GLFW) を d3d11 に移植した。</p>
+<p><a class="reference external" href="https://github.com/ousttrue/tinygizmo">https://github.com/ousttrue/tinygizmo</a></p>
+<section id="id1">
+<h2>仕組み<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ol class="simple">
+<li><p>Update: 毎フレーム Gizmo にカメラパラメーター(projection + view)とマウスイベント(move, click, drag)を与える</p></li>
+<li><p>Transform: TRS を引数に 関数を呼ぶ</p></li>
+<li><p>Draw: Gizmo のビジュアルを描画する vertex buffer を得る</p></li>
+</ol>
+<p>もう少し詳細に見ると、カメラから マウス座標に対して Ray を生成して衝突した Gizmo をドラッグする。</p>
+</section>
+<section id="translation">
+<h2>Translation<a class="headerlink" href="#translation" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</section>
+<section id="rotation">
+<h2>Rotation<a class="headerlink" href="#rotation" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</section>
+<section id="scale">
+<h2>Scale<a class="headerlink" href="#scale" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">TinyGizmo</a><ul>
+<li><a class="reference internal" href="#id1">仕組み</a></li>
+<li><a class="reference internal" href="#translation">Translation</a></li>
+<li><a class="reference internal" href="#rotation">Rotation</a></li>
+<li><a class="reference internal" href="#scale">Scale</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="three_d/gltf.html"
+                        title="前の章へ">glTF</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tinygizmo.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="three_d/gltf.html" title="glTF"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">TinyGizmo</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

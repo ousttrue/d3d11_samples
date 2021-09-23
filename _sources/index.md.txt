@@ -24,6 +24,13 @@ basic/basic_pipeline
 basic/constant_buffer
 basic/texture
 basic/input_assembler
+```
+
+## その他
+
+```{toctree}
+basic/rasterizer_state
+basic/blend_state
 basic/mip_map
 basic/post_effect
 ```
@@ -37,7 +44,8 @@ three_d/depth_test
 
 ## Shading
 
-* ADS(Ambient, Diffuse, Specular)
+* VertexADS(Ambient, Diffuse, Specular)
+* PixelADS(Ambient, Diffuse, Specular)
 * NormalMap
 * Cook-Torrance
 
@@ -56,6 +64,10 @@ three_d/gltf
 
 * grid
 * aabb pick (ray intersection)
+
+```{toctree}
+tinygizmo
+```
 
 # 参考
 
