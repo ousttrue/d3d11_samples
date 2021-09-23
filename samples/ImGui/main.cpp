@@ -3,14 +3,13 @@
 #include <banana/gltf.h>
 #include <banana/orbit_camera.h>
 #include <chrono>
-#include <gorilla/device.h>
+#include <gorilla/input_assembler.h>
 #include <gorilla/pipeline.h>
-#include <gorilla/swapchain.h>
+#include <gorilla/renderer.h>
 #include <gorilla/window.h>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <iostream>
-#include <renderer.h>
 #include <teapot.h>
 
 auto CLASS_NAME = "CLASS_NAME";
@@ -179,20 +178,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!hwnd) {
     return 1;
   }
-
   ShowWindow(hwnd, nCmdShow);
   UpdateWindow(hwnd);
 
-  auto device = gorilla::create_device();
+  gorilla::Renderer renderer;
+  auto [device, context] = renderer.create(hwnd);
   if (!device) {
     return 2;
-  }
-  ComPtr<ID3D11DeviceContext> context;
-  device->GetImmediateContext(&context);
-
-  auto swapchain = gorilla::create_swapchain(device, hwnd);
-  if (!swapchain) {
-    return 3;
   }
 
   // setup pipeline
@@ -220,37 +212,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   // main loop
   Gui gui(device, context);
   banana::OrbitCamera camera;
-  DXGI_SWAP_CHAIN_DESC desc;
-  swapchain->GetDesc(&desc);
-  gorilla::RenderTarget render_target;
   gorilla::ScreenState state;
   for (UINT frame_count = 0; window.process_messages(&state); ++frame_count) {
-
-    if (state.width != desc.BufferDesc.Width ||
-        state.height != desc.BufferDesc.Height) {
-      // clear backbuffer reference
-      render_target.release();
-      // resize swapchain
-      swapchain->ResizeBuffers(desc.BufferCount, static_cast<UINT>(state.width),
-                               static_cast<UINT>(state.height),
-                               desc.BufferDesc.Format, desc.Flags);
-    }
-
-    // ensure create backbuffer
-    if (!render_target.get()) {
-      ComPtr<ID3D11Texture2D> backbuffer;
-      auto hr = swapchain->GetBuffer(0, IID_PPV_ARGS(&backbuffer));
-      if (FAILED(hr)) {
-        assert(false);
-      }
-
-      if (!render_target.create_rtv(device, backbuffer)) {
-        assert(false);
-      }
-      if (!render_target.create_dsv(device)) {
-        assert(false);
-      }
-    }
 
     // update
     c.MVP = camera.view * camera.projection;
@@ -262,20 +225,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         (static_cast<float>(sin(frame_count / 180.0f * DirectX::XM_PI)) + 1) *
         0.5f;
     float clear[] = {0.5, v, 0.5, 1.0f};
-    render_target.clear(context, clear);
-    render_target.setup(context, state.width, state.height);
 
-    // draw
-    pipeline.setup(context);
-    ia.draw(context);
-
-    if (!gui.draw(context, state)) {
-      update_camera(&camera, state);
+    renderer.begin_frame(state, clear);
+    {
+      // draw
+      pipeline.setup(context);
+      ia.draw(context);
+      if (!gui.draw(context, state)) {
+        update_camera(&camera, state);
+      }
     }
-
-    // vsync
-    context->Flush();
-    swapchain->Present(1, 0);
+    renderer.end_frame();
   }
 
   return 0;
