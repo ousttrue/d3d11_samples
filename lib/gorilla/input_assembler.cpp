@@ -3,7 +3,8 @@
 namespace gorilla {
 
 bool InputAssembler::create_vertices(const ComPtr<ID3D11Device> &device,
-                                     const void *p, size_t size, size_t count) {
+                                     size_t stride, const void *p,
+                                     size_t size) {
 
   D3D11_BUFFER_DESC desc = {0};
   desc.ByteWidth = static_cast<UINT>(size);
@@ -19,14 +20,14 @@ bool InputAssembler::create_vertices(const ComPtr<ID3D11Device> &device,
     return false;
   }
 
-  _vertex_count = static_cast<UINT>(count);
-  _strides[0] = static_cast<UINT>(size / count);
+  _vertex_count = static_cast<UINT>(size / stride);
+  _strides[0] = static_cast<UINT>(stride);
 
   return true;
 }
 
 bool InputAssembler::create_indices(const ComPtr<ID3D11Device> &device,
-                                    const void *p, size_t size, size_t count) {
+                                    size_t stride, const void *p, size_t size) {
   D3D11_BUFFER_DESC desc = {0};
   desc.ByteWidth = static_cast<UINT>(size);
   desc.Usage = D3D11_USAGE_DEFAULT;
@@ -40,9 +41,9 @@ bool InputAssembler::create_indices(const ComPtr<ID3D11Device> &device,
   if (FAILED(hr)) {
     return false;
   }
-  _index_count = static_cast<UINT>(count);
+  _index_count = static_cast<UINT>(size / stride);
 
-  switch (size / count) {
+  switch (stride) {
   case 1:
     _index_format = DXGI_FORMAT_R8_UINT;
     break;

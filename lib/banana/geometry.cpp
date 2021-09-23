@@ -3,7 +3,6 @@
 namespace banana::geometry {
 
 std::shared_ptr<Mesh> create_cube(float size) {
-  auto mesh = std::make_shared<Mesh>();
 
   auto left = Float3(-1, 0, 0);
   auto right = Float3(1, 0, 0);
@@ -19,7 +18,13 @@ std::shared_ptr<Mesh> create_cube(float size) {
   auto magenta = Float4(1, 0, 1, 1);
   auto yellow = Float4(1, 1, 0, 1);
 
-  mesh->vertices = {
+  struct Vertex {
+    Float3 position;
+    Float3 normal;
+    Float2 tex0;
+    Float4 color;
+  };
+  const Vertex vertices[] = {
       // x
       {Float3(-size, -size, -size), left, Float2(0, 1), cyan},
       {Float3(-size, -size, size), left, Float2(0, 0), cyan},
@@ -51,7 +56,7 @@ std::shared_ptr<Mesh> create_cube(float size) {
       {Float3(size, size, -size), back, Float2(1, 0), blue},
       {Float3(size, -size, -size), back, Float2(1, 1), blue},
   };
-  mesh->indices = {
+  const uint16_t indices[] = {
       0,  1,  2,  2,  3,  0,  // 0
       4,  5,  6,  6,  7,  4,  // 1
       8,  9,  10, 10, 11, 8,  // 2
@@ -59,6 +64,10 @@ std::shared_ptr<Mesh> create_cube(float size) {
       16, 17, 18, 18, 19, 16, // 4
       20, 21, 22, 22, 23, 20, // 5
   };
+
+  auto mesh = std::make_shared<Mesh>();
+  mesh->assign(std::span<const Vertex>{vertices, _countof(vertices)},
+               std::span<const uint16_t>{indices, _countof(indices)});
   return mesh;
 }
 

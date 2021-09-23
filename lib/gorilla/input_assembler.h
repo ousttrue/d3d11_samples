@@ -16,29 +16,30 @@ class InputAssembler {
   DXGI_FORMAT _index_format = DXGI_FORMAT_R32_UINT;
 
 public:
-  bool create_vertices(const ComPtr<ID3D11Device> &device,
-                       const void *p, size_t size, size_t count);
+  bool create_vertices(const ComPtr<ID3D11Device> &device, size_t stride,
+                       const void *p, size_t size);
 
   template <typename T>
-  bool create_vertices(const ComPtr<ID3D11Device> &device,
-                       const T *p, size_t count) {
-    return create_vertices(device, p, sizeof(T) * count, count);
+  bool create_vertices(const ComPtr<ID3D11Device> &device, const T *p,
+                       size_t count) {
+    auto stride = sizeof(T);
+    return create_vertices(device, stride, p, stride * count);
   }
 
   template <typename T>
   bool create_vertices(const ComPtr<ID3D11Device> &device,
                        const std::vector<T> &vertices) {
-    return create_vertices(device, vertices.data(),
-                           vertices.size());
+    return create_vertices(device, vertices.data(), vertices.size());
   }
 
-  bool create_indices(const ComPtr<ID3D11Device> &device, const void *p,
-                      size_t size, size_t count);
+  bool create_indices(const ComPtr<ID3D11Device> &device, size_t stride,
+                      const void *p, size_t size);
 
   template <typename T>
   bool create_indices(const ComPtr<ID3D11Device> &device, const T *p,
                       size_t count) {
-    return create_indices(device, p, sizeof(T) * count, count);
+    auto stride = sizeof(T);
+    return create_indices(device, stride, p, stride * count);
   }
 
   template <typename T>

@@ -18,13 +18,14 @@ row_major matrix MVP;
   element.color = float4(1, 0, 0, 1);
   output.Append(element);
   // 1
-  element.position = mul(float4(-1, 1, 0, 1), MVP);
-  element.color = float4(0, 1, 0, 1);
-  output.Append(element);
-  // 2
   element.position = mul(float4(1, 1, 0, 1), MVP);
   element.color = float4(0, 0, 1, 1);
   output.Append(element);
+  // 2
+  element.position = mul(float4(-1, 1, 0, 1), MVP);
+  element.color = float4(0, 1, 0, 1);
+  output.Append(element);
+  
   output.RestartStrip();
 }
 

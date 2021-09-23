@@ -144,3 +144,5 @@ void App::end_frame() {
 
   _frame_count++;
 }
+
+void App::clear_depth() { _render_target.clear_depth(_context); }

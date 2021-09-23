@@ -155,5 +155,12 @@
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/ImGui.exe",
         },
+        {
+            "name": "TinyGizmo",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/TinyGizmo.exe",
+        },
     ]
 }

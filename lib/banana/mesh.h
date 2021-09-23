@@ -1,5 +1,6 @@
 #pragma once
 #include "material.h"
+#include <span>
 
 namespace banana {
 
@@ -9,21 +10,24 @@ struct SubMesh {
   std::shared_ptr<Material> material;
 };
 
-struct Vertex {
-  Float3 position;
-  Float3 normal;
-  Float2 tex0;
-  Float4 color;
-  Float4 tangent;
-};
-using Index = uint32_t;
-
 struct Mesh {
-  std::vector<Vertex> vertices;
-  std::vector<Index> indices;
+  std::vector<uint8_t> vertices;
+  uint32_t vertex_stride = 0;
+  std::vector<uint8_t> indices;
+  uint32_t index_stride = 0;
   std::vector<SubMesh> submeshes;
 
   AABB aabb = {0};
+
+  template <typename V, typename I>
+  void assign(std::span<V> v, std::span<I> i) {
+    vertex_stride = sizeof(V);
+    vertices.assign((const uint8_t *)v.data(),
+                    (const uint8_t *)v.data() + v.size() * vertex_stride);
+    index_stride = sizeof(I);
+    indices.assign((const uint8_t *)i.data(),
+                   (const uint8_t *)i.data() + i.size() * index_stride);
+  }
 };
 
 } // namespace banana

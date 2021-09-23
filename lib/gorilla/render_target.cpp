@@ -53,11 +53,14 @@ bool RenderTarget::create_dsv(const ComPtr<ID3D11Device> &device) {
 void RenderTarget::clear(const ComPtr<ID3D11DeviceContext> &context,
                          const float clear[4]) {
   context->ClearRenderTargetView(_rtv.Get(), clear);
+  clear_depth(context);
+}
 
+void RenderTarget::clear_depth(const ComPtr<ID3D11DeviceContext> &context,
+                               float depth) {
   if (_dsv) {
-    float clearDepth = 1.0f;
     context->ClearDepthStencilView(
-        _dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, clearDepth, 0);
+        _dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depth, 0);
   }
 }
 

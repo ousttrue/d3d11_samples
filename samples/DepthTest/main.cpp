@@ -66,10 +66,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   auto cube = banana::geometry::create_cube(0.4f);
 
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, cube->vertices)) {
+  if (!ia.create_vertices(device, cube->vertex_stride, cube->vertices.data(), cube->vertices.size())) {
     return 6;
   }
-  if (!ia.create_indices(device, cube->indices)) {
+  if (!ia.create_indices(device, cube->index_stride, cube->indices.data(), cube->indices.size())) {
     return 7;
   }
 

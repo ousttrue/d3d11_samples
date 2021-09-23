@@ -1,3 +1,4 @@
+#include "gorilla/input_assembler.h"
 #include <app.h>
 #include <banana/geometry.h>
 #include <banana/mesh.h>
@@ -6,9 +7,10 @@
 #include <memory>
 #include <renderer.h>
 #include <teapot.h>
+#include <tiny-gizmo.hpp>
 
 auto CLASS_NAME = "CLASS_NAME";
-auto WINDOW_TITLE = "LightingADS";
+auto WINDOW_TITLE = "TinyGizmo";
 auto WIDTH = 320;
 auto HEIGHT = 320;
 
@@ -56,6 +58,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   lights[3].intensity = banana::Float3{0, 0, 0};
   lights[4].intensity = banana::Float3{0, 0, 0};
 
+  // gizmo
+  tinygizmo::gizmo_context gizmo_context;
+  tinygizmo::gizmo_application_state gizmo_state;
+  auto gizmo_node = std::make_shared<banana::Node>();
+  gizmo_node->mesh = std::make_shared<banana::Mesh>();
+
   // main loop
   auto context = app.context();
   banana::OrbitCamera camera;
@@ -63,7 +71,44 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   gorilla::ScreenState state;
   while (app.begin_frame(&state)) {
     update_camera(&camera, state);
+
+    {
+      // update gizmo
+      gizmo_state.mouse_left = state.mouse_button_flag &
+                               gorilla::MouseButtonFlags::MouseButtonLeftDown;
+
+      // Gizmo input interaction gizmo_state populated via win->on_input(...)
+      // callback above. Update app parameters:
+      gizmo_state.viewport_size = {state.width, state.height};
+      gizmo_state.cam.near_clip = camera._near;
+      gizmo_state.cam.far_clip = camera._far;
+      gizmo_state.cam.yfov = camera.fovYRad;
+      auto p = camera.position();
+      gizmo_state.cam.position = {p.x, p.y, p.z};
+
+      auto r = camera.rotation();
+      gizmo_state.cam.orientation = {r.x, r.y, r.z, r.w};
+
+      auto dir = camera.get_ray_direction();
+      gizmo_state.ray_origin = {p.x, p.y, p.z};
+      gizmo_state.ray_direction = {dir.x, dir.y, dir.z};
+      // optional flag to draw the gizmos at a constant screen-space scale
+      // gizmo.screenspace_scale = 40.f;
+
+      gizmo_context.update(gizmo_state);
+    }
+
+    tinygizmo::position("teaport", gizmo_context, &node->transform.rotation.x,
+                        &node->transform.translation.x);
+
     renderer.render(device, context, node, &camera, lights);
+    app.clear_depth();
+    {
+      auto [vertices, indices] = gizmo_context.draw();
+      gizmo_node->mesh->assign(vertices, indices);
+      renderer.render(device, context, gizmo_node, &camera, lights);
+    }
+
     app.end_frame();
   }
 

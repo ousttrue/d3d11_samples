@@ -23,4 +23,5 @@ subdirs(
   MikkTSpace
   GltfScene
   ImGui
+  TinyGizmo
   )

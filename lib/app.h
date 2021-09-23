@@ -32,6 +32,7 @@ public:
                                   int height = 768);
   bool begin_frame(gorilla::ScreenState *pstate = {});
   void end_frame();
+  void clear_depth();
 };
 
 inline void update_camera(banana::OrbitCamera *camera,

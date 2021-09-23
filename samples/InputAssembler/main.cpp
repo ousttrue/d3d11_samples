@@ -66,8 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, triangle, sizeof(triangle),
-                          _countof(triangle))) {
+  if (!ia.create_vertices(device, sizeof(triangle[0]), triangle, sizeof(triangle))) {
     return 8;
   }
 
@@ -76,7 +75,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   swapchain->GetDesc(&desc);
   gorilla::RenderTarget render_target;
   for (UINT frame_count = 0; window.process_messages(); ++frame_count) {
-
     RECT rect;
     GetClientRect(hwnd, &rect);
     int w = rect.right - rect.left;

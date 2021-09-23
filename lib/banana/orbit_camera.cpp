@@ -3,12 +3,9 @@
 
 namespace banana {
 
-void OrbitCamera::calc_projection() {
-  auto P = DirectX::XMMatrixPerspectiveFovRH(fovYRad, screen.x / screen.y,
-                                             _near, _far);
-  DirectX::XMStoreFloat4x4((DirectX::XMFLOAT4X4 *)&projection, P);
-}
-
+//
+// view
+//
 void OrbitCamera::calc_view() {
   auto Y = DirectX::XMMatrixRotationY(yaw);
   auto P = DirectX::XMMatrixRotationX(pitch);
@@ -16,6 +13,29 @@ void OrbitCamera::calc_view() {
       DirectX::XMMatrixTranslation(translation.x, translation.y, translation.z);
   auto M = DirectX::XMMatrixMultiply(DirectX::XMMatrixMultiply(Y, P), T);
   DirectX::XMStoreFloat4x4((DirectX::XMFLOAT4X4 *)&view, M);
+}
+
+void OrbitCamera::yaw_pitch(float dx, float dy) {
+  yaw += dx / screen.y * 4;
+  pitch += dy / screen.y * 4;
+  calc_view();
+}
+
+void OrbitCamera::shift(float dx, float dy) {
+  translation.x -=
+      static_cast<float>(dx / screen.y * tan(fovYRad / 2) * translation.z * 2);
+  translation.y +=
+      static_cast<float>(dy / screen.y * tan(fovYRad / 2) * translation.z * 2);
+  calc_view();
+}
+
+void OrbitCamera::dolly(float d) {
+  if (d < 0) {
+    translation.z *= 1.1f;
+  } else if (d > 0) {
+    translation.z *= 0.9f;
+  }
+  calc_view();
 }
 
 Matrix3x4 OrbitCamera::normal_matrix() const {
@@ -46,32 +66,38 @@ DirectX::XMFLOAT3 OrbitCamera::position() const {
   return {pos.x, pos.y, pos.z};
 }
 
-OrbitCamera::OrbitCamera() {
-  calc_projection();
-  calc_view();
+DirectX::XMFLOAT4 OrbitCamera::rotation() const {
+  auto R = DirectX::XMQuaternionRotationRollPitchYaw(pitch, yaw, 0);
+  R = DirectX::XMQuaternionInverse(R);
+  DirectX::XMFLOAT4 r;
+  DirectX::XMStoreFloat4(&r, R);
+  return r;
 }
 
-void OrbitCamera::yaw_pitch(float dx, float dy) {
-  yaw += dx / screen.y * 4;
-  pitch += dy / screen.y * 4;
-  calc_view();
+//
+// screen
+//
+DirectX::XMFLOAT3 OrbitCamera::get_ray_direction() const {
+  auto R = DirectX::XMMatrixRotationRollPitchYaw(pitch, yaw, 0);
+  R = DirectX::XMMatrixTranspose(R);
+  float x = 2 * (_x / screen.x) - 1;
+  float y = -(2 * _y / screen.y - 1);
+  float t = static_cast<float>(1.0f / tan(fovYRad * 0.5));
+  DirectX::XMFLOAT3 v = {x * t, y * t, -1};
+  auto V = DirectX::XMLoadFloat3(&v);
+  V = DirectX::XMVector3Transform(V, R);
+  DirectX::XMFLOAT3 dir;
+  DirectX::XMStoreFloat3(&dir, V);
+  return dir;
 }
 
-void OrbitCamera::shift(float dx, float dy) {
-  translation.x -=
-      static_cast<float>(dx / screen.y * tan(fovYRad / 2) * translation.z * 2);
-  translation.y +=
-      static_cast<float>(dy / screen.y * tan(fovYRad / 2) * translation.z * 2);
-  calc_view();
-}
-
-void OrbitCamera::dolly(float d) {
-  if (d < 0) {
-    translation.z *= 1.1f;
-  } else if (d > 0) {
-    translation.z *= 0.9f;
-  }
-  calc_view();
+//
+// projection
+//
+void OrbitCamera::calc_projection() {
+  auto P = DirectX::XMMatrixPerspectiveFovRH(fovYRad, screen.x / screen.y,
+                                             _near, _far);
+  DirectX::XMStoreFloat4x4((DirectX::XMFLOAT4X4 *)&projection, P);
 }
 
 void OrbitCamera::resize(float w, float h) {
@@ -80,6 +106,11 @@ void OrbitCamera::resize(float w, float h) {
   }
   screen = {w, h};
   calc_projection();
+}
+
+OrbitCamera::OrbitCamera() {
+  calc_projection();
+  calc_view();
 }
 
 void OrbitCamera::fit(float y, float half_height) {

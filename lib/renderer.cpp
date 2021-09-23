@@ -67,10 +67,12 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
 
   auto mesh = std::make_shared<gorilla::InputAssembler>();
   _mesh_map.insert(std::make_pair(src, mesh));
-  if (!mesh->create_vertices(device, src->vertices)) {
+  if (!mesh->create_vertices(device, src->vertex_stride, src->vertices.data(),
+                             src->vertices.size())) {
     return {};
   }
-  if (!mesh->create_indices(device, src->indices)) {
+  if (!mesh->create_indices(device, src->index_stride, src->indices.data(),
+                            src->indices.size())) {
     return {};
   }
 

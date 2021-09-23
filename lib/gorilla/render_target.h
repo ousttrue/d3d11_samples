@@ -18,6 +18,8 @@ public:
   const ComPtr<ID3D11RenderTargetView> &get() const { return _rtv; }
   void release() { _rtv.Reset(); }
   void clear(const ComPtr<ID3D11DeviceContext> &context, const float clear[4]);
+  void clear_depth(const ComPtr<ID3D11DeviceContext> &context,
+                   float depth = 1.0f);
   bool create_rtv(const ComPtr<ID3D11Device> &device,
                   const ComPtr<ID3D11Texture2D> &texture);
   bool create_dsv(const ComPtr<ID3D11Device> &device);
