@@ -5,6 +5,16 @@
 * 履歴を破棄して作り直し
 * d3d11 の sample コードと簡単な説明
 
+## lib
+
+### 🦍 gorilla(HWND d3d11)
+* Thin wrapper
+
+### 🍌 banana(asset scene)
+* glTF loader
+* Node tree
+* Camera
+
 ## TODO
 
 * [x] ConstantBuffer
@@ -25,9 +35,9 @@
 * [x] Gizmo: Grid
 * [ ] Gizmo: wire frame
 * [ ] Gizmo: BoundingBox
-* [ ] Gizmo: T
-* [ ] Gizmo: R
-* [ ] Gizmo: S
+* [x] Gizmo: T
+* [x] Gizmo: R
+* [x] Gizmo: S
 * [ ] Gizmo: point select
 * [ ] Gizmo: edge select
 * [ ] Gizmo: face select
