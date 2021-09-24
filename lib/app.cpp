@@ -84,18 +84,6 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
     ImGui_ImplDX11_Init(_device.Get(), _context.Get());
   }
 
-  // gizmo
-  // auto shader = banana::get_string("grid.hlsl");
-  // if (shader.empty()) {
-  //   return {};
-  // }
-  // auto [ok, error] =
-  //     _grid.compile_shader(_device, shader, "vsMain", "gsMain", "psMain");
-  // if (!ok) {
-  //   std::cerr << error << std::endl;
-  //   return {};
-  // }
-
   return _device;
 }
 
@@ -140,32 +128,6 @@ bool App::begin_frame(gorilla::ScreenState *pstate) {
 
   // clear RTV
   _renderer.begin_frame(*pstate, clear);
-
-  // gizmo
-#pragma pack(push)
-#pragma pack(16)
-  struct Constants {
-    banana::Matrix4x4 view;
-    banana::Matrix4x4 projection;
-    DirectX::XMFLOAT3 cameraPosition;
-    float _padding2;
-    banana::Float2 screenSize;
-    float fovY;
-    float _padding3;
-  };
-#pragma pack(pop)
-  static_assert(sizeof(Constants) == 16 * 10, "sizeof ConstantsSize");
-  // Constants constant;
-  // constant.fovY = _camera.fovYRad;
-  // constant.screenSize.x = static_cast<float>(w);
-  // constant.screenSize.y = static_cast<float>(h);
-  // constant.view = _camera.view;
-  // constant.projection = _camera.projection;
-  // constant.cameraPosition = _camera.position();
-  // _grid.gs_stage.cb[0].update(_context, constant);
-  // _grid.ps_stage.cb[0].update(_context, constant);
-  // _grid.setup(_context);
-  // _grid.draw_empty(_context);
 
   return true;
 }

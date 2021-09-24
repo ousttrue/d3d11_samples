@@ -1,13 +1,14 @@
-#include <update_camera.h>>
-#include <banana/types.h>
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
+#include <banana/grid_constant.h>
 #include <banana/orbit_camera.h>
+#include <banana/types.h>
 #include <gorilla/drawable.h>
 #include <gorilla/renderer.h>
 #include <gorilla/window.h>
 #include <iostream>
+#include <update_camera.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "Grid";
@@ -49,20 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     std::cerr << error << std::endl;
     return 5;
   }
-#pragma pack(push)
-#pragma pack(16)
-  struct Constants {
-    banana::Matrix4x4 view;
-    banana::Matrix4x4 projection;
-    DirectX::XMFLOAT3 cameraPosition;
-    float _padding2;
-    DirectX::XMFLOAT2 screenSize;
-    float fovY;
-    float _padding3;
-  };
-#pragma pack(pop)
-  static_assert(sizeof(Constants) == 16 * 10, "sizeof ConstantsSize");
-  Constants constant;
+  banana::GridConstant constant;
 
   // main loop
   banana::OrbitCamera camera;
@@ -71,12 +59,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // update
     update_camera(&camera, state);
-    constant.fovY = camera.fovYRad;
-    constant.screenSize.x = state.width;
-    constant.screenSize.y = state.height;
-    constant.view = camera.view;
-    constant.projection = camera.projection;
-    constant.cameraPosition = camera.position();
+    constant.update(camera);
     drawable.pipeline.gs_stage.cb[0].update(context, constant);
     drawable.pipeline.ps_stage.cb[0].update(context, constant);
 

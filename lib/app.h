@@ -17,9 +17,6 @@ class App {
   ComPtr<ID3D11DeviceContext> _context;
   UINT _frame_count = 0;
 
-  // gizmo
-  // gorilla::Pipeline _grid;
-
   std::chrono::system_clock::time_point _last = {};
 
 public:
