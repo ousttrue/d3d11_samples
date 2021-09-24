@@ -62,4 +62,8 @@ void Renderer::end_frame() {
   _swapchain->Present(1, 0);
 }
 
+void Renderer::clear_depth(){
+  _render_target.clear_depth(_context);
+}
+
 } // namespace gorilla

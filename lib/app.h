@@ -1,10 +1,10 @@
 #pragma once
 
+#include "update_camera.h"
 #include <banana/orbit_camera.h>
 #include <chrono>
 #include <d3d11.h>
-#include <gorilla/pipeline.h>
-#include <gorilla/render_target.h>
+#include <gorilla/renderer.h>
 #include <gorilla/window.h>
 #include <wrl/client.h>
 
@@ -12,21 +12,19 @@ class App {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
   gorilla::Window _window;
-  HWND _hwnd = nullptr;
+  gorilla::Renderer _renderer;
   ComPtr<ID3D11Device> _device;
   ComPtr<ID3D11DeviceContext> _context;
-  ComPtr<IDXGISwapChain> _swapchain;
-
-  DXGI_SWAP_CHAIN_DESC _desc;
   UINT _frame_count = 0;
-  gorilla::RenderTarget _render_target;
 
   // gizmo
-  gorilla::Pipeline _grid;
+  // gorilla::Pipeline _grid;
 
   std::chrono::system_clock::time_point _last = {};
 
 public:
+  float clear[4] = {0.5f, 0.5f, 0.5f, 1.0f};
+
   ~App();
   gorilla::Window &window() { return _window; }
   ComPtr<ID3D11DeviceContext> context() const { return _context; }
@@ -38,12 +36,3 @@ public:
   void end_frame();
   void clear_depth();
 };
-
-inline void update_camera(banana::OrbitCamera *camera,
-                          const gorilla::ScreenState &state) {
-  camera->update(state.mouse_x, state.mouse_y, state.width, state.height,
-                 state.mouse_button_flag & gorilla::MouseButtonLeftDown,
-                 state.mouse_button_flag & gorilla::MouseButtonRightDown,
-                 state.mouse_button_flag & gorilla::MouseButtonMiddleDown,
-                 state.wheel);
-}

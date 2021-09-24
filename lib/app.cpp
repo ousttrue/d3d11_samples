@@ -22,34 +22,14 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
                                      int nCmdShow, const char *CLASS_NAME,
                                      const char *WINDOW_TITLE, int width,
                                      int height) {
-  _hwnd = _window.create(hInstance, CLASS_NAME, WINDOW_TITLE, width, height);
-  if (!_hwnd) {
+  auto hwnd =
+      _window.create(hInstance, CLASS_NAME, WINDOW_TITLE, width, height);
+  if (!hwnd) {
     return {};
   }
-
-  ShowWindow(_hwnd, nCmdShow);
-  UpdateWindow(_hwnd);
-
-  _device = gorilla::create_device();
-  if (!_device) {
-    return {};
-  }
-  _device->GetImmediateContext(&_context);
-
-  _swapchain = gorilla::create_swapchain(_device, _hwnd);
-  if (!_swapchain) {
-    return {};
-  }
-  _swapchain->GetDesc(&_desc);
-
-  // auto binder = std::make_shared<banana::MouseBinder>(_camera);
-  // _window.bind_mouse([binder](bool isPress) { binder->Left(isPress); },
-  //                    [binder](bool isPress) { binder->Middle(isPress); },
-  //                    [binder](bool isPress) { binder->Right(isPress); },
-  //                    [binder](int x, int y) { binder->Move(x, y); },
-  //                    [binder](int d) { binder->Wheel(d); });
-
-  _window.bind_key([hwnd = _hwnd](int key) {
+  ShowWindow(hwnd, nCmdShow);
+  UpdateWindow(hwnd);
+  _window.bind_key([hwnd](int key) {
     if (key == 27) {
       // esc
       SendMessage(hwnd, WM_CLOSE, 0, 0);
@@ -58,6 +38,11 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
       std::cout << key << std::endl;
     }
   });
+
+  std::tie(_device, _context) = _renderer.create(hwnd);
+  if (!_device) {
+    return {};
+  }
 
   // imgui
   {
@@ -100,16 +85,16 @@ ComPtr<ID3D11Device> App::initialize(HINSTANCE hInstance, LPSTR lpCmdLine,
   }
 
   // gizmo
-  auto shader = banana::get_string("grid.hlsl");
-  if (shader.empty()) {
-    return {};
-  }
-  auto [ok, error] =
-      _grid.compile_shader(_device, shader, "vsMain", "gsMain", "psMain");
-  if (!ok) {
-    std::cerr << error << std::endl;
-    return {};
-  }
+  // auto shader = banana::get_string("grid.hlsl");
+  // if (shader.empty()) {
+  //   return {};
+  // }
+  // auto [ok, error] =
+  //     _grid.compile_shader(_device, shader, "vsMain", "gsMain", "psMain");
+  // if (!ok) {
+  //   std::cerr << error << std::endl;
+  //   return {};
+  // }
 
   return _device;
 }
@@ -118,17 +103,6 @@ bool App::begin_frame(gorilla::ScreenState *pstate) {
 
   if (!_window.process_messages(pstate)) {
     return false;
-  }
-
-  if (pstate->width != _desc.BufferDesc.Width ||
-      pstate->height != _desc.BufferDesc.Height) {
-    // clear backbuffer reference
-    _render_target.release();
-    // resize swapchain
-    _swapchain->ResizeBuffers(_desc.BufferCount,
-                              static_cast<UINT>(pstate->width),
-                              static_cast<UINT>(pstate->height),
-                              _desc.BufferDesc.Format, _desc.Flags);
   }
 
   // imgui
@@ -164,29 +138,8 @@ bool App::begin_frame(gorilla::ScreenState *pstate) {
     ImGui::NewFrame();
   }
 
-  // ensure create backbuffer
-  if (!_render_target.get()) {
-    ComPtr<ID3D11Texture2D> backbuffer;
-    auto hr = _swapchain->GetBuffer(0, IID_PPV_ARGS(&backbuffer));
-    if (FAILED(hr)) {
-      return false;
-    }
-
-    if (!_render_target.create_rtv(_device, backbuffer)) {
-      return false;
-    }
-    if (!_render_target.create_dsv(_device)) {
-      return false;
-    }
-  }
-
   // clear RTV
-  auto v =
-      (static_cast<float>(sin(_frame_count / 180.0f * DirectX::XM_PI)) + 1) *
-      0.5f;
-  float clear[] = {0.5, v, 0.5, 1.0f};
-  _render_target.clear(_context, clear);
-  _render_target.setup(_context, pstate->width, pstate->height);
+  _renderer.begin_frame(*pstate, clear);
 
   // gizmo
 #pragma pack(push)
@@ -221,13 +174,8 @@ void App::end_frame() {
   // imgui
   ImGui::Render();
   ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-  _context->Flush();
-
-  // vsync
-  _swapchain->Present(1, 0);
-
+  _renderer.end_frame();
   _frame_count++;
 }
 
-void App::clear_depth() { _render_target.clear_depth(_context); }
+void App::clear_depth() { _renderer.clear_depth(); }

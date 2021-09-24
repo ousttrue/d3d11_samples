@@ -1,14 +1,14 @@
-#include "app.h"
-#include "banana/types.h"
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
 #include <banana/geometry.h>
 #include <banana/orbit_camera.h>
+#include <banana/types.h>
 #include <gorilla/drawable.h>
 #include <gorilla/renderer.h>
 #include <gorilla/window.h>
 #include <iostream>
+#include <update_camera.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "DepthTest";
@@ -42,8 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 3;
   }
   gorilla::Drawable drawable;
-  if(!drawable.state.create(device))
-  {
+  if (!drawable.state.create(device)) {
     return 4;
   }
   auto [ok, error] =

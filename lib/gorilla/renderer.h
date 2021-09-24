@@ -21,6 +21,7 @@ public:
   create(HWND hwnd);
   void begin_frame(const ScreenState &state, const float clear[4]);
   void end_frame();
+  void clear_depth();
 };
 
 } // namespace gorilla
