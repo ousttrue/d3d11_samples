@@ -1,0 +1,217 @@
+
+
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>DXSAS &#8212; d3d11 samples  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <script src="_static/bizstyle.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="Orbit Camera" href="three_d/orbit_camera.html" />
+    <link rel="prev" title="MipMap" href="basic/mip_map.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="three_d/orbit_camera.html" title="Orbit Camera"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="basic/mip_map.html" title="MipMap"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">DXSAS</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="dxsas">
+<h1>DXSAS<a class="headerlink" href="#dxsas" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">Direct</span> <span class="pre">X</span> <span class="pre">Standard</span> <span class="pre">Annotations</span> <span class="pre">and</span> <span class="pre">Semantics</span></code></p>
+<p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/direct3d9/dx9-graphics-reference-effects-dxsas">https://docs.microsoft.com/en-us/windows/win32/direct3d9/dx9-graphics-reference-effects-dxsas</a></p>
+<p>廃れてしまった <code class="docutils literal notranslate"><span class="pre">D3D9</span></code> 時代の仕様なのだけど、便利なので部分的に実装する。
+Nvidia の <code class="docutils literal notranslate"><span class="pre">fx</span> <span class="pre">composer</span></code> に由来？</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.nvidia.com/en-us/drivers/using-sas/">https://www.nvidia.com/en-us/drivers/using-sas/</a></p></li>
+<li><p><a class="reference external" href="http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf">http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf</a></p></li>
+</ul>
+<section id="implementations">
+<h2>Implementations<a class="headerlink" href="#implementations" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-1-geometry-translation">https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-1-geometry-translation</a></p></li>
+<li><p><a class="reference external" href="https://vvvv.org/documentation/%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB-%E3%82%B8%E3%82%AA%E3%83%A1%E3%83%88%E3%83%AA%E3%83%A2%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E3%82%B0-gpu1">https://vvvv.org/documentation/%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB-%E3%82%B8%E3%82%AA%E3%83%A1%E3%83%88%E3%83%AA%E3%83%A2%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E3%82%B0-gpu1</a></p></li>
+</ul>
+</section>
+<section id="common-semantics">
+<h2>Common Semantics<a class="headerlink" href="#common-semantics" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="common-material-and-light-characteristics">
+<h3>Common Material and Light Characteristics<a class="headerlink" href="#common-material-and-light-characteristics" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<ul class="simple">
+<li><p>POSITION</p></li>
+<li><p>DIRECTION</p></li>
+<li><p>DIFFUSE</p></li>
+<li><p>SPECULAR</p></li>
+<li><p>AMBIENT</p></li>
+<li><p>POWER</p></li>
+<li><p>SPECULARPOWER</p></li>
+<li><p>CONSTANTATTENUATION</p></li>
+<li><p>LINEARATTENUATION</p></li>
+<li><p>QUADRATICATTENUATION</p></li>
+<li><p>FALLOFFANGLE</p></li>
+<li><p>FALLOFFEXPONENT</p></li>
+<li><p>EMISSION</p></li>
+<li><p>EMISSIVE</p></li>
+<li><p>OPACITY</p></li>
+<li><p>REFRACTION</p></li>
+</ul>
+</section>
+<section id="texture-related">
+<h3>Texture-Related<a class="headerlink" href="#texture-related" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<ul class="simple">
+<li><p>RENDERDEPTHSTENCILTARGET</p></li>
+<li><p>RENDERCOLORTARGET</p></li>
+<li><p>VIEWPORTPIXELSIZE</p></li>
+<li><p>DIFFUSEMAP</p></li>
+<li><p>SPECULARMAP</p></li>
+<li><p>NORMAL</p></li>
+<li><p>ENVIRONMENT</p></li>
+<li><p>ENVMAP</p></li>
+<li><p>ENVIRONMENTNORMAL</p></li>
+</ul>
+</section>
+<section id="transforms-locations">
+<h3>Transforms &amp; Locations<a class="headerlink" href="#transforms-locations" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<ul class="simple">
+<li><p>WORLD</p></li>
+<li><p>VIEW</p></li>
+<li><p>PROJECTION</p></li>
+<li><p>WORLDVIEW</p></li>
+<li><p>VIEW PROJECTION</p></li>
+<li><p>WORLDVIEWPROJECTION</p></li>
+<li><p>WORLDINVERSE</p></li>
+<li><p>VIEWINVERSE</p></li>
+<li><p>PROJECTIONINVERSE</p></li>
+<li><p>WORLDVIEWINVERSE</p></li>
+<li><p>VIEW PROJECTIONINVERSE</p></li>
+<li><p>WORLDVIEWPROJECTIONINVERSE</p></li>
+<li><p>WORLDTRANSPOSE</p></li>
+<li><p>VIEWTRANSPOSE</p></li>
+<li><p>PROJECTIONTRANSPOSE</p></li>
+<li><p>WORLDVIEWTRANSPOSE</p></li>
+<li><p>VIEW PROJECTIONTRANSPOSE</p></li>
+<li><p>WORLDVIEWPROJECTIONTRANSPOSE</p></li>
+<li><p>WORLDINVERSETRANSPOSE</p></li>
+<li><p>VIEWINVERSETRANSPOSE</p></li>
+<li><p>PROJECTIONINVERSETRANSPOSE</p></li>
+<li><p>WORLDVIEWINVERSETRANSPOSE</p></li>
+<li><p>VIEW PROJECTIONINVERSETRANSPOSE</p></li>
+<li><p>WORLDVIEWPROJECTIONINVERSETRANSPOSE</p></li>
+<li><p>TRANSFORM</p></li>
+<li><p>LIGHTPOSITION</p></li>
+</ul>
+</section>
+<section id="others">
+<h3>Others<a class="headerlink" href="#others" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<ul class="simple">
+<li><p>STANDARDSGLOBAL</p></li>
+<li><p>HEIGHT</p></li>
+<li><p>UNITSSCALE</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">DXSAS</a><ul>
+<li><a class="reference internal" href="#implementations">Implementations</a></li>
+<li><a class="reference internal" href="#common-semantics">Common Semantics</a><ul>
+<li><a class="reference internal" href="#common-material-and-light-characteristics">Common Material and Light Characteristics</a></li>
+<li><a class="reference internal" href="#texture-related">Texture-Related</a></li>
+<li><a class="reference internal" href="#transforms-locations">Transforms &amp; Locations</a></li>
+<li><a class="reference internal" href="#others">Others</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="basic/mip_map.html"
+                        title="前の章へ">MipMap</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="three_d/orbit_camera.html"
+                        title="次の章へ">Orbit Camera</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/dxsas.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="three_d/orbit_camera.html" title="Orbit Camera"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="basic/mip_map.html" title="MipMap"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">DXSAS</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>
