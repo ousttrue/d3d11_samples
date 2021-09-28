@@ -9,6 +9,7 @@ add_library(
   gorilla/render_target.cpp
   gorilla/shader.cpp
   gorilla/shader_reflection.cpp
+  gorilla/dxsas.cpp
   gorilla/swapchain.cpp
   gorilla/texture.cpp
   gorilla/window.cpp

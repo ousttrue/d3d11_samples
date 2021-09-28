@@ -6,7 +6,6 @@
 #include <span>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <vector>
 #include <wrl/client.h>
 
@@ -65,14 +64,6 @@ public:
     }
     return false;
   }
-
-  struct AnnotationSemantics {
-    int line;
-    std::string type;
-    std::string name;
-    std::string annotation;
-  };
-  std::unordered_map<std::string, AnnotationSemantics> semantics_map;
 
   bool reflect(const Microsoft::WRL::ComPtr<ID3DBlob> &compiled);
 };
