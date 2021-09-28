@@ -24,15 +24,16 @@ basic/basic_pipeline
 basic/constant_buffer
 basic/texture
 basic/input_assembler
-```
-
-## その他
-
-```{toctree}
 basic/rasterizer_state
 basic/blend_state
 basic/mip_map
-basic/post_effect
+```
+
+## DXSAS
+
+```{toctree}
+
+dxsas
 ```
 
 ## Projection の導入と三次元化

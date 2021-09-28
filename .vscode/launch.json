@@ -94,11 +94,11 @@
             "program": "${workspaceFolder}/build/Debug/bin/DynamicMesh.exe",
         },
         {
-            "name": "DepthTest",
+            "name": "DepthBuffer",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/DepthTest.exe",
+            "program": "${workspaceFolder}/build/Debug/bin/DepthBuffer.exe",
         },
         {
             "name": "ImageLoader",

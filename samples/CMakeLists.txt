@@ -14,7 +14,7 @@ subdirs(
   Grid
   Camera
   FontMesh
-  DepthTest
+  DepthBuffer
   FontTexture
   #
   LightingVertexADS
@@ -24,5 +24,4 @@ subdirs(
   MikkTSpace
   GltfScene
   ImGui
-  TinyGizmo
-  )
+  TinyGizmo)

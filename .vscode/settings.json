@@ -36,11 +36,13 @@
         "xlocale": "cpp",
         "xlocbuf": "cpp",
         "xstring": "cpp",
-        "*.rh": "cpp"
+        "*.rh": "cpp",
+        "unordered_map": "cpp"
     },
     "cSpell.words": [
         "DXGI",
         "gltf",
+        "Hlsl",
         "imgui"
     ],
 }
