@@ -37,7 +37,8 @@
         "xlocbuf": "cpp",
         "xstring": "cpp",
         "*.rh": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "*.def": "cpp"
     },
     "cSpell.words": [
         "DXGI",

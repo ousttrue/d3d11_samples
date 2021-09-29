@@ -8,6 +8,7 @@ struct AnnotationSemantics {
   int line;
   std::string type;
   std::string name;
+  std::string semantic;
   std::string annotation;
 };
 struct DXSAS {

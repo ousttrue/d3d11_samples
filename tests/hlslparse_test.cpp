@@ -6,12 +6,6 @@
 #include <gorilla/shader_reflection.h>
 #include <iostream>
 
-class HlslParser {
-
-public:
-  void parse(std::string_view source) {}
-};
-
 TEST_CASE("hlsl_parse", "[hlsl]") {
 
   auto source = banana::get_string("grid.hlsl");
