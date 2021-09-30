@@ -52,132 +52,138 @@
 <h1>DXSAS<a class="headerlink" href="#dxsas" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">Direct</span> <span class="pre">X</span> <span class="pre">Standard</span> <span class="pre">Annotations</span> <span class="pre">and</span> <span class="pre">Semantics</span></code></p>
 <p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/direct3d9/dx9-graphics-reference-effects-dxsas">https://docs.microsoft.com/en-us/windows/win32/direct3d9/dx9-graphics-reference-effects-dxsas</a></p>
-<p>廃れてしまった <code class="docutils literal notranslate"><span class="pre">D3D9</span></code> 時代の仕様なのだけど、便利なので部分的に実装する。</p>
+<p>廃れてしまった <code class="docutils literal notranslate"><span class="pre">D3D9</span></code> 時代の仕様なのだけど、便利なので実装を試みる。</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/direct3d9/data-binding">https://docs.microsoft.com/en-us/windows/win32/direct3d9/data-binding</a></p></li>
 </ul>
 <section id="implementations">
 <h2>Implementations<a class="headerlink" href="#implementations" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://www.nvidia.com/en-us/drivers/using-sas/">https://www.nvidia.com/en-us/drivers/using-sas/</a></p>
+<li><p><a class="reference external" href="https://www.nvidia.com/en-us/drivers/using-sas/">Using SAS in FX and CgFX File Formats</a></p>
 <ul>
-<li><p><a class="reference external" href="http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf">http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf</a></p></li>
+<li><p>PDF <a class="reference external" href="http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf">Creating Real Shaders Creating Real Shaders in FX Composer</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference external" href="https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-1-geometry-translation">MMEリファレンス‎ &gt; ‎2. パラメータのセマンティクスとアノテーション‎ &gt; ‎2-1. ジオメトリ変換</a></p></li>
+<li><p><a class="reference external" href="https://sites.google.com/site/mmereference/home">MMEリファレンス</a></p>
+<ul>
+<li><p><a class="reference external" href="https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-1-geometry-translation">‎2-1. ジオメトリ変換</a></p></li>
+<li><p><a class="reference external" href="https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-2-lights-and-materials">2-2. ライトとマテリアル</a></p></li>
+</ul>
+</li>
 <li><p><a class="reference external" href="https://vvvv.org/documentation/%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB-%E3%82%B8%E3%82%AA%E3%83%A1%E3%83%88%E3%83%AA%E3%83%A2%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E3%82%B0-gpu1">VVVV チュートリアル ジオメトリモーフィング GPU1</a></p></li>
+<li><p><a class="reference external" href="https://digitalrune.github.io/DigitalRune-Documentation/html/17442709-63e0-419c-abe8-00697ca4fc3a.htm">Guidelines for Writing Effects</a></p></li>
 </ul>
 </section>
 <section id="bindings">
 <h2>Bindings<a class="headerlink" href="#bindings" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>必要に応じて適当に定義する。
+型ごとにDictionaryを用意する。
+hlsl のアライメントは 16byte なので、 <code class="docutils literal notranslate"><span class="pre">float4</span></code>, <code class="docutils literal notranslate"><span class="pre">float4x4</span></code>, <code class="docutils literal notranslate"><span class="pre">float4x3</span></code> (NormalMatrix) で十分かな。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span> <span class="n">SemanticsFlaot4x4</span>
+<span class="p">{</span>
+    <span class="n">WORLD</span><span class="p">,</span>
+    <span class="n">VIEW</span><span class="p">,</span>
+    <span class="n">PROJECTION</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">enum</span> <span class="n">SemanticsFloat4</span>
+<span class="p">{</span>
+    <span class="n">BaseColor</span><span class="p">,</span>
+    <span class="n">CameraPosition</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">enum</span> <span class="n">SemanticsTexture</span>
+<span class="p">{</span>
+    <span class="n">BaseColor</span><span class="p">,</span>
+    <span class="n">Normal</span><span class="p">,</span>
+    <span class="n">Emission</span><span class="p">,</span>
+    <span class="n">OcclusionRoughnessMetallic</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">Material</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unordred_map</span><span class="o">&lt;</span><span class="n">SemanticsFlaot4x4</span><span class="p">,</span> <span class="n">float4x4</span><span class="o">&gt;</span> <span class="n">float4x4_map</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unordred_map</span><span class="o">&lt;</span><span class="n">SemanticsFloat4</span><span class="p">,</span> <span class="n">float4</span><span class="o">&gt;</span> <span class="n">float4_map</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unordred_map</span><span class="o">&lt;</span><span class="n">SemanticsTexture</span><span class="p">,</span> <span class="n">Texture</span><span class="o">&gt;</span> <span class="n">texture_map</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<section id="float4">
+<h3>float4<a class="headerlink" href="#float4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>SEMANTIC</p></th>
+<th class="head"><p>comment</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CAMERAPOSITION</p></td>
+<td><p>camera の worldposition</p></td>
+</tr>
+<tr class="row-odd"><td><p>CAMERADIRECTION</p></td>
+<td><p>camera の向き。viewから抜き出せる</p></td>
+</tr>
+<tr class="row-even"><td><p>BASECOLOR</p></td>
+<td><p>material。PBR albedo, unlit color</p></td>
+</tr>
+<tr class="row-odd"><td><p>CURSORSCREENSIZE</p></td>
+<td><p>cursor 座標(xy)。RenderTargetSize(zw)</p></td>
+</tr>
+<tr class="row-even"><td><p>TIME</p></td>
+<td><p>elapsed, delta, frame_count</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="float3x3-cpu-float4x3">
+<h3>float3x3(CPU側は float4x3)<a class="headerlink" href="#float3x3-cpu-float4x3" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <table class="colwidths-auto docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>SEMANTIC</p></th>
 <th class="head"><p>type</p></th>
-<th class="head"><p>comment</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>NORMAL</p></td>
+<td><p>float4x3</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="float4x4">
+<h3>float4x4<a class="headerlink" href="#float4x4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>SEMANTIC</p></th>
+<th class="head"><p>type</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>WORLD</p></td>
 <td><p>float4x4</p></td>
-<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>VIEW</p></td>
 <td><p>float4x4</p></td>
-<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>PROJECTION</p></td>
 <td><p>float4x4</p></td>
-<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>WORLDVIEW</p></td>
 <td><p>float4x4</p></td>
-<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>VIEWPROJECTION</p></td>
 <td><p>float4x4</p></td>
-<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>WORLDVIEWPROJECTION</p></td>
 <td><p>float4x4</p></td>
-<td><p></p></td>
 </tr>
 </tbody>
 </table>
-<section id="common-material-and-light-characteristics">
-<h3>Common Material and Light Characteristics<a class="headerlink" href="#common-material-and-light-characteristics" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<ul class="simple">
-<li><p>POSITION</p></li>
-<li><p>DIRECTION</p></li>
-<li><p>DIFFUSE</p></li>
-<li><p>SPECULAR</p></li>
-<li><p>AMBIENT</p></li>
-<li><p>POWER</p></li>
-<li><p>SPECULARPOWER</p></li>
-<li><p>CONSTANTATTENUATION</p></li>
-<li><p>LINEARATTENUATION</p></li>
-<li><p>QUADRATICATTENUATION</p></li>
-<li><p>FALLOFFANGLE</p></li>
-<li><p>FALLOFFEXPONENT</p></li>
-<li><p>EMISSION</p></li>
-<li><p>EMISSIVE</p></li>
-<li><p>OPACITY</p></li>
-<li><p>REFRACTION</p></li>
-</ul>
 </section>
-<section id="texture-related">
-<h3>Texture-Related<a class="headerlink" href="#texture-related" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<ul class="simple">
-<li><p>RENDERDEPTHSTENCILTARGET</p></li>
-<li><p>RENDERCOLORTARGET</p></li>
-<li><p>VIEWPORTPIXELSIZE</p></li>
-<li><p>DIFFUSEMAP</p></li>
-<li><p>SPECULARMAP</p></li>
-<li><p>NORMAL</p></li>
-<li><p>ENVIRONMENT</p></li>
-<li><p>ENVMAP</p></li>
-<li><p>ENVIRONMENTNORMAL</p></li>
-</ul>
 </section>
-<section id="transforms-locations">
-<h3>Transforms &amp; Locations<a class="headerlink" href="#transforms-locations" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<ul class="simple">
-<li><p>WORLD</p></li>
-<li><p>VIEW</p></li>
-<li><p>PROJECTION</p></li>
-<li><p>WORLDVIEW</p></li>
-<li><p>VIEW PROJECTION</p></li>
-<li><p>WORLDVIEWPROJECTION</p></li>
-<li><p>WORLDINVERSE</p></li>
-<li><p>VIEWINVERSE</p></li>
-<li><p>PROJECTIONINVERSE</p></li>
-<li><p>WORLDVIEWINVERSE</p></li>
-<li><p>VIEW PROJECTIONINVERSE</p></li>
-<li><p>WORLDVIEWPROJECTIONINVERSE</p></li>
-<li><p>WORLDTRANSPOSE</p></li>
-<li><p>VIEWTRANSPOSE</p></li>
-<li><p>PROJECTIONTRANSPOSE</p></li>
-<li><p>WORLDVIEWTRANSPOSE</p></li>
-<li><p>VIEW PROJECTIONTRANSPOSE</p></li>
-<li><p>WORLDVIEWPROJECTIONTRANSPOSE</p></li>
-<li><p>WORLDINVERSETRANSPOSE</p></li>
-<li><p>VIEWINVERSETRANSPOSE</p></li>
-<li><p>PROJECTIONINVERSETRANSPOSE</p></li>
-<li><p>WORLDVIEWINVERSETRANSPOSE</p></li>
-<li><p>VIEW PROJECTIONINVERSETRANSPOSE</p></li>
-<li><p>WORLDVIEWPROJECTIONINVERSETRANSPOSE</p></li>
-<li><p>TRANSFORM</p></li>
-<li><p>LIGHTPOSITION</p></li>
-</ul>
-</section>
-<section id="others">
-<h3>Others<a class="headerlink" href="#others" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<ul class="simple">
-<li><p>STANDARDSGLOBAL</p></li>
-<li><p>HEIGHT</p></li>
-<li><p>UNITSSCALE</p></li>
-</ul>
-</section>
+<section id="technique-pass">
+<h2>technique と pass<a class="headerlink" href="#technique-pass" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>TODO:</p>
 </section>
 </section>
 
@@ -193,12 +199,12 @@
 <li><a class="reference internal" href="#">DXSAS</a><ul>
 <li><a class="reference internal" href="#implementations">Implementations</a></li>
 <li><a class="reference internal" href="#bindings">Bindings</a><ul>
-<li><a class="reference internal" href="#common-material-and-light-characteristics">Common Material and Light Characteristics</a></li>
-<li><a class="reference internal" href="#texture-related">Texture-Related</a></li>
-<li><a class="reference internal" href="#transforms-locations">Transforms &amp; Locations</a></li>
-<li><a class="reference internal" href="#others">Others</a></li>
+<li><a class="reference internal" href="#float4">float4</a></li>
+<li><a class="reference internal" href="#float3x3-cpu-float4x3">float3x3(CPU側は float4x3)</a></li>
+<li><a class="reference internal" href="#float4x4">float4x4</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#technique-pass">technique と pass</a></li>
 </ul>
 </li>
 </ul>

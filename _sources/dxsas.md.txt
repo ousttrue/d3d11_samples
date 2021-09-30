@@ -4,89 +4,83 @@
 
 <https://docs.microsoft.com/en-us/windows/win32/direct3d9/dx9-graphics-reference-effects-dxsas>
 
-廃れてしまった `D3D9` 時代の仕様なのだけど、便利なので部分的に実装する。
+廃れてしまった `D3D9` 時代の仕様なのだけど、便利なので実装を試みる。
 
 * <https://docs.microsoft.com/en-us/windows/win32/direct3d9/data-binding>
 ## Implementations
 
-* <https://www.nvidia.com/en-us/drivers/using-sas/>
-    * <http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf>
-* [MMEリファレンス‎ > ‎2. パラメータのセマンティクスとアノテーション‎ > ‎2-1. ジオメトリ変換](https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-1-geometry-translation)
+* [Using SAS in FX and CgFX File Formats](https://www.nvidia.com/en-us/drivers/using-sas/)
+    * PDF [Creating Real Shaders Creating Real Shaders in FX Composer](http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf)
+* [MMEリファレンス](https://sites.google.com/site/mmereference/home)
+    * [‎2-1. ジオメトリ変換](https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-1-geometry-translation)
+    * [2-2. ライトとマテリアル](https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-2-lights-and-materials)
 * [VVVV チュートリアル ジオメトリモーフィング GPU1](https://vvvv.org/documentation/%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB-%E3%82%B8%E3%82%AA%E3%83%A1%E3%83%88%E3%83%AA%E3%83%A2%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E3%82%B0-gpu1)
+
+* [Guidelines for Writing Effects](https://digitalrune.github.io/DigitalRune-Documentation/html/17442709-63e0-419c-abe8-00697ca4fc3a.htm)
 
 ## Bindings
 
-| SEMANTIC            | type     | comment |
-|---------------------|----------|---------|
-| WORLD               | float4x4 |         |
-| VIEW                | float4x4 |         |
-| PROJECTION          | float4x4 |         |
-| WORLDVIEW           | float4x4 |         |
-| VIEWPROJECTION      | float4x4 |         |
-| WORLDVIEWPROJECTION | float4x4 |         |
+必要に応じて適当に定義する。
+型ごとにDictionaryを用意する。
+hlsl のアライメントは 16byte なので、 `float4`, `float4x4`, `float4x3` (NormalMatrix) で十分かな。
 
-### Common Material and Light Characteristics
+```c++
+enum SemanticsFlaot4x4
+{
+    WORLD,
+    VIEW,
+    PROJECTION,
+};
 
-* POSITION
-* DIRECTION
-* DIFFUSE
-* SPECULAR
-* AMBIENT
-* POWER
-* SPECULARPOWER
-* CONSTANTATTENUATION
-* LINEARATTENUATION
-* QUADRATICATTENUATION
-* FALLOFFANGLE
-* FALLOFFEXPONENT
-* EMISSION
-* EMISSIVE
-* OPACITY
-* REFRACTION
+enum SemanticsFloat4
+{
+    BaseColor,
+    CameraPosition,
+};
 
-### Texture-Related
+enum SemanticsTexture
+{
+    BaseColor,
+    Normal,
+    Emission,
+    OcclusionRoughnessMetallic,
+};
 
-* RENDERDEPTHSTENCILTARGET
-* RENDERCOLORTARGET
-* VIEWPORTPIXELSIZE
-* DIFFUSEMAP
-* SPECULARMAP
-* NORMAL
-* ENVIRONMENT
-* ENVMAP
-* ENVIRONMENTNORMAL
+struct Material
+{
+    std::unordred_map<SemanticsFlaot4x4, float4x4> float4x4_map;
+    std::unordred_map<SemanticsFloat4, float4> float4_map;
+    std::unordred_map<SemanticsTexture, Texture> texture_map;
+};
+```
 
-### Transforms & Locations
+### float4
 
-* WORLD
-* VIEW
-* PROJECTION
-* WORLDVIEW
-* VIEW PROJECTION
-* WORLDVIEWPROJECTION
-* WORLDINVERSE
-* VIEWINVERSE
-* PROJECTIONINVERSE
-* WORLDVIEWINVERSE
-* VIEW PROJECTIONINVERSE
-* WORLDVIEWPROJECTIONINVERSE
-* WORLDTRANSPOSE
-* VIEWTRANSPOSE
-* PROJECTIONTRANSPOSE
-* WORLDVIEWTRANSPOSE
-* VIEW PROJECTIONTRANSPOSE
-* WORLDVIEWPROJECTIONTRANSPOSE
-* WORLDINVERSETRANSPOSE
-* VIEWINVERSETRANSPOSE
-* PROJECTIONINVERSETRANSPOSE
-* WORLDVIEWINVERSETRANSPOSE
-* VIEW PROJECTIONINVERSETRANSPOSE
-* WORLDVIEWPROJECTIONINVERSETRANSPOSE
-* TRANSFORM
-* LIGHTPOSITION
+| SEMANTIC         | comment                               |
+|------------------|---------------------------------------|
+| CAMERAPOSITION   | camera の worldposition               |
+| CAMERADIRECTION  | camera の向き。viewから抜き出せる     |
+| BASECOLOR        | material。PBR albedo, unlit color     |
+| CURSORSCREENSIZE | cursor 座標(xy)。RenderTargetSize(zw) |
+| TIME             | elapsed, delta, frame_count           |
 
-### Others
+### float3x3(CPU側は float4x3)
 
-* STANDARDSGLOBAL
-* HEIGHT
-* UNITSSCALE
+| SEMANTIC | type     |
+|----------|----------|
+| NORMAL   | float4x3 |
+
+### float4x4
+
+| SEMANTIC            | type     |
+|---------------------|----------|
+| WORLD               | float4x4 |
+| VIEW                | float4x4 |
+| PROJECTION          | float4x4 |
+| WORLDVIEW           | float4x4 |
+| VIEWPROJECTION      | float4x4 |
+| WORLDVIEWPROJECTION | float4x4 |
+
+## technique と pass
+
+TODO:
