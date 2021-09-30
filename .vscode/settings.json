@@ -38,7 +38,8 @@
         "xstring": "cpp",
         "*.rh": "cpp",
         "unordered_map": "cpp",
-        "*.def": "cpp"
+        "*.def": "cpp",
+        "regex": "cpp"
     },
     "cSpell.words": [
         "DXGI",

@@ -61,14 +61,13 @@ void InputAssembler::update_vertices(const ComPtr<ID3D11DeviceContext> &context,
 
 static DXGI_FORMAT size_to_format(size_t size) {
   switch (size) {
-  case 1:
-    return DXGI_FORMAT_R8_UINT;
   case 2:
     return DXGI_FORMAT_R16_UINT;
   case 4:
     return DXGI_FORMAT_R32_UINT;
   default:
-    return DXGI_FORMAT_UNKNOWN;
+    throw std::runtime_error(
+        "only DXGI_FORMAT_R16_UINT or DXGI_FORMAT_R32_UINT is allowed");
   }
 }
 

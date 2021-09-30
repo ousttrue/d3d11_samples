@@ -13,6 +13,20 @@ struct Float3 {
   float x;
   float y;
   float z;
+
+  Float3 &operator+=(const Float3 &rhs) {
+    x += rhs.x;
+    y += rhs.y;
+    z += rhs.z;
+    return *this;
+  }
+
+  Float3 &operator-=(const Float3 &rhs) {
+    x -= rhs.x;
+    y -= rhs.y;
+    z -= rhs.z;
+    return *this;
+  }
 };
 
 struct Float4 {
@@ -42,12 +56,13 @@ struct Matrix4x4 {
 struct AABB {
   Float3 min = {std::numeric_limits<float>::infinity(),
                 std::numeric_limits<float>::infinity(),
-                -std::numeric_limits<float>::infinity()};
+                std::numeric_limits<float>::infinity()};
   Float3 max = {-std::numeric_limits<float>::infinity(),
                 -std::numeric_limits<float>::infinity(),
                 -std::numeric_limits<float>::infinity()};
 
   float height() const { return max.y - min.y; }
+  float depth() const { return max.z - min.z; }
 
   void expand(const Float3 &p) {
     if (p.x < min.x) {

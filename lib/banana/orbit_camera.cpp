@@ -115,10 +115,15 @@ OrbitCamera::OrbitCamera() {
   calc_view();
 }
 
-void OrbitCamera::fit(float y, float half_height) {
+void OrbitCamera::fit(const banana::AABB &aabb) {
+  auto half_height = aabb.height() / 2;
   translation.z = -half_height / static_cast<float>(tan(fovYRad * 0.5f)) * 1.5f;
-  translation.y = -y;
+  translation.y = (aabb.min.y + aabb.max.y) / 2;
   calc_view();
+
+  // _near = aabb.depth() * 0.01f;
+  // _far = std::abs(translation.z) + aabb.depth() * 10.0f;
+  calc_projection();
 }
 
 void OrbitCamera::update(float x, float y, float w, float h, bool left,

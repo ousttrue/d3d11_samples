@@ -43,7 +43,7 @@ struct OrbitCamera {
   void resize(float w, float h);
 
   OrbitCamera();
-  void fit(float y, float half_height);
+  void fit(const AABB &aabb);
   void update(float x, float y, float w, float h, bool left, bool right,
               bool middle, float wheel);
 };

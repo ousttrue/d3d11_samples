@@ -22,7 +22,8 @@ struct GltfLoader {
   std::vector<std::shared_ptr<Mesh>> meshes;
   std::vector<std::shared_ptr<Node>> nodes;
   std::vector<GltfScene> scenes;
-
+  std::shared_ptr<Node> root;
+  
   GltfLoader(){}
 
   GltfLoader(std::string_view json, std::span<const uint8_t> bin)

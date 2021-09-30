@@ -234,11 +234,31 @@ static void setTSpaceBasic(const SMikkTSpaceContext *pContext,
                            const int iFace, const int iVert) {
   auto data = (TangentData *)pContext->m_pUserData;
   auto i = data->index_offset + iFace * 3 + iVert;
-  auto vertex_index = *(
-      (uint32_t *)(data->mesh->indices.data() + i * data->mesh->index_stride));
-  auto t =
-      (Float4 *)(data->mesh->vertices.data() +
-                 vertex_index * data->mesh->vertex_stride + TANGENT_OFFSET);
+
+  Float4 *t;
+  switch (data->mesh->index_stride) {
+  case 2: {
+    auto vertex_index = *((uint16_t *)(data->mesh->indices.data() +
+                                       i * data->mesh->index_stride));
+    t =
+        (Float4 *)(data->mesh->vertices.data() +
+                   vertex_index * data->mesh->vertex_stride + TANGENT_OFFSET);
+    break;
+  }
+
+  case 4: {
+    auto vertex_index = *((uint32_t *)(data->mesh->indices.data() +
+                                       i * data->mesh->index_stride));
+    t =
+        (Float4 *)(data->mesh->vertices.data() +
+                   vertex_index * data->mesh->vertex_stride + TANGENT_OFFSET);
+    break;
+  }
+
+  default:
+    throw std::runtime_error("not implemented");
+  }
+
   t->x = fvTangent[0];
   t->y = fvTangent[1];
   t->z = fvTangent[2];
@@ -478,6 +498,17 @@ bool GltfLoader::load() {
       for (int node_index : gltf_scene["nodes"]) {
         auto node = nodes[node_index];
         scene.nodes.push_back(node);
+      }
+    }
+  }
+
+  if (scenes.size() == 1 && scenes[0].nodes.size() == 1) {
+    root = scenes[0].nodes[0];
+  } else {
+    root = std::make_shared<Node>();
+    for (auto &scene : scenes) {
+      for (auto &node : scene.nodes) {
+        root->add_child(node);
       }
     }
   }

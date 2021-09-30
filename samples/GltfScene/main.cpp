@@ -115,15 +115,16 @@ public:
       if (!loader.load_from_asset(key)) {
         return {};
       }
-      _root = loader.scenes[0].nodes[0];
+      _root = loader.root;
 
       banana::AABB aabb;
       _root->calc_aabb(banana::Matrix4x4::identity(), &aabb);
-      if (aabb.min.y < 0) {
-        _root->transform.translation.y -= aabb.min.y;
-      }
-      auto half_height = aabb.height() / 2;
-      camera.fit(half_height, half_height);
+      banana::Float3 move{0, -aabb.min.y, 0};
+      _root->transform.translation -= move;
+      aabb.min += move;
+      aabb.max += move;
+
+      camera.fit(aabb);
 
       return true;
     } catch (const std::runtime_error &ex) {

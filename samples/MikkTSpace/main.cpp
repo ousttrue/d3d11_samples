@@ -31,13 +31,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   // adjust
   banana::AABB aabb;
   root->calc_aabb(banana::Matrix4x4::identity(), &aabb);
-  if (aabb.min.y < 0) {
-    root->transform.translation.y -= aabb.min.y;
-  }
-  auto half_height = aabb.height() / 2;
+  banana::Float3 move{0, -aabb.min.y, 0};
+  root->transform.translation -= move;
+  aabb.min += move;
+  aabb.max += move;
 
   banana::OrbitCamera camera;
-  camera.fit(half_height, half_height);
+  camera.fit(aabb);
 
   // main loop
   Renderer renderer;
