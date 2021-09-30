@@ -98,15 +98,7 @@
 </section>
 <section id="constant-buffer">
 <h2>Constant Buffer<a class="headerlink" href="#constant-buffer" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>変数名で解決することにした。
-各 <code class="docutils literal notranslate"><span class="pre">HLSL</span></code> は、あらかじめ決まった変数名を使う。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">commands</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">commands</span><span class="o">::</span><span class="n">SetVariable</span><span class="p">{</span><span class="s">&quot;MVP&quot;</span><span class="p">,</span> <span class="n">m</span> <span class="o">*</span> <span class="n">viewprojection</span><span class="p">});</span>
-<span class="n">commands</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">commands</span><span class="o">::</span><span class="n">SetVariable</span><span class="p">{</span><span class="s">&quot;VP&quot;</span><span class="p">,</span> <span class="n">viewprojection</span><span class="p">});</span>
-<span class="n">commands</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">commands</span><span class="o">::</span><span class="n">SetVariable</span><span class="p">{</span><span class="s">&quot;ModelViewMatrix&quot;</span><span class="p">,</span> <span class="n">view</span><span class="p">});</span>
-<span class="n">commands</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">commands</span><span class="o">::</span><span class="n">SetVariable</span><span class="p">{</span><span class="s">&quot;NormalMatrix&quot;</span><span class="p">,</span> <span class="n">normal_matrix</span><span class="p">});</span>
-<span class="n">commands</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">commands</span><span class="o">::</span><span class="n">SetVariable</span><span class="p">{</span><span class="s">&quot;CameraPosition&quot;</span><span class="p">,</span> <span class="n">camera_position</span><span class="p">});</span>
-</pre></div>
-</div>
+<p><a class="reference internal" href="dxsas.html"><span class="doc">DXSAS</span></a> のセマンティクス経由で実装する予定。</p>
 </section>
 </section>
 

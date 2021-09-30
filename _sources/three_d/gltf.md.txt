@@ -2,16 +2,25 @@
 
 glTF ローダー。
 
-## texture
+## data
+### texture
 
-## material
+### material
 
-## mesh
+### mesh
 
-## node
+### node
 
-## skinning
+### skinning
 
-## morphTarget
+### morphTarget
 
-## animation
+### animation
+
+## extensions
+
+### draco
+
+<https://github.com/google/draco>
+
+### basisu

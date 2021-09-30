@@ -52,21 +52,58 @@
 <h1>DXSAS<a class="headerlink" href="#dxsas" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">Direct</span> <span class="pre">X</span> <span class="pre">Standard</span> <span class="pre">Annotations</span> <span class="pre">and</span> <span class="pre">Semantics</span></code></p>
 <p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/direct3d9/dx9-graphics-reference-effects-dxsas">https://docs.microsoft.com/en-us/windows/win32/direct3d9/dx9-graphics-reference-effects-dxsas</a></p>
-<p>廃れてしまった <code class="docutils literal notranslate"><span class="pre">D3D9</span></code> 時代の仕様なのだけど、便利なので部分的に実装する。
-Nvidia の <code class="docutils literal notranslate"><span class="pre">fx</span> <span class="pre">composer</span></code> に由来？</p>
+<p>廃れてしまった <code class="docutils literal notranslate"><span class="pre">D3D9</span></code> 時代の仕様なのだけど、便利なので部分的に実装する。</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://www.nvidia.com/en-us/drivers/using-sas/">https://www.nvidia.com/en-us/drivers/using-sas/</a></p></li>
-<li><p><a class="reference external" href="http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf">http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf</a></p></li>
+<li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/direct3d9/data-binding">https://docs.microsoft.com/en-us/windows/win32/direct3d9/data-binding</a></p></li>
 </ul>
 <section id="implementations">
 <h2>Implementations<a class="headerlink" href="#implementations" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-1-geometry-translation">https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-1-geometry-translation</a></p></li>
-<li><p><a class="reference external" href="https://vvvv.org/documentation/%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB-%E3%82%B8%E3%82%AA%E3%83%A1%E3%83%88%E3%83%AA%E3%83%A2%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E3%82%B0-gpu1">https://vvvv.org/documentation/%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB-%E3%82%B8%E3%82%AA%E3%83%A1%E3%83%88%E3%83%AA%E3%83%A2%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E3%82%B0-gpu1</a></p></li>
+<li><p><a class="reference external" href="https://www.nvidia.com/en-us/drivers/using-sas/">https://www.nvidia.com/en-us/drivers/using-sas/</a></p>
+<ul>
+<li><p><a class="reference external" href="http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf">http://download.nvidia.com/developer/presentations/2005/GDC/Sponsored_Day/Writing_w_FXComposer.pdf</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://sites.google.com/site/mmereference/home/Annotations-and-Semantics-of-the-parameter/2-1-geometry-translation">MMEリファレンス‎ &gt; ‎2. パラメータのセマンティクスとアノテーション‎ &gt; ‎2-1. ジオメトリ変換</a></p></li>
+<li><p><a class="reference external" href="https://vvvv.org/documentation/%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB-%E3%82%B8%E3%82%AA%E3%83%A1%E3%83%88%E3%83%AA%E3%83%A2%E3%83%BC%E3%83%95%E3%82%A3%E3%83%B3%E3%82%B0-gpu1">VVVV チュートリアル ジオメトリモーフィング GPU1</a></p></li>
 </ul>
 </section>
-<section id="common-semantics">
-<h2>Common Semantics<a class="headerlink" href="#common-semantics" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="bindings">
+<h2>Bindings<a class="headerlink" href="#bindings" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>SEMANTIC</p></th>
+<th class="head"><p>type</p></th>
+<th class="head"><p>comment</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>WORLD</p></td>
+<td><p>float4x4</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>VIEW</p></td>
+<td><p>float4x4</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>PROJECTION</p></td>
+<td><p>float4x4</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>WORLDVIEW</p></td>
+<td><p>float4x4</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>VIEWPROJECTION</p></td>
+<td><p>float4x4</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>WORLDVIEWPROJECTION</p></td>
+<td><p>float4x4</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
 <section id="common-material-and-light-characteristics">
 <h3>Common Material and Light Characteristics<a class="headerlink" href="#common-material-and-light-characteristics" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <ul class="simple">
@@ -155,7 +192,7 @@ Nvidia の <code class="docutils literal notranslate"><span class="pre">fx</span
   <ul>
 <li><a class="reference internal" href="#">DXSAS</a><ul>
 <li><a class="reference internal" href="#implementations">Implementations</a></li>
-<li><a class="reference internal" href="#common-semantics">Common Semantics</a><ul>
+<li><a class="reference internal" href="#bindings">Bindings</a><ul>
 <li><a class="reference internal" href="#common-material-and-light-characteristics">Common Material and Light Characteristics</a></li>
 <li><a class="reference internal" href="#texture-related">Texture-Related</a></li>
 <li><a class="reference internal" href="#transforms-locations">Transforms &amp; Locations</a></li>

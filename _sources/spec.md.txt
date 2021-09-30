@@ -53,13 +53,4 @@ rs_desc.FrontCounterClockwise = true;
 
 ## Constant Buffer
 
-変数名で解決することにした。
-各 `HLSL` は、あらかじめ決まった変数名を使う。
-
-```c++
-commands.push_back(commands::SetVariable{"MVP", m * viewprojection});
-commands.push_back(commands::SetVariable{"VP", viewprojection});
-commands.push_back(commands::SetVariable{"ModelViewMatrix", view});
-commands.push_back(commands::SetVariable{"NormalMatrix", normal_matrix});
-commands.push_back(commands::SetVariable{"CameraPosition", camera_position});
-```
+{doc}`DXSAS </dxsas>` のセマンティクス経由で実装する予定。
