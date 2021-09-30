@@ -245,6 +245,22 @@ static void setTSpaceBasic(const SMikkTSpaceContext *pContext,
   t->w = fSign;
 }
 
+template <typename T>
+size_t load_indices(const nlohmann::json &gltf, std::span<const uint8_t> bin,
+                    const std::shared_ptr<Mesh> &mesh,
+                    int indices_accessor_index, size_t vertex_offset,
+                    size_t index_offset) {
+  mesh->index_stride = sizeof(T);
+  auto indices = from_accessor<T>(gltf, bin, indices_accessor_index);
+  mesh->indices.resize((index_offset + indices.size()) * mesh->index_stride);
+  auto dst = (T *)mesh->indices.data();
+  size_t i = 0;
+  for (auto &index : indices) {
+    dst[index_offset + i++] = static_cast<T>(vertex_offset + index);
+  }
+  return indices.size();
+}
+
 static std::shared_ptr<Mesh>
 load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
           const nlohmann::json &gltf_mesh,
@@ -268,8 +284,8 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     auto attributes = gltf_prim["attributes"];
     size_t vertex_count = 0;
 
-    // position
     {
+      // position
       int position_accessor_index = attributes["POSITION"];
       auto position = from_accessor<Float3>(gltf, bin, position_accessor_index);
       vertex_count = position.size();
@@ -282,12 +298,11 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       }
     }
 
-    // tex
     if (attributes.contains("TEXCOORD_0")) {
+      // tex
       int tex_accessor_index = attributes["TEXCOORD_0"];
       auto tex = from_accessor<Float2>(gltf, bin, tex_accessor_index);
       assert(tex.size() == vertex_count);
-      // mesh->vertices.resize(vertex_offset + tex.size());
       size_t i = 0;
       auto vertices = (Vertex *)mesh->vertices.data();
       for (auto &uv : tex) {
@@ -297,7 +312,15 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
 
     auto has_tangent = attributes.contains("TANGENT");
     if (has_tangent) {
-      throw std::runtime_error("not implemented");
+      // tangent
+      int accessor_index = attributes["TANGENT"];
+      auto tangents = from_accessor<Float4>(gltf, bin, accessor_index);
+      assert(tangents.size() == vertex_count);
+      size_t i = 0;
+      auto vertices = (Vertex *)mesh->vertices.data();
+      for (auto &tangent : tangents) {
+        vertices[vertex_offset + i++].tangent = tangent;
+      }
     }
 
     if (gltf_prim.contains("indices")) {
@@ -307,35 +330,34 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       int indices_type = indices_accessor["componentType"];
       switch (indices_type) {
       case 5120: // BYTE
-      case 5121: // UNSIGNED_BYTE
-        // 1
-        throw std::runtime_error("not implemented");
-
-      case 5123: // UNSIGNED_SHORT
-      {
-        mesh->index_stride = 2;
-        auto indices =
-            from_accessor<uint16_t>(gltf, bin, indices_accessor_index);
-        mesh->indices.resize((index_offset + indices.size()) *
-                             mesh->index_stride);
-        auto dst = (uint16_t *)mesh->indices.data();
-        size_t i = 0;
-        for (auto &index : indices) {
-          dst[index_offset + i++] =
-              static_cast<uint16_t>(vertex_offset + index);
-        }
+        throw std::runtime_error("BYTE not implemented");
+      case 5121: {
+        // UNSIGNED_BYTE
+        auto indices_size =
+            load_indices<uint8_t>(gltf, bin, mesh, indices_accessor_index,
+                                  vertex_offset, index_offset);
         submesh.draw_offset = static_cast<uint32_t>(index_offset);
-        submesh.draw_count = static_cast<uint32_t>(indices.size());
+        submesh.draw_count = static_cast<uint32_t>(indices_size);
+        break;
+      }
+
+      case 5123: {
+        // UNSIGNED_SHORT
+        auto indices_size =
+            load_indices<uint16_t>(gltf, bin, mesh, indices_accessor_index,
+                                   vertex_offset, index_offset);
+        submesh.draw_offset = static_cast<uint32_t>(index_offset);
+        submesh.draw_count = static_cast<uint32_t>(indices_size);
         break;
       }
 
       default:
-        throw std::runtime_error("not implemented");
+        throw std::runtime_error("UNKNOWN indices type not implemented");
       }
 
       index_offset += submesh.draw_count;
     } else {
-      throw std::runtime_error("not implemented");
+      throw std::runtime_error("no indices");
     }
 
     vertex_offset += vertex_count;

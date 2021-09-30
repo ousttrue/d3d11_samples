@@ -67,8 +67,10 @@ public:
       int n = 0;
       if (ImGui::BeginTable("list", 3, ImGuiTableFlags_RowBg)) {
         ImGui::TableSetupColumn("model", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("dir", ImGuiTableColumnFlags_WidthFixed);
-        ImGui::TableSetupColumn("file", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("dir", ImGuiTableColumnFlags_WidthFixed,
+                                100.0f);
+        ImGui::TableSetupColumn("file", ImGuiTableColumnFlags_WidthFixed,
+                                170.0f);
         ImGui::TableHeadersRow();
         int n = 0;
         for (auto &e : _list) {
@@ -109,20 +111,24 @@ public:
   bool load(const std::string &sample) {
     auto key = _base + sample;
     banana::gltf::GltfLoader loader;
-    if (!loader.load_from_asset(key)) {
-      return {};
-    }
-    _root = loader.scenes[0].nodes[0];
+    try {
+      if (!loader.load_from_asset(key)) {
+        return {};
+      }
+      _root = loader.scenes[0].nodes[0];
 
-    banana::AABB aabb;
-    _root->calc_aabb(banana::Matrix4x4::identity(), &aabb);
-    if (aabb.min.y < 0) {
-      _root->transform.translation.y -= aabb.min.y;
-    }
-    auto half_height = aabb.height() / 2;
-    camera.fit(half_height, half_height);
+      banana::AABB aabb;
+      _root->calc_aabb(banana::Matrix4x4::identity(), &aabb);
+      if (aabb.min.y < 0) {
+        _root->transform.translation.y -= aabb.min.y;
+      }
+      auto half_height = aabb.height() / 2;
+      camera.fit(half_height, half_height);
 
-    return true;
+      return true;
+    } catch (const std::runtime_error &ex) {
+      std::cerr << ex.what() << std::endl;
+    }
   }
 };
 
