@@ -27,9 +27,8 @@ struct SetVariable {
 };
 
 struct SetTexture {
+  TextureSemantics semantic;
   std::shared_ptr<Image> image;
-  std::string srv;
-  std::string sampler;
 };
 
 struct End {

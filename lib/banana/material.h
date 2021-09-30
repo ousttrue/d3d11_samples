@@ -9,8 +9,6 @@
 namespace banana {
 
 const auto BASE_COLOR = "BaseColor";
-const auto BASE_COLOR_TEXTURE = "BaseColor";
-const auto NORMAL_MAP_TEXTURE = "NormalMap";
 const auto NORMAL_MAP_SCALE = "NormalMapScale";
 
 enum MaterialStates {
@@ -19,6 +17,34 @@ enum MaterialStates {
   MaterialStatesAlphaBlend = 1 << 1,
   MaterialStatesMask = 2 << 1,
 };
+
+enum class TextureSemantics {
+  None = 0,
+  Color = 1 << 0,
+  Normal = 1 << 1,
+};
+inline std::string_view semantic_srv_name(TextureSemantics semantic) {
+  switch (semantic) {
+  case TextureSemantics::None:
+    break;
+  case TextureSemantics::Color:
+    return "BaseColorTexture";
+  case TextureSemantics::Normal:
+    return "NormalMapTexture";
+  }
+  return {};
+}
+inline std::string_view semantic_sampler_name(TextureSemantics semantic) {
+  switch (semantic) {
+  case TextureSemantics::None:
+    break;
+  case TextureSemantics::Color:
+    return "BaseColorSampler";
+  case TextureSemantics::Normal:
+    return "NormalMapSampler";
+  }
+  return {};
+}
 
 struct Material {
   std::string name;
@@ -31,7 +57,7 @@ struct Material {
   // SRV suffix is "Texture"
   // Sampler suffix is "Sampler"
   // ex. BaseColorTexture and BaseColorSampler
-  std::unordered_map<std::string, std::shared_ptr<Image>> textures;
+  std::unordered_map<TextureSemantics, std::shared_ptr<Image>> textures;
 };
 
 } // namespace banana

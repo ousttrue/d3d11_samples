@@ -8,8 +8,8 @@ namespace gorilla {
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
-                     std::string_view source, const char *entry_point) {
-  auto [compiled, error] = gorilla::compile_vs(name, source, entry_point);
+                     std::string_view source, const char *entry_point, const D3D_SHADER_MACRO *define) {
+  auto [compiled, error] = gorilla::compile_vs(name, source, entry_point, define);
   if (!compiled) {
     return {{}, error};
   }
@@ -32,8 +32,8 @@ Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
-                     std::string_view source, const char *entry_point) {
-  auto [compiled, error] = gorilla::compile_gs(name, source, entry_point);
+                     std::string_view source, const char *entry_point, const D3D_SHADER_MACRO *define) {
+  auto [compiled, error] = gorilla::compile_gs(name, source, entry_point, define);
   if (!compiled) {
     return {{}, error};
   }
@@ -51,8 +51,8 @@ Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
-                     std::string_view source, const char *entry_point) {
-  auto [compiled, error] = gorilla::compile_ps(name, source, entry_point);
+                     std::string_view source, const char *entry_point, const D3D_SHADER_MACRO *define) {
+  auto [compiled, error] = gorilla::compile_ps(name, source, entry_point, define);
   if (!compiled) {
     return {{}, error};
   }
@@ -82,22 +82,22 @@ void Pipeline::create_cb(ShaderStage &stage, const ComPtr<ID3D11Device> &device,
 
 std::pair<bool, std::string>
 Pipeline::compile_shader(const ComPtr<ID3D11Device> &device,
-                         std::string_view source, const char *vs_entry,
+                         std::string_view source, const D3D_SHADER_MACRO *define, const char *vs_entry,
                          const char *gs_entry, const char *ps_entry) {
   {
-    auto [compiled, error] = compile_vs(device, "vs", source, vs_entry);
+    auto [compiled, error] = compile_vs(device, "vs", source, vs_entry, define);
     if (!compiled) {
       return {false, (const char *)error->GetBufferPointer()};
     }
   }
   if (gs_entry) {
-    auto [compiled, error] = compile_gs(device, "gs", source, gs_entry);
+    auto [compiled, error] = compile_gs(device, "gs", source, gs_entry, define);
     if (!compiled) {
       return {false, (const char *)error->GetBufferPointer()};
     }
   }
   {
-    auto [compiled, error] = compile_ps(device, "ps", source, ps_entry);
+    auto [compiled, error] = compile_ps(device, "ps", source, ps_entry, define);
     if (!compiled) {
       return {false, (const char *)error->GetBufferPointer()};
     }

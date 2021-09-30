@@ -123,7 +123,7 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
       auto texture = pbrMetallicRoughness["baseColorTexture"];
       if (texture.contains("index")) {
         int texture_index = texture["index"];
-        material->textures[BASE_COLOR_TEXTURE] = textures[texture_index];
+        material->textures[TextureSemantics::Color] = textures[texture_index];
       }
     }
     if (gltf_material.contains("baseColorFactor")) {
@@ -136,7 +136,7 @@ load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     auto texture = gltf_material["normalTexture"];
     if (texture.contains("index")) {
       int texture_index = texture["index"];
-      material->textures[NORMAL_MAP_TEXTURE] = textures[texture_index];
+      material->textures[TextureSemantics::Normal] = textures[texture_index];
     }
     if (texture.contains("scale")) {
       material->properties[NORMAL_MAP_SCALE] = (float)texture["scale"];
@@ -363,7 +363,7 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     vertex_offset += vertex_count;
 
     if (submesh.material &&
-        submesh.material->textures.find("normal_map_texture") !=
+        submesh.material->textures.find(TextureSemantics::Normal) !=
             submesh.material->textures.end() &&
         !has_tangent) {
       // calc tangent

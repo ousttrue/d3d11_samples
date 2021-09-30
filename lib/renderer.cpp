@@ -40,23 +40,40 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
     return found->second;
   }
 
-  auto material = std::make_shared<gorilla::Pipeline>();
-  _material_map.insert(std::make_pair(src, material));
+  auto pipeline = std::make_shared<gorilla::Pipeline>();
+  _material_map.insert(std::make_pair(src, pipeline));
 
   auto shader = banana::get_string(src->shader_name);
   if (shader.empty()) {
     assert(false);
     return {};
   }
-  auto [ok, error] =
-      material->compile_shader(device, shader, "vsMain", {}, "psMain");
+
+  // hlsl defines
+  std::vector<D3D_SHADER_MACRO> defines;
+  if (src->textures.contains(banana::TextureSemantics::Color)) {
+    defines.push_back({
+        "TEXTURE_COLOR",
+        "1",
+    });
+  }
+  if (src->textures.contains(banana::TextureSemantics::Normal)) {
+    defines.push_back({
+        "TEXTURE_NORMAL",
+        "1",
+    });
+  }
+  defines.push_back({});
+
+  auto [ok, error] = pipeline->compile_shader(device, shader, defines.data(),
+                                              "vsMain", {}, "psMain");
   if (!ok) {
     std::cerr << error << std::endl;
     assert(false);
     return {};
   }
 
-  return material;
+  return pipeline;
 }
 
 std::shared_ptr<gorilla::State>
@@ -145,24 +162,24 @@ void Renderer::draw(const ComPtr<ID3D11Device> &device,
     auto texture = get_or_create(device, p->image);
     UINT slot;
     // vs
-    if (_pipeline->vs_stage.reflection.try_get_srv(p->srv, &slot)) {
+    if (_pipeline->vs_stage.reflection.try_get_srv(p->semantic, &slot)) {
       _vs_list.srv[slot] = texture->_srv.Get();
     }
-    if (_pipeline->vs_stage.reflection.try_get_sampler(p->sampler, &slot)) {
+    if (_pipeline->vs_stage.reflection.try_get_sampler(p->semantic, &slot)) {
       _vs_list.sampler[slot] = texture->_sampler.Get();
     }
     // gs
-    if (_pipeline->gs_stage.reflection.try_get_srv(p->srv, &slot)) {
+    if (_pipeline->gs_stage.reflection.try_get_srv(p->semantic, &slot)) {
       _gs_list.srv[slot] = texture->_srv.Get();
     }
-    if (_pipeline->gs_stage.reflection.try_get_sampler(p->sampler, &slot)) {
+    if (_pipeline->gs_stage.reflection.try_get_sampler(p->semantic, &slot)) {
       _gs_list.sampler[slot] = texture->_sampler.Get();
     }
     // ps
-    if (_pipeline->ps_stage.reflection.try_get_srv(p->srv, &slot)) {
+    if (_pipeline->ps_stage.reflection.try_get_srv(p->semantic, &slot)) {
       _ps_list.srv[slot] = texture->_srv.Get();
     }
-    if (_pipeline->ps_stage.reflection.try_get_sampler(p->sampler, &slot)) {
+    if (_pipeline->ps_stage.reflection.try_get_sampler(p->semantic, &slot)) {
       _ps_list.sampler[slot] = texture->_sampler.Get();
     }
   } else if (auto p = std::get_if<banana::commands::Begin>(&command)) {

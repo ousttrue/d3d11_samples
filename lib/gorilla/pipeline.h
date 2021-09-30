@@ -49,20 +49,31 @@ private:
 public:
   std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
   compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
-             std::string_view source, const char *entry_point);
+             std::string_view source, const char *entry_point,
+             const D3D_SHADER_MACRO *define = {});
   std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
   compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
-             std::string_view source, const char *entry_point);
+             std::string_view source, const char *entry_point,
+             const D3D_SHADER_MACRO *define = {});
   std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
   compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
-             std::string_view source, const char *entry_point);
+             std::string_view source, const char *entry_point,
+             const D3D_SHADER_MACRO *define = {});
+
+  std::pair<bool, std::string>
+  compile_shader(const ComPtr<ID3D11Device> &device, std::string_view source,
+                 const D3D_SHADER_MACRO *define, const char *vs_entry,
+                 const char *gs_entry, const char *ps_entry);
 
   std::pair<bool, std::string>
   compile_shader(const ComPtr<ID3D11Device> &device, std::string_view source,
                  const char *vs_entry, const char *gs_entry,
-                 const char *ps_entry);
+                 const char *ps_entry) {
+    return compile_shader(device, source, {}, vs_entry, gs_entry, ps_entry);
+  }
 
-  void set_variable(std::string_view name, const void *p, size_t size, size_t offset=0);
+  void set_variable(std::string_view name, const void *p, size_t size,
+                    size_t offset = 0);
   void update(const ComPtr<ID3D11DeviceContext> &context);
   void setup(const ComPtr<ID3D11DeviceContext> &context);
   void draw_empty(const ComPtr<ID3D11DeviceContext> &context);

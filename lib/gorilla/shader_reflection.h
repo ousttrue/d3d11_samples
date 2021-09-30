@@ -1,5 +1,6 @@
 #pragma once
 
+#include <banana/material.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <list>
@@ -52,6 +53,10 @@ public:
     }
     return false;
   }
+  bool try_get_srv(banana::TextureSemantics semantic, UINT *slot) {
+    return try_get_srv(banana::semantic_srv_name(semantic), slot);
+  }
+
   std::vector<D3D11_SHADER_INPUT_BIND_DESC> sampler_slots;
   bool try_get_sampler(std::string_view name, UINT *slot) {
     UINT i = 0;
@@ -63,6 +68,9 @@ public:
       ++i;
     }
     return false;
+  }
+  bool try_get_sampler(banana::TextureSemantics semantic, UINT *slot) {
+    return try_get_sampler(banana::semantic_sampler_name(semantic), slot);
   }
 
   bool reflect(const Microsoft::WRL::ComPtr<ID3DBlob> &compiled);

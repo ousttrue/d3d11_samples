@@ -1,8 +1,11 @@
+#if defined(TEXTURE_COLOR)
 Texture2D BaseColorTexture : register(t0);
 SamplerState BaseColorSampler : register(s0);
+#endif
+#if defined(TEXTURE_NORMAL)
 Texture2D NormalMapTexture : register(t1);
 SamplerState NormalMapSampler : register(s1);
-
+#endif
 struct VS_IN {
   float3 Position : POSITION;
   float3 NORMAL : NORMAL;
@@ -29,6 +32,9 @@ PS_IN vsMain(VS_IN In) {
 }
 
 float4 psMain(PS_IN In) : SV_TARGET {
+#if defined(TEXTURE_COLOR)
   return BaseColorTexture.Sample(BaseColorSampler, In.Tex) * BaseColor;
-  // return NormalMapTexture.Sample(NormalMapSampler, In.Tex) * BaseColor;
+#else
+  return BaseColor;
+#endif
 }

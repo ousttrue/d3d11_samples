@@ -50,9 +50,7 @@ void SceneProcessor::traverse(const std::shared_ptr<banana::Node> &node,
         commands.push_back(commands::SetVariable{k, v});
       }
       for (auto [k, v] : material->textures) {
-        auto srv = k + "Texture";
-        auto sampler = k + "Sampler";
-        commands.push_back(commands::SetTexture{v, srv, sampler});
+        commands.push_back(commands::SetTexture{k, v});
       }
 
       commands.push_back(
