@@ -5,6 +5,7 @@
 #include "glb.h"
 #include <DirectXMath.h>
 #include <array>
+#include <filesystem>
 #include <fstream>
 #include <mikktspace.h>
 #include <nlohmann/json.hpp>
@@ -39,15 +40,19 @@ template <size_t N, typename T> T load_float_array(const nlohmann::json &j) {
 }
 
 static std::span<const uint8_t> from_bufferview(const nlohmann::json &gltf,
-                                                std::span<const uint8_t> bin,
+                                                const get_buffer_t &get_buffer,
                                                 int bufferview_index) {
   auto bufferview = gltf["bufferViews"][bufferview_index];
 
-  std::span<const uint8_t> buffer;
-  if (bufferview.contains("uri")) {
-    throw std::runtime_error("not implemented");
+  int buffer_index = bufferview["buffer"];
+
+  auto buffer = gltf["buffers"][buffer_index];
+
+  std::span<const uint8_t> bytes;
+  if (buffer.contains("uri")) {
+    bytes = get_buffer(buffer["uri"]);
   } else {
-    buffer = bin;
+    bytes = get_buffer({});
   }
 
   auto byteOffset = 0;
@@ -57,16 +62,17 @@ static std::span<const uint8_t> from_bufferview(const nlohmann::json &gltf,
 
   int byteLength = bufferview["byteLength"];
 
-  return buffer.subspan(byteOffset, byteLength);
+  return bytes.subspan(byteOffset, byteLength);
 }
 
 template <typename T>
 static std::span<const T> from_accessor(const nlohmann::json &gltf,
-                                        std::span<const uint8_t> bin,
+                                        const get_buffer_t &get_buffer,
                                         int accessor_index) {
   auto accessor = gltf["accessors"][accessor_index];
 
-  auto bufferview_bytes = from_bufferview(gltf, bin, accessor["bufferView"]);
+  auto bufferview_bytes =
+      from_bufferview(gltf, get_buffer, accessor["bufferView"]);
 
   auto byteOffset = 0;
   if (accessor.contains("byteOffset")) {
@@ -79,7 +85,7 @@ static std::span<const T> from_accessor(const nlohmann::json &gltf,
 }
 
 static std::shared_ptr<Image> load_texture(const nlohmann::json &gltf,
-                                           std::span<const uint8_t> bin,
+                                           const get_buffer_t &get_buffer,
                                            const nlohmann::json &gltf_texture) {
 
   if (!gltf_texture.contains("source")) {
@@ -89,8 +95,13 @@ static std::shared_ptr<Image> load_texture(const nlohmann::json &gltf,
   int gltf_image_index = gltf_texture["source"];
   auto gltf_image = gltf["images"][gltf_image_index];
 
-  int bufferview_index = gltf_image["bufferView"];
-  auto bytes = from_bufferview(gltf, bin, bufferview_index);
+  std::span<const uint8_t> bytes;
+  if (gltf_image.contains("uri")) {
+    bytes = get_buffer(gltf_image["uri"]);
+  } else {
+    int bufferview_index = gltf_image["bufferView"];
+    bytes = from_bufferview(gltf, get_buffer, bufferview_index);
+  }
 
   auto image = std::make_shared<Image>();
   if (!image->load(bytes)) {
@@ -111,8 +122,7 @@ static MaterialWithState create_default_material(std::string_view name) {
 
 // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/material.schema.json
 static MaterialWithState
-load_material(const nlohmann::json &gltf, std::span<const uint8_t> bin,
-              const nlohmann::json &gltf_material,
+load_material(const nlohmann::json &gltf, const nlohmann::json &gltf_material,
               const std::vector<std::shared_ptr<Image>> &textures) {
 
   auto [material, s] = create_default_material(gltf_material["name"]);
@@ -240,8 +250,7 @@ static void setTSpaceBasic(const SMikkTSpaceContext *pContext,
   case 2: {
     auto vertex_index = *((uint16_t *)(data->mesh->indices.data() +
                                        i * data->mesh->index_stride));
-    t =
-        (Float4 *)(data->mesh->vertices.data() +
+    t = (Float4 *)(data->mesh->vertices.data() +
                    vertex_index * data->mesh->vertex_stride + TANGENT_OFFSET);
     break;
   }
@@ -249,8 +258,7 @@ static void setTSpaceBasic(const SMikkTSpaceContext *pContext,
   case 4: {
     auto vertex_index = *((uint32_t *)(data->mesh->indices.data() +
                                        i * data->mesh->index_stride));
-    t =
-        (Float4 *)(data->mesh->vertices.data() +
+    t = (Float4 *)(data->mesh->vertices.data() +
                    vertex_index * data->mesh->vertex_stride + TANGENT_OFFSET);
     break;
   }
@@ -266,12 +274,12 @@ static void setTSpaceBasic(const SMikkTSpaceContext *pContext,
 }
 
 template <typename T>
-size_t load_indices(const nlohmann::json &gltf, std::span<const uint8_t> bin,
+size_t load_indices(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
                     const std::shared_ptr<Mesh> &mesh,
                     int indices_accessor_index, size_t vertex_offset,
                     size_t index_offset) {
   mesh->index_stride = sizeof(T);
-  auto indices = from_accessor<T>(gltf, bin, indices_accessor_index);
+  auto indices = from_accessor<T>(gltf, get_buffer, indices_accessor_index);
   mesh->indices.resize((index_offset + indices.size()) * mesh->index_stride);
   auto dst = (T *)mesh->indices.data();
   size_t i = 0;
@@ -282,7 +290,7 @@ size_t load_indices(const nlohmann::json &gltf, std::span<const uint8_t> bin,
 }
 
 static std::shared_ptr<Mesh>
-load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
+load_mesh(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
           const nlohmann::json &gltf_mesh,
           const std::vector<MaterialWithState> &materials) {
   auto mesh = std::make_shared<Mesh>();
@@ -307,7 +315,8 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     {
       // position
       int position_accessor_index = attributes["POSITION"];
-      auto position = from_accessor<Float3>(gltf, bin, position_accessor_index);
+      auto position =
+          from_accessor<Float3>(gltf, get_buffer, position_accessor_index);
       vertex_count = position.size();
       mesh->vertices.resize((vertex_offset + position.size()) * sizeof(Vertex));
       size_t i = 0;
@@ -321,7 +330,7 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     if (attributes.contains("TEXCOORD_0")) {
       // tex
       int tex_accessor_index = attributes["TEXCOORD_0"];
-      auto tex = from_accessor<Float2>(gltf, bin, tex_accessor_index);
+      auto tex = from_accessor<Float2>(gltf, get_buffer, tex_accessor_index);
       assert(tex.size() == vertex_count);
       size_t i = 0;
       auto vertices = (Vertex *)mesh->vertices.data();
@@ -334,7 +343,7 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
     if (has_tangent) {
       // tangent
       int accessor_index = attributes["TANGENT"];
-      auto tangents = from_accessor<Float4>(gltf, bin, accessor_index);
+      auto tangents = from_accessor<Float4>(gltf, get_buffer, accessor_index);
       assert(tangents.size() == vertex_count);
       size_t i = 0;
       auto vertices = (Vertex *)mesh->vertices.data();
@@ -353,9 +362,9 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
         throw std::runtime_error("BYTE not implemented");
       case 5121: {
         // UNSIGNED_BYTE
-        auto indices_size =
-            load_indices<uint8_t>(gltf, bin, mesh, indices_accessor_index,
-                                  vertex_offset, index_offset);
+        auto indices_size = load_indices<uint8_t>(gltf, get_buffer, mesh,
+                                                  indices_accessor_index,
+                                                  vertex_offset, index_offset);
         submesh.draw_offset = static_cast<uint32_t>(index_offset);
         submesh.draw_count = static_cast<uint32_t>(indices_size);
         break;
@@ -363,9 +372,9 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
 
       case 5123: {
         // UNSIGNED_SHORT
-        auto indices_size =
-            load_indices<uint16_t>(gltf, bin, mesh, indices_accessor_index,
-                                   vertex_offset, index_offset);
+        auto indices_size = load_indices<uint16_t>(gltf, get_buffer, mesh,
+                                                   indices_accessor_index,
+                                                   vertex_offset, index_offset);
         submesh.draw_offset = static_cast<uint32_t>(index_offset);
         submesh.draw_count = static_cast<uint32_t>(indices_size);
         break;
@@ -411,8 +420,7 @@ load_mesh(const nlohmann::json &gltf, std::span<const uint8_t> bin,
 }
 
 static std::shared_ptr<Node>
-load_node(const nlohmann::json &gltf, std::span<const uint8_t> bin,
-          const nlohmann::json &gltf_node,
+load_node(const nlohmann::json &gltf, const nlohmann::json &gltf_node,
           const std::vector<std::shared_ptr<Mesh>> &meshes) {
 
   auto node = std::make_shared<Node>();
@@ -463,19 +471,19 @@ bool GltfLoader::load() {
   auto gltf = nlohmann::json::parse(json);
 
   for (auto &gltf_texture : gltf["textures"]) {
-    textures.push_back(load_texture(gltf, bin, gltf_texture));
+    textures.push_back(load_texture(gltf, get_buffer, gltf_texture));
   }
 
   for (auto &gltf_material : gltf["materials"]) {
-    materials.push_back(load_material(gltf, bin, gltf_material, textures));
+    materials.push_back(load_material(gltf, gltf_material, textures));
   }
 
   for (auto &gltf_mesh : gltf["meshes"]) {
-    meshes.push_back(load_mesh(gltf, bin, gltf_mesh, materials));
+    meshes.push_back(load_mesh(gltf, get_buffer, gltf_mesh, materials));
   }
 
   for (auto &gltf_node : gltf["nodes"]) {
-    nodes.push_back(load_node(gltf, bin, gltf_node, meshes));
+    nodes.push_back(load_node(gltf, gltf_node, meshes));
   }
 
   int i = 0;
@@ -522,14 +530,22 @@ bool GltfLoader::load_from_asset(std::string_view key) {
     return false;
   }
 
+  // try glb
   Glb glb;
-  if (!glb.parse(bytes)) {
-    return false;
+  if (glb.parse(bytes)) {
+    this->json = glb.json;
+
+    this->get_buffer = [bin = glb.bin](auto _) { return bin; };
+    return load();
   }
 
-  this->json = glb.json;
-  this->bin = {glb.bin.begin(), glb.bin.end()};
-
+  // try gltf
+  this->json = std::string(bytes.begin(), bytes.end());
+  std::filesystem::path path(key);
+  auto dir = path.parent_path();
+  this->get_buffer = [dir](std::string_view uri) {
+    return get_bytes((dir / uri).generic_string());
+  };
   return load();
 }
 

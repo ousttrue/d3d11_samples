@@ -86,7 +86,7 @@ std::string_view get_string(std::string_view key) {
   return asset->string_view();
 }
 
-std::span<uint8_t> get_bytes(std::string_view key) {
+std::span<const uint8_t> get_bytes(std::string_view key) {
   auto &db = get_or_default();
   Asset *asset;
   if (!db.try_get(key, &asset)) {

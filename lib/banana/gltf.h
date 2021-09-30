@@ -1,8 +1,10 @@
 #pragma once
 #include "bytereader.h"
 #include "node.h"
+#include <functional>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string_view>
 #include <vector>
 
@@ -14,20 +16,22 @@ struct GltfScene {
 
 using MaterialWithState = std::tuple<std::shared_ptr<Material>, MaterialStates>;
 
+using get_buffer_t = std::function<std::span<const uint8_t>(std::string_view uri)>;
+
 struct GltfLoader {
   std::string json;
-  std::vector<uint8_t> bin;
+  get_buffer_t get_buffer;
   std::vector<std::shared_ptr<Image>> textures;
   std::vector<MaterialWithState> materials;
   std::vector<std::shared_ptr<Mesh>> meshes;
   std::vector<std::shared_ptr<Node>> nodes;
   std::vector<GltfScene> scenes;
   std::shared_ptr<Node> root;
-  
-  GltfLoader(){}
 
-  GltfLoader(std::string_view json, std::span<const uint8_t> bin)
-      : json(json), bin(bin.begin(), bin.end()) {}
+  GltfLoader() {}
+
+  GltfLoader(std::string_view json, const get_buffer_t &get)
+      : json(json), get_buffer(get) {}
 
   bool load();
 
