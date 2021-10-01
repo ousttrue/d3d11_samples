@@ -30,6 +30,11 @@ struct ShaderStage {
 
   void set_variable(banana::Semantics semantic, const void *p, size_t size,
                     size_t offset = 0);
+
+  template <typename T>
+  void set_variable(banana::Semantics semantic, const T &t) {
+    set_variable(semantic, &t, sizeof(T));
+  }
 };
 
 class Pipeline {

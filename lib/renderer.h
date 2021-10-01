@@ -28,7 +28,8 @@ class Renderer {
                      std::shared_ptr<gorilla::Pipeline>>
       _material_map;
 
-  std::unordered_map<banana::MaterialStates, std::shared_ptr<gorilla::State>> _state_map;
+  std::unordered_map<banana::MaterialStates, std::shared_ptr<gorilla::State>>
+      _state_map;
   std::unordered_map<std::shared_ptr<banana::Mesh>,
                      std::shared_ptr<gorilla::InputAssembler>>
       _mesh_map;
@@ -61,7 +62,8 @@ public:
   get_or_create(const ComPtr<ID3D11Device> &device,
                 const std::shared_ptr<banana::Material> &src);
   std::shared_ptr<gorilla::State>
-  get_or_create(const ComPtr<ID3D11Device> &device, const banana::MaterialStates &src);
+  get_or_create(const ComPtr<ID3D11Device> &device,
+                const banana::MaterialStates &src);
   std::shared_ptr<gorilla::InputAssembler>
   get_or_create(const ComPtr<ID3D11Device> &device,
                 const std::shared_ptr<banana::Mesh> &src);

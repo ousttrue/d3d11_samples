@@ -1,7 +1,6 @@
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
-#include <banana/grid_constant.h>
 #include <banana/orbit_camera.h>
 #include <banana/types.h>
 #include <gorilla/drawable.h>
@@ -50,7 +49,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     std::cerr << error << std::endl;
     return 5;
   }
-  banana::GridConstant constant;
 
   // main loop
   banana::OrbitCamera camera;
@@ -59,9 +57,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     // update
     update_camera(&camera, state);
-    constant.update(camera);
-    drawable.pipeline.gs_stage.cb[0].update(context, constant);
-    drawable.pipeline.ps_stage.cb[0].update(context, constant);
 
     // clear RTV
     auto v =
@@ -69,7 +64,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         0.5f;
     float clear[] = {0.5, v, 0.5, 1.0f};
     renderer.begin_frame(state, clear);
-    drawable.draw(context);
+    renderer.render(context, &drawable, camera);
     renderer.end_frame();
   }
 
