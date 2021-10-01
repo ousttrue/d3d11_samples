@@ -20,66 +20,31 @@
 
 ## Bindings
 
-必要に応じて適当に定義する。
-型ごとにDictionaryを用意する。
-hlsl のアライメントは 16byte なので、 `float4`, `float4x4`, `float4x3` (NormalMatrix) で十分かな。
-
-```c++
-enum SemanticsFlaot4x4
-{
-    WORLD,
-    VIEW,
-    PROJECTION,
-};
-
-enum SemanticsFloat4
-{
-    BaseColor,
-    CameraPosition,
-};
-
-enum SemanticsTexture
-{
-    BaseColor,
-    Normal,
-    Emission,
-    OcclusionRoughnessMetallic,
-};
-
-struct Material
-{
-    std::unordred_map<SemanticsFlaot4x4, float4x4> float4x4_map;
-    std::unordred_map<SemanticsFloat4, float4> float4_map;
-    std::unordred_map<SemanticsTexture, Texture> texture_map;
-};
+```{literalinclude} ../lib/banana/semantics.h
+:language: cpp
+:caption:
 ```
 
-### float4
+```
++------+
+|Camera|
++------+
+|Light |
++------+
 
-| SEMANTIC         | comment                               |
-|------------------|---------------------------------------|
-| CAMERAPOSITION   | camera の worldposition               |
-| CAMERADIRECTION  | camera の向き。viewから抜き出せる     |
-| BASECOLOR        | material。PBR albedo, unlit color     |
-| CURSORSCREENSIZE | cursor 座標(xy)。RenderTargetSize(zw) |
-| TIME             | elapsed, delta, frame_count           |
++--------+
+|Object  |
++--------+
+|Material|
++--------+
 
-### float3x3(CPU側は float4x3)
-
-| SEMANTIC | type     |
-|----------|----------|
-| NORMAL   | float4x3 |
-
-### float4x4
-
-| SEMANTIC            | type     |
-|---------------------|----------|
-| WORLD               | float4x4 |
-| VIEW                | float4x4 |
-| PROJECTION          | float4x4 |
-| WORLDVIEW           | float4x4 |
-| VIEWPROJECTION      | float4x4 |
-| WORLDVIEWPROJECTION | float4x4 |
+System
++----------------+
+|Time            |
+|Mouse           |
+|RenderTargetSize|
++----------------+
+```
 
 ## technique と pass
 
