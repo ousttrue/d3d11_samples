@@ -131,9 +131,8 @@ void InputAssembler::setup(const ComPtr<ID3D11DeviceContext> &context) {
   context->IASetVertexBuffers(0, 1, _vb.GetAddressOf(), &_vertex_stride,
                               &offset);
   context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-  if (_ib) {
-    context->IASetIndexBuffer(_ib.Get(), _index_format, 0);
-  }
+
+  context->IASetIndexBuffer(_ib.Get(), _index_format, 0);
 }
 
 void InputAssembler::draw_submesh(const ComPtr<ID3D11DeviceContext> &context,

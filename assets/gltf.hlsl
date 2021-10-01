@@ -20,8 +20,8 @@ struct PS_IN {
 };
 
 cbuffer c0 : register(b0) {
-  row_major matrix MVP;
-  float4 BaseColor;
+  row_major matrix MVP : WORLDVIEWPROJECTION;
+  float4 BaseColor : MATERIAL_COLOR;
 }
 
 PS_IN vsMain(VS_IN In) {
