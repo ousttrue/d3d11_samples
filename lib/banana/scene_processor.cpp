@@ -33,15 +33,15 @@ void SceneProcessor::traverse(const std::shared_ptr<banana::Node> &node,
           submesh.state,
       });
 
-      commands.push_back(commands::SetVariable{"MVP", m * viewprojection});
-      commands.push_back(commands::SetVariable{"VP", viewprojection});
-      commands.push_back(commands::SetVariable{"ModelViewMatrix", view});
-      commands.push_back(commands::SetVariable{"NormalMatrix", normal_matrix});
-      commands.push_back(commands::SetVariable{"CameraPosition", camera_position});
+      commands.push_back(commands::SetVariable{Semantics::WORLDVIEWPROJECTION, m * viewprojection});
+      commands.push_back(commands::SetVariable{Semantics::VIEWPROJECTION, viewprojection});
+      commands.push_back(commands::SetVariable{Semantics::WORLDVIEW, view});
+      commands.push_back(commands::SetVariable{Semantics::OBJECT_NORMAL, normal_matrix});
+      commands.push_back(commands::SetVariable{Semantics::CAMERA_POSITION, camera_position});
 
       size_t offset = 0;
       for (auto &light : lights) {
-        commands.push_back(commands::SetVariable{"Lights", light, offset});
+        commands.push_back(commands::SetVariable{Semantics::LIGHT_LIST, light, offset});
         offset += sizeof(LightInfo);
       }
 

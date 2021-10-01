@@ -19,24 +19,23 @@ struct LightInfo {
 };
 
 cbuffer World {
-  row_major float4x4 ModelViewMatrix;
-  row_major float3x3 NormalMatrix;
-  row_major float4x4 MVP;
-  LightInfo Lights[5];
+  row_major float4x4 ModelViewMatrix : WORLDVIEW;
+  row_major float3x3 NormalMatrix : OBJECT_NORMAL;
+  row_major float4x4 MVP : WORLDVIEWPROJECTION;
+  LightInfo Lights[5] : LIGHT_LIST;
 }
 
 cbuffer Material {
-  float3 Kd;
-  float3 Ka;
-  float3 Ks;
-  float Shininess;
+  float3 Kd : MATERIAL_COLOR;
+  float3 Ka : MATERIAL_AMBIENT;
+  float4 Ks : MATERIAL_SPECULAR;
 }
 
 float lambert(float3 n, float3 s) { return max(dot(n, s), 0); }
 
 float specular(float3 n, float3 s, float3 v) {
   float3 r = reflect(-s, n);
-  return pow(max(dot(r, v), 0), Shininess);
+  return pow(max(dot(r, v), 0), Ks.w);
 }
 
 float3 lightVector(LightInfo light, float3 viewPosition) {

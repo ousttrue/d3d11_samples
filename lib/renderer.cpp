@@ -157,7 +157,7 @@ void Renderer::draw(const ComPtr<ID3D11Device> &device,
           return std::span<const uint8_t>{(const uint8_t *)&x, sizeof(x)};
         },
         p->value);
-    _pipeline->set_variable(p->name, span.data(), span.size(), p->offset);
+    _pipeline->set_variable(p->semantic, span.data(), span.size(), p->offset);
   } else if (auto p = std::get_if<banana::commands::SetTexture>(&command)) {
     auto texture = get_or_create(device, p->image);
     UINT slot;

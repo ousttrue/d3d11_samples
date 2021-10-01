@@ -6,10 +6,56 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 namespace gorilla {
 
+static bool match(const AnnotationSemantics &s,
+                  const D3D11_SHADER_VARIABLE_DESC &desc) {
+  return s.name == desc.Name;
+}
+
+static bool match(const AnnotationSemantics &s,
+                  const D3D11_SHADER_INPUT_BIND_DESC &desc) {
+  return s.name == desc.Name;
+}
+
+void ShaderStage::create_semantics_map(
+    std::span<const AnnotationSemantics> semantics) {
+  for (auto &s : semantics) {
+    for (size_t i = 0; i < reflection.cb_slots.size(); ++i) {
+      for (auto &v : reflection.cb_slots[i].variables) {
+        if (match(s, v)) {
+          VariablePosition value{static_cast<UINT>(i), v.StartOffset, v.Size};
+          semantics_map.insert(std::make_pair(s.semantic, value));
+        }
+      }
+    }
+    for (size_t i = 0; i < reflection.srv_slots.size(); ++i) {
+      if (match(s, reflection.srv_slots[i])) {
+        semantics_srv_map.insert(std::make_pair(s.semantic, i));
+      }
+    }
+    for (size_t i = 0; i < reflection.sampler_slots.size(); ++i) {
+      if (match(s, reflection.sampler_slots[i])) {
+        semantics_sampler_map.insert(std::make_pair(s.semantic, i));
+      }
+    }
+  }
+}
+
+void ShaderStage::set_variable(banana::Semantics semantic, const void *p,
+                               size_t size, size_t offset) {
+  auto it = semantics_map.find(semantic);
+  if (it != semantics_map.end()) {
+    memcpy(reflection.cb_slots[it->second.slot].backing_store.data() +
+               it->second.offset + offset,
+           p, size);
+  }
+}
+
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
-                     std::string_view source, const char *entry_point, const D3D_SHADER_MACRO *define) {
-  auto [compiled, error] = gorilla::compile_vs(name, source, entry_point, define);
+                     std::string_view source, const char *entry_point,
+                     const D3D_SHADER_MACRO *define) {
+  auto [compiled, error] =
+      gorilla::compile_vs(name, source, entry_point, define);
   if (!compiled) {
     return {{}, error};
   }
@@ -32,8 +78,10 @@ Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
-                     std::string_view source, const char *entry_point, const D3D_SHADER_MACRO *define) {
-  auto [compiled, error] = gorilla::compile_gs(name, source, entry_point, define);
+                     std::string_view source, const char *entry_point,
+                     const D3D_SHADER_MACRO *define) {
+  auto [compiled, error] =
+      gorilla::compile_gs(name, source, entry_point, define);
   if (!compiled) {
     return {{}, error};
   }
@@ -51,8 +99,10 @@ Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
-                     std::string_view source, const char *entry_point, const D3D_SHADER_MACRO *define) {
-  auto [compiled, error] = gorilla::compile_ps(name, source, entry_point, define);
+                     std::string_view source, const char *entry_point,
+                     const D3D_SHADER_MACRO *define) {
+  auto [compiled, error] =
+      gorilla::compile_ps(name, source, entry_point, define);
   if (!compiled) {
     return {{}, error};
   }
@@ -82,7 +132,8 @@ void Pipeline::create_cb(ShaderStage &stage, const ComPtr<ID3D11Device> &device,
 
 std::pair<bool, std::string>
 Pipeline::compile_shader(const ComPtr<ID3D11Device> &device,
-                         std::string_view source, const D3D_SHADER_MACRO *define, const char *vs_entry,
+                         std::string_view source,
+                         const D3D_SHADER_MACRO *define, const char *vs_entry,
                          const char *gs_entry, const char *ps_entry) {
   {
     auto [compiled, error] = compile_vs(device, "vs", source, vs_entry, define);
@@ -102,6 +153,11 @@ Pipeline::compile_shader(const ComPtr<ID3D11Device> &device,
       return {false, (const char *)error->GetBufferPointer()};
     }
   }
+
+  _dxsas.parse(source);
+  vs_stage.create_semantics_map(_dxsas.semantics);
+  gs_stage.create_semantics_map(_dxsas.semantics);
+  ps_stage.create_semantics_map(_dxsas.semantics);
 
   return {true, {}};
 }

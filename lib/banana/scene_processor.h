@@ -21,7 +21,7 @@ struct Begin {
 };
 
 struct SetVariable {
-  std::string name;
+  Semantics semantic;
   Variable value;
   size_t offset = 0;
 };

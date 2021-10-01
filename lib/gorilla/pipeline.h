@@ -1,8 +1,10 @@
 #pragma once
 
 #include "constant_buffer.h"
+#include "dxsas.h"
+#include "shader_reflection.h"
+#include <banana/semantics.h>
 #include <d3d11.h>
-#include <gorilla/shader_reflection.h>
 #include <string_view>
 #include <vcruntime.h>
 #include <vector>
@@ -10,43 +12,44 @@
 
 namespace gorilla {
 
+struct VariablePosition {
+  UINT slot;
+  UINT offset;
+  UINT size;
+};
+
 struct ShaderStage {
   ShaderReflection reflection;
   std::vector<ConstantBuffer> cb;
+
+  std::unordered_map<banana::Semantics, VariablePosition> semantics_map;
+  std::unordered_map<banana::Semantics, UINT> semantics_srv_map;
+  std::unordered_map<banana::Semantics, UINT> semantics_sampler_map;
+
+  void create_semantics_map(std::span<const AnnotationSemantics> semantics);
+
+  void set_variable(banana::Semantics semantic, const void *p, size_t size,
+                    size_t offset = 0);
 };
 
 class Pipeline {
 
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-private:
-  ComPtr<ID3D11VertexShader> _vs;
   ComPtr<ID3D11InputLayout> _input_layout;
-
-public:
-  ShaderStage vs_stage;
-
-  // gs
-private:
+  ComPtr<ID3D11VertexShader> _vs;
   ComPtr<ID3D11GeometryShader> _gs;
-
-public:
-  ShaderStage gs_stage;
-
-  // ps
-private:
   ComPtr<ID3D11PixelShader> _ps;
+  std::vector<ID3D11Buffer *> _tmp_list;
+  DXSAS _dxsas;
 
-public:
-  ShaderStage ps_stage;
-
-private:
   void create_cb(ShaderStage &stage, const ComPtr<ID3D11Device> &device,
                  const ComPtr<ID3DBlob> &compiled);
 
-  std::vector<ID3D11Buffer *> _tmp_list;
-
 public:
+  ShaderStage vs_stage;
+  ShaderStage gs_stage;
+  ShaderStage ps_stage;
   std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
   compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
              std::string_view source, const char *entry_point,
@@ -74,6 +77,12 @@ public:
 
   void set_variable(std::string_view name, const void *p, size_t size,
                     size_t offset = 0);
+  void set_variable(banana::Semantics semantic, const void *p, size_t size,
+                    size_t offset = 0) {
+    vs_stage.set_variable(semantic, p, size, offset);
+    gs_stage.set_variable(semantic, p, size, offset);
+    ps_stage.set_variable(semantic, p, size, offset);
+  }
   void update(const ComPtr<ID3D11DeviceContext> &context);
   void setup(const ComPtr<ID3D11DeviceContext> &context);
   void draw_empty(const ComPtr<ID3D11DeviceContext> &context);

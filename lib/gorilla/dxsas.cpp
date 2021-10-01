@@ -1,4 +1,5 @@
 #include "dxsas.h"
+#include <algorithm>
 #include <assert.h>
 #include <cctype>
 #include <iterator>
@@ -38,7 +39,7 @@ enum class TokenTypes {
 };
 
 std::set<std::string_view> type_names = {
-    "void",   "int",      "float",  "float2",    "float3",
+    "void",   "int",      "float",  "float2",    "float3",       "float3x3",
     "float4", "float4x4", "matrix", "Texture2D", "SamplerState",
 };
 
@@ -56,7 +57,13 @@ struct Token {
   bool is_prefix() const {
     return prefix_names.find(view) != prefix_names.end();
   }
-  bool is_type() const { return type_names.find(view) != type_names.end(); }
+  bool is_type() const {
+    if (type_names.find(view) != type_names.end()) {
+      return true;
+    }
+
+    return false;
+  }
 };
 
 static bool is_symbol(char c) {
@@ -364,12 +371,17 @@ static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
       if (type.is_prefix()) {
         type = z.next();
       }
-      if (!type.is_type()) {
-        throw std::runtime_error(
-            (std::string("not type: ") + std::string(type.view)).c_str());
-      }
+      // if (!type.is_type()) {
+      //   throw std::runtime_error(
+      //       (std::string("not type: ") + std::string(type.view)).c_str());
+      // }
       auto name = z.next();
       auto token = z.next();
+      if (token.type == TokenTypes::OpenBracket) {
+        // array
+        z.skip(1, TokenTypes::OpenBracket, TokenTypes::CloseBracket);
+        token = z.next();
+      }
       if (token.type == TokenTypes::Colon) {
         auto semantic_token = z.next();
         token = z.next();

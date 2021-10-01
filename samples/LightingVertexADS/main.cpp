@@ -41,10 +41,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   submesh.draw_count = static_cast<UINT>(node->mesh->indices.size());
   submesh.material = std::make_shared<banana::Material>();
   submesh.material->shader_name = "lighting/vertex_ads.hlsl";
-  submesh.material->properties["Kd"] = banana::Float3(0.4f, 0.8f, 0.6f);
-  submesh.material->properties["Ka"] = banana::Float3(0.1f, 0.1f, 0.1f);
-  submesh.material->properties["Ks"] = banana::Float3(1.0f, 1.0f, 1.0f);
-  submesh.material->properties["Shininess"] = 10.0f;
+  submesh.material->properties[banana::Semantics::MATERIAL_COLOR] =
+      banana::Float3(0.4f, 0.8f, 0.6f);
+  submesh.material->properties[banana::Semantics::MATERIAL_AMBIENT] =
+      banana::Float3(0.1f, 0.1f, 0.1f);
+  submesh.material->properties[banana::Semantics::MATERIAL_SPECULAR] =
+      banana::Float4(1.0f, 1.0f, 1.0f, 10.0f);
 
   // world
   banana::LightInfo lights[5] = {0};

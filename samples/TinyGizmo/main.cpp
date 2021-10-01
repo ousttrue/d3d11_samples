@@ -40,10 +40,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     submesh.draw_count = static_cast<UINT>(node->mesh->index_count());
     submesh.material = std::make_shared<banana::Material>();
     submesh.material->shader_name = "lighting/vertex_ads.hlsl";
-    submesh.material->properties["Kd"] = banana::Float3(0.4f, 0.8f, 0.6f);
-    submesh.material->properties["Ka"] = banana::Float3(0.1f, 0.1f, 0.1f);
-    submesh.material->properties["Ks"] = banana::Float3(1.0f, 1.0f, 1.0f);
-    submesh.material->properties["Shininess"] = 10.0f;
+    submesh.material->properties[banana::Semantics::MATERIAL_COLOR] =
+        banana::Float3(0.4f, 0.8f, 0.6f);
+    submesh.material->properties[banana::Semantics::MATERIAL_AMBIENT] =
+        banana::Float3(0.1f, 0.1f, 0.1f);
+    submesh.material->properties[banana::Semantics::MATERIAL_SPECULAR] =
+        banana::Float4(1.0f, 1.0f, 1.0f, 10.0f);
   }
 
   // world
@@ -62,7 +64,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   auto gizmo_node = std::make_shared<banana::Node>();
   {
     gizmo_node->mesh = std::make_shared<banana::Mesh>();
-    gizmo_node->mesh->vertex_dynamic_buffer_size= sizeof(tinygizmo::Vertex) * 65535;
+    gizmo_node->mesh->vertex_dynamic_buffer_size =
+        sizeof(tinygizmo::Vertex) * 65535;
     gizmo_node->mesh->index_dynamic_buffer_size = sizeof(uint32_t) * 65535;
     auto &submesh = gizmo_node->mesh->submeshes.emplace_back(banana::SubMesh{});
     submesh.material = std::make_shared<banana::Material>();
@@ -112,7 +115,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     app.clear_depth();
     {
-      auto [vertices, indices] = gizmo_context.draw();      
+      auto [vertices, indices] = gizmo_context.draw();
       // this is delay a frame
       gizmo_node->mesh->assign(vertices, indices, true);
       // draw old position

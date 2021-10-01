@@ -115,8 +115,8 @@ static std::shared_ptr<Image> load_texture(const nlohmann::json &gltf,
 static MaterialWithState create_default_material(std::string_view name) {
   auto material = std::make_shared<Material>();
   material->shader_name = "gltf.hlsl";
-  material->properties.insert(std::make_pair(BASE_COLOR, Float4{1, 1, 1, 1}));
-  material->properties.insert(std::make_pair(NORMAL_MAP_SCALE, 1.0f));
+  material->properties.insert(std::make_pair(Semantics::MATERIAL_COLOR, Float4{1, 1, 1, 1}));
+  material->properties.insert(std::make_pair(Semantics::MATERIAL_NORMAL_SCALE, 1.0f));
   return {material, MaterialStatesNone};
 }
 
@@ -137,7 +137,7 @@ load_material(const nlohmann::json &gltf, const nlohmann::json &gltf_material,
       }
     }
     if (gltf_material.contains("baseColorFactor")) {
-      material->properties[BASE_COLOR] =
+      material->properties[Semantics::MATERIAL_COLOR] =
           load_float_array<4, Float4>(gltf_material["baseColorFactor"]);
     }
   }
@@ -149,7 +149,7 @@ load_material(const nlohmann::json &gltf, const nlohmann::json &gltf_material,
       material->textures[Semantics::MATERIAL_NORMAL] = textures[texture_index];
     }
     if (texture.contains("scale")) {
-      material->properties[NORMAL_MAP_SCALE] = (float)texture["scale"];
+      material->properties[Semantics::MATERIAL_NORMAL_SCALE] = (float)texture["scale"];
     }
   }
 

@@ -43,7 +43,7 @@ struct Material {
   std::string shader_name;
 
   // Use same name in shader variables
-  std::unordered_map<std::string, Variable> properties;
+  std::unordered_map<Semantics, Variable> properties;
 
   // Use same name SRV and Sampler.
   // SRV suffix is "Texture"
