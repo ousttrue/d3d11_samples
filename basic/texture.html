@@ -71,43 +71,44 @@
 <span class="lineno">14 </span>                                  <span class="k">inout</span> <span class="kt">TriangleStream</span><span class="o">&lt;</span><span class="n">GS_OUTPUT</span><span class="o">&gt;</span> <span class="n">output</span><span class="p">)</span> <span class="p">{</span>
 <span class="lineno">15 </span>  <span class="n">GS_OUTPUT</span> <span class="n">element</span><span class="p">;</span>
 <span class="lineno">16 </span>
-<span class="lineno">17 </span>  <span class="c1">// 0</span>
-<span class="lineno">18 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="lineno">19 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="lineno">20 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
-<span class="lineno">21 </span>  <span class="c1">// 1</span>
-<span class="lineno">22 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="lineno">23 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">);</span>
-<span class="lineno">24 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
-<span class="lineno">25 </span><span class="hll">  <span class="c1">// 2</span>
-</span><span class="lineno">26 </span><span class="hll">  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-</span><span class="lineno">27 </span><span class="hll">  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mo">0</span><span class="p">);</span>
-</span><span class="lineno">28 </span><span class="hll">  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
-</span><span class="lineno">29 </span>
-<span class="lineno">30 </span>  <span class="n">output</span><span class="p">.</span><span class="n">RestartStrip</span><span class="p">();</span>
+<span class="lineno">17 </span>  <span class="c1">// d3d default clock wise</span>
+<span class="lineno">18 </span>
+<span class="lineno">19 </span>  <span class="c1">// 0</span>
+<span class="lineno">20 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="lineno">21 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="lineno">22 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
+<span class="lineno">23 </span>  <span class="c1">// 1</span>
+<span class="lineno">24 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="lineno">25 </span><span class="hll">  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mo">0</span><span class="p">);</span>
+</span><span class="lineno">26 </span><span class="hll">  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
+</span><span class="lineno">27 </span><span class="hll">  <span class="c1">// 2</span>
+</span><span class="lineno">28 </span><span class="hll">  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class="lineno">29 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">);</span>
+<span class="lineno">30 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
 <span class="lineno">31 </span>
-<span class="lineno">32 </span>  <span class="c1">// 3</span>
-<span class="lineno">33 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="lineno">34 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">);</span>
-<span class="lineno">35 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
-<span class="lineno">36 </span>  <span class="c1">// 4</span>
-<span class="lineno">37 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="lineno">38 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="lineno">39 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
-<span class="lineno">40 </span>  <span class="c1">// 5</span>
-<span class="lineno">41 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="lineno">42 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="lineno">43 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
-<span class="lineno">44 </span>
-<span class="lineno">45 </span>  <span class="n">output</span><span class="p">.</span><span class="n">RestartStrip</span><span class="p">();</span>
+<span class="lineno">32 </span>  <span class="n">output</span><span class="p">.</span><span class="n">RestartStrip</span><span class="p">();</span>
+<span class="lineno">33 </span>
+<span class="lineno">34 </span>  <span class="c1">// 3</span>
+<span class="lineno">35 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="lineno">36 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">);</span>
+<span class="lineno">37 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
+<span class="lineno">38 </span>  <span class="c1">// 4</span>
+<span class="lineno">39 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="lineno">40 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="lineno">41 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
+<span class="lineno">42 </span>  <span class="c1">// 5s</span>
+<span class="lineno">43 </span>  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="lineno">44 </span>  <span class="n">element</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="kt">float2</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="lineno">45 </span>  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
 <span class="lineno">46 </span>
-<span class="lineno">47 </span><span class="p">}</span>
-<span class="lineno">48 </span>
-<span class="lineno">49 </span><span class="kt">float4</span> <span class="n">psMain</span><span class="p">(</span><span class="n">GS_OUTPUT</span> <span class="n">V</span><span class="p">)</span>
-<span class="lineno">50 </span>    <span class="o">:</span> <span class="nd">SV_Target</span> <span class="p">{</span>
-<span class="lineno">51 </span>  <span class="c1">// return float4(V.uv, 0, 1);</span>
-<span class="lineno">52 </span>  <span class="k">return</span> <span class="n">t0</span><span class="p">.</span><span class="n">Sample</span><span class="p">(</span><span class="n">s0</span><span class="p">,</span> <span class="n">V</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
-<span class="lineno">53 </span><span class="p">}</span>
+<span class="lineno">47 </span>  <span class="n">output</span><span class="p">.</span><span class="n">RestartStrip</span><span class="p">();</span>
+<span class="lineno">48 </span><span class="p">}</span>
+<span class="lineno">49 </span>
+<span class="lineno">50 </span><span class="kt">float4</span> <span class="n">psMain</span><span class="p">(</span><span class="n">GS_OUTPUT</span> <span class="n">V</span><span class="p">)</span>
+<span class="lineno">51 </span>    <span class="o">:</span> <span class="nd">SV_Target</span> <span class="p">{</span>
+<span class="lineno">52 </span>  <span class="c1">// return float4(V.uv, 0, 1);</span>
+<span class="lineno">53 </span>  <span class="k">return</span> <span class="n">t0</span><span class="p">.</span><span class="n">Sample</span><span class="p">(</span><span class="n">s0</span><span class="p">,</span> <span class="n">V</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+<span class="lineno">54 </span><span class="p">}</span>
 </pre></div>
 </div>
 </div>

@@ -78,17 +78,19 @@
   <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="n">pixel_to_screen_y</span><span class="p">(</span><span class="n">xywh</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">size</span><span class="p">);</span>
   <span class="kt">float</span> <span class="n">t</span> <span class="o">=</span> <span class="o">-</span><span class="n">pixel_to_screen_y</span><span class="p">(</span><span class="n">xywh</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">size</span><span class="p">);</span>
 
+  <span class="c1">// d3d default. clock wise</span>
+
   <span class="c1">// 0</span>
   <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
   <span class="n">element</span><span class="p">.</span><span class="n">color</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
   <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
   <span class="c1">// 1</span>
-  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-  <span class="n">element</span><span class="p">.</span><span class="n">color</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
-  <span class="c1">// 2</span>
   <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
   <span class="n">element</span><span class="p">.</span><span class="n">color</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
+  <span class="c1">// 2</span>
+  <span class="n">element</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="n">element</span><span class="p">.</span><span class="n">color</span> <span class="o">=</span> <span class="kt">float4</span><span class="p">(</span><span class="mo">0</span><span class="p">,</span> <span class="mo">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
   <span class="n">output</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">element</span><span class="p">);</span>
 
   <span class="n">output</span><span class="p">.</span><span class="n">RestartStrip</span><span class="p">();</span>
