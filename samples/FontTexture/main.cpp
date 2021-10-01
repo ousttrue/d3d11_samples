@@ -1,4 +1,3 @@
-#include <update_camera.h>
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
@@ -17,6 +16,7 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <string_view>
+#include <update_camera.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "FontTexture";
@@ -149,7 +149,8 @@ public:
       x += push_glyph(glyph, static_cast<float>(x));
     }
 
-    if (!ia->create_vertices(device, vertices)) {
+    if (!ia->create_vertices(device,
+                             std::span{vertices.begin(), vertices.end()})) {
       return {};
     }
     if (!ia->create_indices(device, indices)) {

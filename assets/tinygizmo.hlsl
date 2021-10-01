@@ -1,6 +1,6 @@
 cbuffer c0 {
-  row_major float4x4 VP;
-  float3 CameraPosition;
+  row_major float4x4 VP : VIEWPROJECTION;
+  float3 CameraPosition : CAMERA_POSITION;
 }
 
 struct VS_IN {
@@ -12,7 +12,7 @@ struct VS_IN {
 struct PS_IN {
   float4 Position : SV_POSITION;
   float4 Color : COLOR0;
-  float3 World : POSITION1;
+  float3 World : POSITION;
   float3 Normal : NORMAL;
 };
 

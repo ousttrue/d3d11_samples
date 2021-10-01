@@ -50,15 +50,15 @@ text_mesh(const ComPtr<ID3D11Device> &device, const char *text, float z) {
   index_data_.resize(num_indices);
   for (uint32_t i = 0; 6 * i < index_data_.size(); ++i) {
     index_data_[6 * i + 0] = 4 * i + 0;
-    index_data_[6 * i + 1] = 4 * i + 2;
-    index_data_[6 * i + 2] = 4 * i + 1;
+    index_data_[6 * i + 1] = 4 * i + 1;
+    index_data_[6 * i + 2] = 4 * i + 2;
     index_data_[6 * i + 3] = 4 * i + 2;
-    index_data_[6 * i + 4] = 4 * i + 0;
-    index_data_[6 * i + 5] = 4 * i + 3;
+    index_data_[6 * i + 4] = 4 * i + 3;
+    index_data_[6 * i + 5] = 4 * i + 0;
   }
 
   auto ia = std::make_shared<gorilla::InputAssembler>();
-  if (!ia->create_vertices(device, vert_data_)) {
+  if (!ia->create_vertices(device, std::span{vert_data_})) {
     return {};
   }
   if (!ia->create_indices(device, index_data_)) {

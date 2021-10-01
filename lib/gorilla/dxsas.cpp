@@ -430,6 +430,9 @@ void DXSAS::parse(std::string_view source) {
       }
     } else if (first.type == TokenTypes::Symbol) {
       // constant ?
+      if (first.is_prefix()) {
+        first = z.next();
+      }
       auto name = z.next();
       if (name.type == TokenTypes::Symbol) {
         auto token = z.next();

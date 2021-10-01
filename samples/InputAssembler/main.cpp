@@ -1,4 +1,5 @@
 #include <DirectXMath.h>
+#include <array>
 #include <assert.h>
 #include <banana/asset.h>
 #include <gorilla/constant_buffer.h>
@@ -12,6 +13,7 @@
 #include <gorilla/window.h>
 #include <iostream>
 
+
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "InputAssembler";
 auto WIDTH = 320;
@@ -19,10 +21,11 @@ auto HEIGHT = 320;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-const DirectX::XMFLOAT2 triangle[3] = {
-    {1.0f, -1.0f},
-    {0.0f, 1.0f},
-    {-1.0f, -1.0f},
+// d3d default. clock wise
+std::array triangle = {
+    DirectX::XMFLOAT2{1.0f, -1.0f},
+    DirectX::XMFLOAT2{-1.0f, -1.0f},
+    DirectX::XMFLOAT2{0.0f, 1.0f},
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -66,7 +69,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::InputAssembler ia;
-  if (!ia.create_vertices(device, sizeof(triangle[0]), triangle, sizeof(triangle))) {
+  if (!ia.create_vertices(device, std::span(triangle.begin(), triangle.end()))) {
     return 8;
   }
 

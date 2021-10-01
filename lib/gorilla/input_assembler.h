@@ -38,7 +38,7 @@ public:
 
   template <typename T>
   bool create_vertices(const ComPtr<ID3D11Device> &device,
-                       const std::vector<T> &vertices) {
+                       std::span<T> vertices) {
     return create_vertices(device, vertices.data(), vertices.size());
   }
 

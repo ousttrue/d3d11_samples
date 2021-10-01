@@ -23,17 +23,19 @@ float pixel_to_screen_y(float y) { return (y / xywh.w) * 2 - 1; }
   float b = -pixel_to_screen_y(xywh.y + size);
   float t = -pixel_to_screen_y(xywh.y - size);
 
+  // d3d default. clock wise
+
   // 0
   element.position = float4(l, b, 0, 1);
   element.color = float4(1, 0, 0, 1);
   output.Append(element);
   // 1
-  element.position = float4(r, t, 0, 1);
-  element.color = float4(0, 0, 1, 1);
-  output.Append(element);
-  // 2
   element.position = float4(l, t, 0, 1);
   element.color = float4(0, 1, 0, 1);
+  output.Append(element);
+  // 2
+  element.position = float4(r, t, 0, 1);
+  element.color = float4(0, 0, 1, 1);
   output.Append(element);
 
   output.RestartStrip();

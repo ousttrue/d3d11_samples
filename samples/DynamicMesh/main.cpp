@@ -19,10 +19,11 @@ auto HEIGHT = 320;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+// d3d default. clock wise
 DirectX::XMFLOAT2 triangle[3] = {
     {1.0f, -1.0f},
-    {0.0f, 1.0f},
     {-1.0f, -1.0f},
+    {0.0f, 1.0f},
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -66,7 +67,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   gorilla::InputAssembler ia;
-  if (!ia.create_dynamic_vertices(device, sizeof(triangle[0]), sizeof(triangle))) {
+  if (!ia.create_dynamic_vertices(device, sizeof(triangle[0]),
+                                  sizeof(triangle))) {
     return 8;
   }
 
