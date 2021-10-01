@@ -9,7 +9,7 @@
 
 namespace gorilla {
 
-class Renderer {
+class DeviceAndTarget {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
   ComPtr<ID3D11Device> _device;
@@ -22,10 +22,6 @@ public:
   std::tuple<ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceContext>>
   create(HWND hwnd);
   void begin_frame(const ScreenState &state, const float clear[4]);
-
-  void render(const ComPtr<ID3D11DeviceContext> &context,
-              gorilla::Drawable *drawable, const banana::OrbitCamera &camera,
-              std::span<const banana::LightInfo> lights = {});
 
   void end_frame();
   void clear_depth();

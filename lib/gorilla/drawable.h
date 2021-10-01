@@ -17,7 +17,7 @@ struct State {
 
   State();
   bool create(const ComPtr<ID3D11Device> &device,
-                    bool create_blend_state = false);
+              bool create_blend_state = false);
   void setup(const ComPtr<ID3D11DeviceContext> &context);
 };
 
@@ -30,6 +30,10 @@ struct Drawable {
   State state;
 
   void draw(const ComPtr<ID3D11DeviceContext> &context);
+
+  void draw(const ComPtr<ID3D11DeviceContext> &context,
+            const banana::OrbitCamera &camera,
+            std::span<const banana::LightInfo> lights = {});
 };
 
 } // namespace gorilla

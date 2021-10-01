@@ -4,7 +4,7 @@
 #include <banana/orbit_camera.h>
 #include <chrono>
 #include <d3d11.h>
-#include <gorilla/renderer.h>
+#include <gorilla/device_and_target.h>
 #include <gorilla/window.h>
 #include <wrl/client.h>
 
@@ -12,7 +12,7 @@ class App {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
   gorilla::Window _window;
-  gorilla::Renderer _renderer;
+  gorilla::DeviceAndTarget _renderer;
   ComPtr<ID3D11Device> _device;
   ComPtr<ID3D11DeviceContext> _context;
   UINT _frame_count = 0;

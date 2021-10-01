@@ -1,5 +1,5 @@
 #pragma once
-#include "renderer.h"
+#include "device_and_target.h"
 #include "device.h"
 #include "swapchain.h"
 #include <assert.h>
@@ -9,7 +9,7 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 namespace gorilla {
 
 std::tuple<ComPtr<ID3D11Device>, ComPtr<ID3D11DeviceContext>>
-Renderer::create(HWND hwnd) {
+DeviceAndTarget::create(HWND hwnd) {
   _device = gorilla::create_device();
   if (!_device) {
     return {};
@@ -25,7 +25,7 @@ Renderer::create(HWND hwnd) {
   return {_device, _context};
 }
 
-void Renderer::begin_frame(const ScreenState &state, const float clear[4]) {
+void DeviceAndTarget::begin_frame(const ScreenState &state, const float clear[4]) {
   if (state.width != _desc.BufferDesc.Width ||
       state.height != _desc.BufferDesc.Height) {
     // clear backbuffer reference
@@ -56,26 +56,12 @@ void Renderer::begin_frame(const ScreenState &state, const float clear[4]) {
   _render_target.setup(_context, state.width, state.height);
 }
 
-void Renderer::end_frame() {
+void DeviceAndTarget::end_frame() {
   // vsync
   _context->Flush();
   _swapchain->Present(1, 0);
 }
 
-void Renderer::clear_depth() { _render_target.clear_depth(_context); }
-
-void Renderer::render(const ComPtr<ID3D11DeviceContext> &context,
-                      gorilla::Drawable *drawable,
-                      const banana::OrbitCamera &camera,
-                      std::span<const banana::LightInfo> lights) {
-  // update backing store
-  drawable->pipeline.vs_stage.set_variables(camera);
-  drawable->pipeline.gs_stage.set_variables(camera);
-  drawable->pipeline.ps_stage.set_variables(camera);
-  // backing store to GPU
-  drawable->pipeline.update(context);
-  // draw
-  drawable->draw(context);
-}
+void DeviceAndTarget::clear_depth() { _render_target.clear_depth(_context); }
 
 } // namespace gorilla

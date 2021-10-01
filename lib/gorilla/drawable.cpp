@@ -22,7 +22,7 @@ State::State() {
 }
 
 bool State::create(const ComPtr<ID3D11Device> &device,
-                         bool create_blend_state) {
+                   bool create_blend_state) {
   if (FAILED(device->CreateRasterizerState(&rs_desc, &rs))) {
     return {};
   }
@@ -49,6 +49,19 @@ void Drawable::draw(const ComPtr<ID3D11DeviceContext> &context) {
   } else {
     pipeline.draw_empty(context);
   }
+}
+
+void Drawable::draw(const ComPtr<ID3D11DeviceContext> &context,
+                      const banana::OrbitCamera &camera,
+                      std::span<const banana::LightInfo> lights) {
+  // update backing store
+  pipeline.vs_stage.set_variables(camera);
+  pipeline.gs_stage.set_variables(camera);
+  pipeline.ps_stage.set_variables(camera);
+  // backing store to GPU
+  pipeline.update(context);
+  // draw
+  draw(context);
 }
 
 } // namespace gorilla

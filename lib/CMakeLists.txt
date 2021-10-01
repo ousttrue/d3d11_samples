@@ -31,7 +31,7 @@ add_library(
   gorilla/swapchain.cpp
   gorilla/texture.cpp
   gorilla/window.cpp
-  gorilla/renderer.cpp
+  gorilla/device_and_target.cpp
   gorilla/drawable.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PUBLIC d3d11.lib d3dcompiler.lib

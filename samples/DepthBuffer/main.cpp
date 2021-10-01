@@ -5,7 +5,7 @@
 #include <banana/orbit_camera.h>
 #include <banana/types.h>
 #include <gorilla/drawable.h>
-#include <gorilla/renderer.h>
+#include <gorilla/device_and_target.h>
 #include <gorilla/window.h>
 #include <iostream>
 #include <update_camera.h>
@@ -31,7 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   ShowWindow(hwnd, nCmdShow);
   UpdateWindow(hwnd);
 
-  gorilla::Renderer renderer;
+  gorilla::DeviceAndTarget renderer;
   auto [device, context] = renderer.create(hwnd);
   if (!device) {
     return 2;
