@@ -68,35 +68,13 @@ void Renderer::render(const ComPtr<ID3D11DeviceContext> &context,
                       gorilla::Drawable *drawable,
                       const banana::OrbitCamera &camera,
                       std::span<const banana::LightInfo> lights) {
-
-  drawable->pipeline.gs_stage.set_variable(
-      banana::Semantics::CAMERA_NEAR_FAR_FOVY,
-      banana::Float3{camera._near, camera._far, camera.fovYRad});
-  drawable->pipeline.gs_stage.set_variable(
-      banana::Semantics::CURSOR_SCREEN_SIZE,
-      banana::Float4{0, 0, camera.screen.x, camera.screen.y});
-  drawable->pipeline.gs_stage.set_variable(banana::Semantics::CAMERA_VIEW,
-                                           camera.view);
-  drawable->pipeline.gs_stage.set_variable(banana::Semantics::CAMERA_PROJECTION,
-                                           camera.projection);
-  auto p = camera.position();
-  drawable->pipeline.gs_stage.set_variable(banana::Semantics::CAMERA_POSITION,
-                                           banana::Float3{p.x, p.y, p.z});
-
-  drawable->pipeline.ps_stage.set_variable(
-      banana::Semantics::CAMERA_NEAR_FAR_FOVY,
-      banana::Float3{camera._near, camera._far, camera.fovYRad});
-  drawable->pipeline.ps_stage.set_variable(
-      banana::Semantics::CURSOR_SCREEN_SIZE,
-      banana::Float4{0, 0, camera.screen.x, camera.screen.y});
-  drawable->pipeline.ps_stage.set_variable(banana::Semantics::CAMERA_VIEW,
-                                           camera.view);
-  drawable->pipeline.ps_stage.set_variable(banana::Semantics::CAMERA_PROJECTION,
-                                           camera.projection);
-  drawable->pipeline.ps_stage.set_variable(banana::Semantics::CAMERA_POSITION,
-                                           banana::Float3{p.x, p.y, p.z});
-
+  // update backing store
+  drawable->pipeline.vs_stage.set_variables(camera);
+  drawable->pipeline.gs_stage.set_variables(camera);
+  drawable->pipeline.ps_stage.set_variables(camera);
+  // backing store to GPU
   drawable->pipeline.update(context);
+  // draw
   drawable->draw(context);
 }
 

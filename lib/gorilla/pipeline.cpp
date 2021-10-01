@@ -1,3 +1,4 @@
+#include "banana/semantics.h"
 #include <assert.h>
 #include <gorilla/pipeline.h>
 #include <gorilla/shader.h>
@@ -47,6 +48,38 @@ void ShaderStage::set_variable(banana::Semantics semantic, const void *p,
     memcpy(reflection.cb_slots[it->second.slot].backing_store.data() +
                it->second.offset + offset,
            p, size);
+  }
+}
+
+void ShaderStage::set_variables(const banana::OrbitCamera &camera) {
+
+  for (auto [k, v] : semantics_map) {
+    switch (k) {
+    case banana::Semantics::CAMERA_VIEW:
+      set_variable(banana::Semantics::CAMERA_VIEW, camera.view);
+      break;
+
+    case banana::Semantics::CAMERA_PROJECTION:
+      set_variable(banana::Semantics::CAMERA_PROJECTION, camera.projection);
+      break;
+
+    case banana::Semantics::CAMERA_NEAR_FAR_FOVY:
+      set_variable(banana::Semantics::CAMERA_NEAR_FAR_FOVY,
+                   banana::Float3{camera._near, camera._far, camera.fovYRad});
+      break;
+
+    case banana::Semantics::CAMERA_POSITION: {
+      auto p = camera.position();
+      set_variable(banana::Semantics::CAMERA_POSITION,
+                   banana::Float3{p.x, p.y, p.z});
+      break;
+      
+    case banana::Semantics::CURSOR_SCREEN_SIZE:
+      set_variable(banana::Semantics::CURSOR_SCREEN_SIZE,
+                   banana::Float4{0, 0, camera.screen.x, camera.screen.y});
+      break;
+    }
+    }
   }
 }
 

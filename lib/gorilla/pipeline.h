@@ -1,9 +1,11 @@
 #pragma once
 
+#include "banana/orbit_camera.h"
 #include "constant_buffer.h"
 #include "dxsas.h"
 #include "shader_reflection.h"
 #include <banana/semantics.h>
+#include <banana/orbit_camera.h>
 #include <d3d11.h>
 #include <string_view>
 #include <vcruntime.h>
@@ -35,6 +37,7 @@ struct ShaderStage {
   void set_variable(banana::Semantics semantic, const T &t) {
     set_variable(semantic, &t, sizeof(T));
   }
+  void set_variables(const banana::OrbitCamera &camera);
 };
 
 class Pipeline {
