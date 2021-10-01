@@ -92,8 +92,12 @@
   <span class="n">SV_TARGET</span><span class="p">,</span>
   <span class="n">SV_DEPTH</span><span class="p">,</span>
   <span class="c1">// predefine</span>
+  <span class="n">POSITION</span><span class="p">,</span>
   <span class="n">NORMAL</span><span class="p">,</span>
   <span class="n">TEXCOORD</span><span class="p">,</span>
+  <span class="n">TEXCOORD0</span><span class="p">,</span>
+  <span class="n">COLOR0</span><span class="p">,</span>
+  <span class="n">TANGENT</span><span class="p">,</span>
   <span class="c1">//</span>
   <span class="n">CAMERA_POSITION</span><span class="p">,</span>
   <span class="n">CAMERA_VIEW</span><span class="p">,</span>
@@ -101,9 +105,18 @@
   <span class="n">CAMERA_NEAR_FAR_FOVY</span><span class="p">,</span>
   <span class="n">OBJECT_NORMAL</span><span class="p">,</span> <span class="c1">// NODE_WORLD_INVERSE_TRANSPOSE</span>
   <span class="n">OBJECT_WORLD</span><span class="p">,</span>
-  <span class="n">MATERIAL_COLOR</span><span class="p">,</span>
-  <span class="n">MATERIAL_NORMAL</span><span class="p">,</span>
-  <span class="n">CURSOR_SCREEN_SIZE</span><span class="p">,</span> <span class="c1">// mouse[x, y], screen_size[w, h]: left-top origin, pixel unit</span>
+  <span class="n">WORLDVIEW</span><span class="p">,</span>             <span class="c1">// OBJECT_WORLD X CAMERA_VIEW</span>
+  <span class="n">VIEWPROJECTION</span><span class="p">,</span>        <span class="c1">// CAMERA_VIEW X CAMERA_PROJECTION</span>
+  <span class="n">WORLDVIEWPROJECTION</span><span class="p">,</span>   <span class="c1">// OBJECT_WORLD X CAMERA_VIEW X CAMERA_PROJECTION</span>
+  <span class="n">MATERIAL_COLOR</span><span class="p">,</span>        <span class="c1">// rgba value or texture or sampler</span>
+  <span class="n">MATERIAL_AMBIENT</span><span class="p">,</span>      <span class="c1">// rgb value</span>
+  <span class="n">MATERIAL_SPECULAR</span><span class="p">,</span>     <span class="c1">// rgb value + shininess</span>
+  <span class="n">MATERIAL_NORMAL</span><span class="p">,</span>       <span class="c1">// texture or sampler</span>
+  <span class="n">MATERIAL_NORMAL_SCALE</span><span class="p">,</span> <span class="c1">// float</span>
+  <span class="n">CURSOR_SCREEN_SIZE</span><span class="p">,</span> <span class="c1">// mouse[x, y], screen_size[w, h]: left-top origin, pixel</span>
+                      <span class="c1">// unit</span>
+  <span class="c1">//</span>
+  <span class="n">LIGHT_LIST</span><span class="p">,</span> <span class="c1">// LightInfo[5]</span>
 <span class="p">};</span>
 
 <span class="kr">inline</span> <span class="n">Semantics</span> <span class="nf">semantics_from_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span>
