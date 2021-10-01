@@ -27,7 +27,7 @@ struct SetVariable {
 };
 
 struct SetTexture {
-  TextureSemantics semantic;
+  Semantics semantic;
   std::shared_ptr<Image> image;
 };
 

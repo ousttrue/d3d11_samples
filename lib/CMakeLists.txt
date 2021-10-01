@@ -1,3 +1,21 @@
+# 🍌 banana(asset scene)
+set(TARGET_NAME banana)
+add_library(
+  ${TARGET_NAME}
+  banana/asset.cpp
+  banana/gltf.cpp
+  banana/image.cpp
+  banana/geometry.cpp
+  banana/node.cpp
+  banana/types.cpp
+  banana/orbit_camera.cpp
+  banana/scene_processor.cpp)
+target_include_directories(${TARGET_NAME} PUBLIC .)
+target_link_libraries(
+  ${TARGET_NAME}
+  PRIVATE json mikktspace
+  PUBLIC magic_enum)
+
 # 🦍 gorilla(win32api d3d11)
 set(TARGET_NAME gorilla)
 add_library(
@@ -14,26 +32,10 @@ add_library(
   gorilla/texture.cpp
   gorilla/window.cpp
   gorilla/renderer.cpp
-  gorilla/drawable.cpp
-  )
+  gorilla/drawable.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PUBLIC d3d11.lib d3dcompiler.lib
-                                            dxguid.lib Shlwapi.lib)
-
-# 🍌 banana(asset scene)
-set(TARGET_NAME banana)
-add_library(
-  ${TARGET_NAME}
-  banana/asset.cpp
-  banana/gltf.cpp
-  banana/image.cpp
-  banana/geometry.cpp
-  banana/node.cpp
-  banana/types.cpp
-  banana/orbit_camera.cpp
-  banana/scene_processor.cpp)
-target_include_directories(${TARGET_NAME} PUBLIC .)
-target_link_libraries(${TARGET_NAME} PRIVATE json mikktspace)
+                                            dxguid.lib Shlwapi.lib banana)
 
 # app
 set(TARGET_NAME app)

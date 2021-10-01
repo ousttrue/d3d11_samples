@@ -51,13 +51,13 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
 
   // hlsl defines
   std::vector<D3D_SHADER_MACRO> defines;
-  if (src->textures.contains(banana::TextureSemantics::MATERIAL_COLOR)) {
+  if (src->textures.contains(banana::Semantics::MATERIAL_COLOR)) {
     defines.push_back({
         "TEXTURE_COLOR",
         "1",
     });
   }
-  if (src->textures.contains(banana::TextureSemantics::MATERIAL_NORMAL)) {
+  if (src->textures.contains(banana::Semantics::MATERIAL_NORMAL)) {
     defines.push_back({
         "TEXTURE_NORMAL",
         "1",

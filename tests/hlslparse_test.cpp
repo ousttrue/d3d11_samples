@@ -21,7 +21,7 @@ TEST_CASE("grid", "[hlsl_parse]") {
   gorilla::DXSAS dxsas;
   dxsas.parse(source);
 
-  auto found = dxsas.find("CAMERA_VIEW");
+  auto found = dxsas.find(banana::Semantics::CAMERA_VIEW);
   REQUIRE(found->name == "b0View");
   REQUIRE(found->type == "float4x4");
   REQUIRE(found->line == 16);
@@ -34,7 +34,7 @@ TEST_CASE("gltf", "[hlsl_parse]") {
   gorilla::DXSAS dxsas;
   dxsas.parse(source);
 
-  auto found = dxsas.find("MATERIAL_COLOR", "Texture2D");
+  auto found = dxsas.find(banana::Semantics::MATERIAL_COLOR, "Texture2D");
   REQUIRE(found);
   REQUIRE(found->name == "BaseColorTexture");
 }

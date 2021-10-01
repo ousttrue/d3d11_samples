@@ -1,1 +1,9 @@
-subdirs(stb json MikkTSpace imgui teapot tinygizmo catch2)
+subdirs(
+  stb
+  json
+  MikkTSpace
+  imgui
+  teapot
+  tinygizmo
+  catch2
+  magic_enum)

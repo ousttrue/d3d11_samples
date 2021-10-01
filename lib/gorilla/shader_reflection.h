@@ -53,7 +53,7 @@ public:
     }
     return false;
   }
-  bool try_get_srv(banana::TextureSemantics semantic, UINT *slot) {
+  bool try_get_srv(banana::Semantics semantic, UINT *slot) {
     return try_get_srv(banana::semantic_srv_name(semantic), slot);
   }
 
@@ -69,7 +69,7 @@ public:
     }
     return false;
   }
-  bool try_get_sampler(banana::TextureSemantics semantic, UINT *slot) {
+  bool try_get_sampler(banana::Semantics semantic, UINT *slot) {
     return try_get_sampler(banana::semantic_sampler_name(semantic), slot);
   }
 

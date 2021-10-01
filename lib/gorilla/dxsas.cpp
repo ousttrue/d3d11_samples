@@ -371,16 +371,15 @@ static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
       auto name = z.next();
       auto token = z.next();
       if (token.type == TokenTypes::Colon) {
-        auto semantic = z.next();
+        auto semantic_token = z.next();
         token = z.next();
 
-        auto s = std::string(semantic.view);
+        auto s = std::string(semantic_token.view);
         AnnotationSemantics field{};
         field.line = z.current_line;
         field.name = name.view;
         field.type = type.view;
-        field.semantic = semantic.view;
-        // semantics_map.insert(std::make_pair(s, value));
+        field.semantic = banana::semantics_from_string(semantic_token.view);
         fields.push_back(field);
       }
       if (token.type != TokenTypes::Semicolon) {
@@ -443,21 +442,21 @@ void DXSAS::parse(std::string_view source) {
         } else {
           // type name;
           // type name : SEMANTIC;
-          Token semantic = {};
+          Token semantic_token = {};
           if (token.type == TokenTypes::Colon) {
-            semantic = z.next();
+            semantic_token = z.next();
             token = z.next();
           }
           if (token.type != TokenTypes::Semicolon) {
             // ;
             throw std::runtime_error("not ;");
           }
-          if (!semantic.view.empty()) {
+          if (!semantic_token.view.empty()) {
             auto &s = semantics.emplace_back(AnnotationSemantics{});
             s.line = z.current_line;
             s.name = name.view;
             s.type = first.view;
-            s.semantic = semantic.view;
+            s.semantic = banana::semantics_from_string(semantic_token.view);
           }
         }
       } else {
@@ -467,6 +466,8 @@ void DXSAS::parse(std::string_view source) {
       // [maxvertexcount(6)]
       z.skip(1, TokenTypes::OpenBracket, TokenTypes::CloseBracket);
     } else if (first.type == TokenTypes::Directive) {
+      // skip
+    } else if (first.type == TokenTypes::Semicolon) {
       // skip
     } else {
       throw std::runtime_error("unknown token");

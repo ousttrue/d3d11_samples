@@ -3,27 +3,27 @@ struct DummyInput {};
 
 struct GS_OUT {
   linear float4 position : SV_POSITION;
-  linear float3 ray : RAY;
-  linear float2 uv : TEXCOORD0;
+  linear float3 ray : NORMAL;
+  linear float2 uv : TEXCOORD;
 };
 
 struct PS_OUT {
-  float4 color : SV_Target;
-  float depth : SV_Depth;
+  float4 color : SV_TARGET;
+  float depth : SV_DEPTH;
 };
 
 cbuffer SceneConstantBuffer : register(b0) {
   float4x4 b0View : CAMERA_VIEW;
   float4x4 b0Projection : CAMERA_PROJECTION;
   float3 b0CameraPosition : CAMERA_POSITION;
-  float2 b0ScreenSize : RENDERTARGET_SIZE;
-  float fovY : CAMERA_FOVY;
+  float4 b0ScreenSize : CURSOR_SCREEN_SIZE;
+  float4 NearFarFovY : CAMERA_NEAR_FAR_FOVY;
 };
 
 float3 ray(float x, float y) {
-  float halfFov = fovY / 2;
+  float halfFov = NearFarFovY.z / 2;
   float t = tan(halfFov);
-  float aspectRatio = b0ScreenSize.x / b0ScreenSize.y;
+  float aspectRatio = b0ScreenSize.z / b0ScreenSize.w;
   return mul(float4(x * t * aspectRatio, y * t, -1, 0), b0View).xyz;
 }
 

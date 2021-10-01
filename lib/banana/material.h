@@ -1,6 +1,7 @@
 #pragma once
 #include "image.h"
 #include "types.h"
+#include "semantics.h"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -18,40 +19,20 @@ enum MaterialStates {
   MaterialStatesMask = 2 << 1,
 };
 
-enum class Float4Semantics {
-  MATERIAL_BASECOLOR,
-  CAMERA_POSITION,
-};
-
-enum class Float4x3Semantics {
-  NODE_NORMAL, // NODE_WORLD_INVERSE_TRANSPOSE
-};
-
-enum class Float4x4Semantics {
-  NODE_WORLD,
-  CAMERA_VIEW,
-  CAMERA_PROJECTION,
-};
-
-enum class TextureSemantics {
-  MATERIAL_COLOR,
-  MATERIAL_NORMAL,
-};
-
-inline std::string_view semantic_srv_name(TextureSemantics semantic) {
+inline std::string_view semantic_srv_name(Semantics semantic) {
   switch (semantic) {
-  case TextureSemantics::MATERIAL_COLOR:
+  case Semantics::MATERIAL_COLOR:
     return "BaseColorTexture";
-  case TextureSemantics::MATERIAL_NORMAL:
+  case Semantics::MATERIAL_NORMAL:
     return "NormalMapTexture";
   }
   return {};
 }
-inline std::string_view semantic_sampler_name(TextureSemantics semantic) {
+inline std::string_view semantic_sampler_name(Semantics semantic) {
   switch (semantic) {
-  case TextureSemantics::MATERIAL_COLOR:
+  case Semantics::MATERIAL_COLOR:
     return "BaseColorSampler";
-  case TextureSemantics::MATERIAL_NORMAL:
+  case Semantics::MATERIAL_NORMAL:
     return "NormalMapSampler";
   }
   return {};
@@ -68,7 +49,7 @@ struct Material {
   // SRV suffix is "Texture"
   // Sampler suffix is "Sampler"
   // ex. BaseColorTexture and BaseColorSampler
-  std::unordered_map<TextureSemantics, std::shared_ptr<Image>> textures;
+  std::unordered_map<Semantics, std::shared_ptr<Image>> textures;
 };
 
 } // namespace banana
