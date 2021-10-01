@@ -12,8 +12,19 @@ struct AnnotationSemantics {
   std::string annotation;
 };
 struct DXSAS {
-  std::unordered_map<std::string, AnnotationSemantics> semantics_map;
+  std::vector<AnnotationSemantics> semantics;
   void parse(std::string_view source);
+  const AnnotationSemantics *find(std::string_view semantic,
+                                  std::string_view type = {}) const {
+    for (auto &s : semantics) {
+      if (s.semantic == semantic) {
+        if (type.empty() || s.type == type) {
+          return &s;
+        }
+      }
+    }
+    return {};
+  }
 };
 
 } // namespace gorilla

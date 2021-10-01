@@ -34,10 +34,17 @@ enum class TokenTypes {
   Integer,
   Float,
   LineComment,
+  Directive,
 };
 
 std::set<std::string_view> type_names = {
-    "void", "int", "float", "float2", "float3", "float4", "float4x4",
+    "void",   "int",      "float",  "float2",    "float3",
+    "float4", "float4x4", "matrix", "Texture2D", "SamplerState",
+};
+
+std::set<std::string_view> prefix_names = {
+    "linear",
+    "row_major",
 };
 
 struct Token {
@@ -46,7 +53,9 @@ struct Token {
 
   bool is_struct() const { return view == "struct"; }
   bool is_cbuffer() const { return view == "cbuffer"; }
-  bool is_prefix() const { return view == "linear"; }
+  bool is_prefix() const {
+    return prefix_names.find(view) != prefix_names.end();
+  }
   bool is_type() const { return type_names.find(view) != type_names.end(); }
 };
 
@@ -118,7 +127,7 @@ public:
     };
   }
 
-  Token get_line_comment() {
+  Token get_line(TokenTypes t) {
     auto begin = _it;
     for (; !is_end(); ++_it) {
       if (*_it == '\n') {
@@ -128,10 +137,14 @@ public:
       }
     }
     return Token{
-        TokenTypes::LineComment,
+        t,
         std::string_view(begin, _it),
     };
   }
+
+  Token get_line_comment() { return get_line(TokenTypes::LineComment); }
+
+  Token get_directive() { return get_line(TokenTypes::Directive); }
 
   char peek() const {
     auto p = _it;
@@ -199,6 +212,9 @@ public:
       case '?':
         return Token{TokenTypes::BinOperator, {_it, ++_it}};
 
+      case '#':
+        return get_directive();
+
       case '0':
       case '1':
       case '2':
@@ -265,8 +281,7 @@ public:
         return get_symbol();
 
       default:
-        assert(false);
-        break;
+        throw std::runtime_error("unknown char");
       }
     }
 
@@ -316,7 +331,8 @@ public:
 
 namespace gorilla {
 
-static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z) {
+static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
+                                                     bool is_struct) {
   auto name = z.next();
   if (name.type != TokenTypes::Symbol) {
     throw std::runtime_error("struct not name");
@@ -349,7 +365,8 @@ static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z) {
         type = z.next();
       }
       if (!type.is_type()) {
-        throw std::runtime_error("not type");
+        throw std::runtime_error(
+            (std::string("not type: ") + std::string(type.view)).c_str());
       }
       auto name = z.next();
       auto token = z.next();
@@ -377,9 +394,11 @@ static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z) {
     } break;
     }
   }
-  auto fourth = z.next();
-  if (fourth.type != TokenTypes::Semicolon) {
-    throw std::runtime_error("struct not ;");
+  if (is_struct) {
+    auto fourth = z.next();
+    if (fourth.type != TokenTypes::Semicolon) {
+      throw std::runtime_error("struct not ;");
+    }
   }
   return fields;
 }
@@ -394,9 +413,9 @@ void DXSAS::parse(std::string_view source) {
 
     if (first.is_struct() || first.is_cbuffer()) {
       // struct
-      auto fields = parse_struct(z);
+      auto fields = parse_struct(z, first.view == "struct");
       for (auto &f : fields) {
-        semantics_map.insert(std::make_pair(f.semantic, f));
+        semantics.push_back(f);
       }
     } else if (first.type == TokenTypes::Symbol) {
       // constant ?
@@ -404,8 +423,14 @@ void DXSAS::parse(std::string_view source) {
       if (name.type == TokenTypes::Symbol) {
         auto token = z.next();
         if (token.type == TokenTypes::OpenParenthesis) {
+          // function ()
           z.skip_params();
           token = z.next();
+          Token semantic = {};
+          if (token.type == TokenTypes::Colon) {
+            semantic = z.next(); // float4 psMAin() : SV_TARGET
+            token = z.next();
+          }
           if (token.type == TokenTypes::OpenBrace) {
             // function body
             z.skip_block();
@@ -415,6 +440,25 @@ void DXSAS::parse(std::string_view source) {
               throw std::runtime_error("not ;");
             }
           }
+        } else {
+          // type name;
+          // type name : SEMANTIC;
+          Token semantic = {};
+          if (token.type == TokenTypes::Colon) {
+            semantic = z.next();
+            token = z.next();
+          }
+          if (token.type != TokenTypes::Semicolon) {
+            // ;
+            throw std::runtime_error("not ;");
+          }
+          if (!semantic.view.empty()) {
+            auto &s = semantics.emplace_back(AnnotationSemantics{});
+            s.line = z.current_line;
+            s.name = name.view;
+            s.type = first.view;
+            s.semantic = semantic.view;
+          }
         }
       } else {
         throw std::runtime_error("not implemented");
@@ -422,8 +466,10 @@ void DXSAS::parse(std::string_view source) {
     } else if (first.type == TokenTypes::OpenBracket) {
       // [maxvertexcount(6)]
       z.skip(1, TokenTypes::OpenBracket, TokenTypes::CloseBracket);
+    } else if (first.type == TokenTypes::Directive) {
+      // skip
     } else {
-      throw std::runtime_error("not implemented");
+      throw std::runtime_error("unknown token");
     }
   }
 }

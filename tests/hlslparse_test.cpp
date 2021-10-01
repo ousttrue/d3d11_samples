@@ -6,7 +6,7 @@
 #include <gorilla/shader_reflection.h>
 #include <iostream>
 
-TEST_CASE("hlsl_parse", "[hlsl]") {
+TEST_CASE("grid", "[hlsl_parse]") {
 
   auto source = banana::get_string("grid.hlsl");
   REQUIRE(!source.empty());
@@ -21,9 +21,20 @@ TEST_CASE("hlsl_parse", "[hlsl]") {
   gorilla::DXSAS dxsas;
   dxsas.parse(source);
 
-  auto found = dxsas.semantics_map.find("CAMERA_VIEW");
-  REQUIRE(found != dxsas.semantics_map.end());
-  REQUIRE(found->second.name == "b0View");
-  REQUIRE(found->second.type == "float4x4");
-  REQUIRE(found->second.line == 16);
+  auto found = dxsas.find("CAMERA_VIEW");
+  REQUIRE(found->name == "b0View");
+  REQUIRE(found->type == "float4x4");
+  REQUIRE(found->line == 16);
+}
+
+TEST_CASE("gltf", "[hlsl_parse]") {
+  auto source = banana::get_string("gltf.hlsl");
+  REQUIRE(!source.empty());
+
+  gorilla::DXSAS dxsas;
+  dxsas.parse(source);
+
+  auto found = dxsas.find("MATERIAL_COLOR", "Texture2D");
+  REQUIRE(found);
+  REQUIRE(found->name == "BaseColorTexture");
 }

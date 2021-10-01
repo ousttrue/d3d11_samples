@@ -1,10 +1,10 @@
 #if defined(TEXTURE_COLOR)
-Texture2D BaseColorTexture : register(t0);
-SamplerState BaseColorSampler : register(s0);
+Texture2D BaseColorTexture : MATERIAL_COLOR;
+SamplerState BaseColorSampler : MATERIAL_COLOR;
 #endif
 #if defined(TEXTURE_NORMAL)
-Texture2D NormalMapTexture : register(t1);
-SamplerState NormalMapSampler : register(s1);
+Texture2D NormalMapTexture : MATERIAL_NORMAL;
+SamplerState NormalMapSampler : MATERIAL_NORMAL;
 #endif
 struct VS_IN {
   float3 Position : POSITION;
