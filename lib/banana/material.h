@@ -18,29 +18,40 @@ enum MaterialStates {
   MaterialStatesMask = 2 << 1,
 };
 
-enum class TextureSemantics {
-  None = 0,
-  Color = 1 << 0,
-  Normal = 1 << 1,
+enum class Float4Semantics {
+  MATERIAL_BASECOLOR,
+  CAMERA_POSITION,
 };
+
+enum class Float4x3Semantics {
+  NODE_NORMAL, // NODE_WORLD_INVERSE_TRANSPOSE
+};
+
+enum class Float4x4Semantics {
+  NODE_WORLD,
+  CAMERA_VIEW,
+  CAMERA_PROJECTION,
+};
+
+enum class TextureSemantics {
+  MATERIAL_COLOR,
+  MATERIAL_NORMAL,
+};
+
 inline std::string_view semantic_srv_name(TextureSemantics semantic) {
   switch (semantic) {
-  case TextureSemantics::None:
-    break;
-  case TextureSemantics::Color:
+  case TextureSemantics::MATERIAL_COLOR:
     return "BaseColorTexture";
-  case TextureSemantics::Normal:
+  case TextureSemantics::MATERIAL_NORMAL:
     return "NormalMapTexture";
   }
   return {};
 }
 inline std::string_view semantic_sampler_name(TextureSemantics semantic) {
   switch (semantic) {
-  case TextureSemantics::None:
-    break;
-  case TextureSemantics::Color:
+  case TextureSemantics::MATERIAL_COLOR:
     return "BaseColorSampler";
-  case TextureSemantics::Normal:
+  case TextureSemantics::MATERIAL_NORMAL:
     return "NormalMapSampler";
   }
   return {};
