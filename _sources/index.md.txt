@@ -45,12 +45,11 @@ three_d/depth_test
 
 ## Shading
 
-* VertexADS(Ambient, Diffuse, Specular)
-* PixelADS(Ambient, Diffuse, Specular)
-* NormalMap
 * Cook-Torrance
 
 ```{toctree}
+shading/ads
+shading/tangent_space
 shading/pbr
 ```
 
