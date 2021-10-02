@@ -1,3 +1,11 @@
+struct VS_IN {
+  float3 Position : POSITION;
+  float3 NORMAL : NORMAL;
+  float2 Tex : TEXCOORD0;
+  float4 COLOR : COLOR0;
+  float4 TANGENT : TANGENT;
+};
+
 #if defined(TEXTURE_COLOR)
 Texture2D BaseColorTexture : MATERIAL_COLOR;
 SamplerState BaseColorSampler : MATERIAL_COLOR;
@@ -6,13 +14,6 @@ SamplerState BaseColorSampler : MATERIAL_COLOR;
 Texture2D NormalMapTexture : MATERIAL_NORMAL;
 SamplerState NormalMapSampler : MATERIAL_NORMAL;
 #endif
-struct VS_IN {
-  float3 Position : POSITION;
-  float3 NORMAL : NORMAL;
-  float2 Tex : TEXCOORD0;
-  float4 COLOR : COLOR0;
-  float4 TANGENT : TANGENT;
-};
 
 struct PS_IN {
   float4 Position : SV_POSITION;

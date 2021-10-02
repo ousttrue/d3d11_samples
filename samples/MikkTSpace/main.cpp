@@ -27,7 +27,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 2;
   }
   auto root = loader.scenes[0].nodes[0];
-
+  root->mesh->submeshes[0].material->shader_name = "lighting/tspace.hlsl";
+  
   // adjust
   banana::AABB aabb;
   root->calc_aabb(banana::Matrix4x4::identity(), &aabb);
@@ -39,13 +40,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   banana::OrbitCamera camera;
   camera.fit(aabb);
 
+  // world
+  banana::LightInfo lights[5] = {0};
+  lights[0].intensity = banana::Float3{1, 1, 1};
+  lights[0].position = banana::Float3{0.5, -1, -1};
+  lights[0].is_point = 0;
+  lights[1].intensity = banana::Float3{0, 0, 0};
+  lights[2].intensity = banana::Float3{0, 0, 0};
+  lights[3].intensity = banana::Float3{0, 0, 0};
+  lights[4].intensity = banana::Float3{0, 0, 0};
+
   // main loop
   Renderer renderer;
   gorilla::ScreenState state;
   auto context = app.context();
   while (app.begin_frame(&state)) {
     update_camera(&camera, state);
-    renderer.render(device, context, root, &camera);
+    renderer.render(device, context, root, &camera, lights);
     app.end_frame();
   }
 

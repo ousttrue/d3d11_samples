@@ -2,24 +2,25 @@
 #include "scene_processor.h"
 #include "banana/material.h"
 #include "banana/mesh.h"
+#include "banana/semantics.h"
 #include "banana/types.h"
 
 namespace banana {
 
 void SceneProcessor::new_frame(const banana::OrbitCamera *camera,
-                             std::span<const LightInfo> lights) {
+                               std::span<const LightInfo> lights) {
   commands.clear();
 
   this->view = camera->view;
   this->viewprojection = camera->view * camera->projection;
   this->normal_matrix = camera->normal_matrix();
   auto cp = camera->position();
-  this->camera_position = *((Float3*)&cp);
+  this->camera_position = *((Float3 *)&cp);
   this->lights = lights;
 }
 
 void SceneProcessor::traverse(const std::shared_ptr<banana::Node> &node,
-                            const Matrix4x4 &parent) {
+                              const Matrix4x4 &parent) {
 
   auto local = node->transform.matrix();
   auto m = local * parent;
@@ -33,15 +34,20 @@ void SceneProcessor::traverse(const std::shared_ptr<banana::Node> &node,
           submesh.state,
       });
 
-      commands.push_back(commands::SetVariable{Semantics::WORLDVIEWPROJECTION, m * viewprojection});
-      commands.push_back(commands::SetVariable{Semantics::VIEWPROJECTION, viewprojection});
+      commands.push_back(commands::SetVariable{Semantics::WORLDVIEWPROJECTION,
+                                               m * viewprojection});
+      commands.push_back(
+          commands::SetVariable{Semantics::VIEWPROJECTION, viewprojection});
       commands.push_back(commands::SetVariable{Semantics::WORLDVIEW, view});
-      commands.push_back(commands::SetVariable{Semantics::OBJECT_NORMAL, normal_matrix});
-      commands.push_back(commands::SetVariable{Semantics::CAMERA_POSITION, camera_position});
+      commands.push_back(
+          commands::SetVariable{Semantics::NORMAL_MATRIX, m * view});
+      commands.push_back(
+          commands::SetVariable{Semantics::CAMERA_POSITION, camera_position});
 
       size_t offset = 0;
       for (auto &light : lights) {
-        commands.push_back(commands::SetVariable{Semantics::LIGHT_LIST, light, offset});
+        commands.push_back(
+            commands::SetVariable{Semantics::LIGHT_LIST, light, offset});
         offset += sizeof(LightInfo);
       }
 

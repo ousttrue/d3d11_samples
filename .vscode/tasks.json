@@ -13,9 +13,9 @@
             "problemMatcher": []
         },
         {
-            "label": "sphinx-watch",
+            "label": "sphinx-autobuild",
             "type": "shell",
-            "command": "sphinx-autobuild . ../public",
+            "command": "sphinx-autobuild . ../public --open-browser",
             "options": {
                 "cwd": "${workspaceFolder}/docs"
             },

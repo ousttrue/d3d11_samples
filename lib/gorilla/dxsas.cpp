@@ -338,6 +338,83 @@ public:
 
 namespace gorilla {
 
+// auto token = z.next();
+
+//   // type name;
+//   // type name : SEMANTIC;
+//   Token semantic_token = {};
+//   if (token.type == TokenTypes::Colon) {
+//     semantic_token = z.next();
+//     token = z.next();
+//   }
+//   if (token.type != TokenTypes::Semicolon) {
+//     // ;
+//     throw std::runtime_error("not ;");
+//   }
+//   if (!semantic_token.view.empty()) {
+//     auto &s = semantics.emplace_back(AnnotationSemantics{});
+//     s.line = z.current_line;
+//     s.name = name.view;
+//     s.type = first.view;
+//     s.semantic = banana::semantics_from_string(semantic_token.view);
+//   }
+// }
+
+std::optional<AnnotationSemantics> parse_field(Tokenizer &z, Token token) {
+  std::optional<AnnotationSemantics> result;
+  auto type = token;
+  if (type.is_prefix()) {
+    type = z.next();
+  }
+  // if (!type.is_type()) {
+  //   throw std::runtime_error(
+  //       (std::string("not type: ") + std::string(type.view)).c_str());
+  // }
+  auto name = z.next();
+  token = z.next();
+  if (token.type == TokenTypes::OpenParenthesis) {
+    // function ()
+    z.skip_params();
+    token = z.next();
+    Token semantic = {};
+    if (token.type == TokenTypes::Colon) {
+      semantic = z.next(); // float4 psMAin() : SV_TARGET
+      token = z.next();
+    }
+    if (token.type == TokenTypes::OpenBrace) {
+      // function body
+      z.skip_block();
+      // without smicolon
+    } else {
+      if (token.type != TokenTypes::Semicolon) {
+        throw std::runtime_error("not ;");
+      }
+    }
+  } else {
+    if (token.type == TokenTypes::OpenBracket) {
+      // array
+      z.skip(1, TokenTypes::OpenBracket, TokenTypes::CloseBracket);
+      token = z.next();
+    }
+    if (token.type == TokenTypes::Colon) {
+      auto semantic_token = z.next();
+      token = z.next();
+
+      auto s = std::string(semantic_token.view);
+      AnnotationSemantics field{};
+      field.line = z.current_line;
+      field.name = name.view;
+      field.type = type.view;
+      field.semantic = banana::semantics_from_string(semantic_token.view);
+      result = field;
+    }
+    if (token.type != TokenTypes::Semicolon) {
+      throw std::runtime_error("field not ;");
+    }
+  }
+  return result;
+}
+
 static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
                                                      bool is_struct) {
   auto name = z.next();
@@ -367,42 +444,14 @@ static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
       break;
 
     case TokenTypes::Symbol: {
-      auto type = token;
-      if (type.is_prefix()) {
-        type = z.next();
+      auto field = parse_field(z, token);
+      if (field.has_value()) {
+        fields.push_back(field.value());
       }
-      // if (!type.is_type()) {
-      //   throw std::runtime_error(
-      //       (std::string("not type: ") + std::string(type.view)).c_str());
-      // }
-      auto name = z.next();
-      auto token = z.next();
-      if (token.type == TokenTypes::OpenBracket) {
-        // array
-        z.skip(1, TokenTypes::OpenBracket, TokenTypes::CloseBracket);
-        token = z.next();
-      }
-      if (token.type == TokenTypes::Colon) {
-        auto semantic_token = z.next();
-        token = z.next();
-
-        auto s = std::string(semantic_token.view);
-        AnnotationSemantics field{};
-        field.line = z.current_line;
-        field.name = name.view;
-        field.type = type.view;
-        field.semantic = banana::semantics_from_string(semantic_token.view);
-        fields.push_back(field);
-      }
-      if (token.type != TokenTypes::Semicolon) {
-        throw std::runtime_error("field not ;");
-      }
-      break;
     }
 
-    default: {
-      // field
-    } break;
+    default:
+      break;
     }
   }
   if (is_struct) {
@@ -430,52 +479,9 @@ void DXSAS::parse(std::string_view source) {
       }
     } else if (first.type == TokenTypes::Symbol) {
       // constant ?
-      if (first.is_prefix()) {
-        first = z.next();
-      }
-      auto name = z.next();
-      if (name.type == TokenTypes::Symbol) {
-        auto token = z.next();
-        if (token.type == TokenTypes::OpenParenthesis) {
-          // function ()
-          z.skip_params();
-          token = z.next();
-          Token semantic = {};
-          if (token.type == TokenTypes::Colon) {
-            semantic = z.next(); // float4 psMAin() : SV_TARGET
-            token = z.next();
-          }
-          if (token.type == TokenTypes::OpenBrace) {
-            // function body
-            z.skip_block();
-            // without smicolon
-          } else {
-            if (token.type != TokenTypes::Semicolon) {
-              throw std::runtime_error("not ;");
-            }
-          }
-        } else {
-          // type name;
-          // type name : SEMANTIC;
-          Token semantic_token = {};
-          if (token.type == TokenTypes::Colon) {
-            semantic_token = z.next();
-            token = z.next();
-          }
-          if (token.type != TokenTypes::Semicolon) {
-            // ;
-            throw std::runtime_error("not ;");
-          }
-          if (!semantic_token.view.empty()) {
-            auto &s = semantics.emplace_back(AnnotationSemantics{});
-            s.line = z.current_line;
-            s.name = name.view;
-            s.type = first.view;
-            s.semantic = banana::semantics_from_string(semantic_token.view);
-          }
-        }
-      } else {
-        throw std::runtime_error("not implemented");
+      auto field = parse_field(z, first);
+      if (field.has_value()) {
+        semantics.push_back(field.value());
       }
     } else if (first.type == TokenTypes::OpenBracket) {
       // [maxvertexcount(6)]
