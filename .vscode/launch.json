@@ -119,6 +119,13 @@
             "program": "${workspaceFolder}/build/Debug/bin/LightingVertexADS.exe",
         },
         {
+            "name": "LightingPixelADS",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/LightingPixelADS.exe",
+        },
+        {
             "name": "-- Util --"
         },
         {

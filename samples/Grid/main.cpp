@@ -3,8 +3,9 @@
 #include <banana/asset.h>
 #include <banana/orbit_camera.h>
 #include <banana/types.h>
-#include <gorilla/drawable.h>
 #include <gorilla/device_and_target.h>
+#include <gorilla/drawable.h>
+#include <gorilla/gizmo.h>
 #include <gorilla/window.h>
 #include <iostream>
 #include <update_camera.h>
@@ -35,19 +36,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   // setup pipeline
-  auto shader = banana::get_string("grid.hlsl");
-  if (shader.empty()) {
+  auto grid = gorilla::gizmo::create_grid(device);
+  if(!grid)
+  {
     return 3;
-  }
-  gorilla::Drawable drawable;
-  if (!drawable.state.create(device, true)) {
-    return 4;
-  }
-  auto [ok, error] = drawable.pipeline.compile_shader(device, shader, "vsMain",
-                                                      "gsMain", "psMain");
-  if (!ok) {
-    std::cerr << error << std::endl;
-    return 5;
   }
 
   // main loop
@@ -64,7 +56,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         0.5f;
     float clear[] = {0.5, v, 0.5, 1.0f};
     renderer.begin_frame(state, clear);
-    drawable.draw(context, camera);
+    grid->draw(context, camera);
     renderer.end_frame();
   }
 

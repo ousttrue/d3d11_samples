@@ -8,7 +8,7 @@
 #include <teapot.h>
 
 auto CLASS_NAME = "CLASS_NAME";
-auto WINDOW_TITLE = "LightingVertexADS";
+auto WINDOW_TITLE = "LightingPixelADS";
 auto WIDTH = 320;
 auto HEIGHT = 320;
 
@@ -40,7 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   submesh.draw_offset = 0;
   submesh.draw_count = static_cast<UINT>(node->mesh->indices.size());
   submesh.material = std::make_shared<banana::Material>();
-  submesh.material->shader_name = "lighting/vertex_ads.hlsl";
+  submesh.material->shader_name = "lighting/pixel_ads.hlsl";
   submesh.material->properties[banana::Semantics::MATERIAL_COLOR] =
       banana::Float3(0.4f, 0.8f, 0.6f);
   submesh.material->properties[banana::Semantics::MATERIAL_AMBIENT] =

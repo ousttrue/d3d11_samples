@@ -18,6 +18,7 @@ subdirs(
   FontTexture
   #
   LightingVertexADS
+  LightingPixelADS
   #
   ImageLoader
   GltfLoader
