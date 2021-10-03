@@ -1,3 +1,4 @@
+// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/
 #include "gltf.h"
 #include "asset.h"
 #include "banana/material.h"
@@ -9,25 +10,33 @@
 #include <fstream>
 #include <mikktspace.h>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <stdexcept>
 #include <utility>
 
 namespace banana::gltf {
 
+#define DefAttribute(attr) constexpr auto attr = #attr
+
+DefAttribute(POSITION);
+DefAttribute(NORMAL);
+DefAttribute(TANGENT);
+DefAttribute(TEXCOORD_0);
+DefAttribute(COLOR_0);
+
+// same as assets/gltf.hlsl
 struct Vertex {
   Float3 position;
-  Float3 normal;
   Float2 tex0;
-  Float4 color;
+  Float3 normal;
   Float4 tangent;
+  Float4 color0;
 };
 using Index = uint32_t;
 const size_t NORMAL_OFFSET = offsetof(Vertex, normal);
 const size_t TEX0_OFFSET = offsetof(Vertex, tex0);
-const size_t COLOR_OFFSET = offsetof(Vertex, color);
 const size_t TANGENT_OFFSET = offsetof(Vertex, tangent);
-
-// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/
+const size_t COLOR_OFFSET = offsetof(Vertex, color0);
 
 template <size_t N, typename T> T load_float_array(const nlohmann::json &j) {
   std::array<float, N> values;
@@ -115,8 +124,10 @@ static std::shared_ptr<Image> load_texture(const nlohmann::json &gltf,
 static MaterialWithState create_default_material(std::string_view name) {
   auto material = std::make_shared<Material>();
   material->shader_name = "gltf.hlsl";
-  material->properties.insert(std::make_pair(Semantics::MATERIAL_COLOR, Float4{1, 1, 1, 1}));
-  material->properties.insert(std::make_pair(Semantics::MATERIAL_NORMAL_SCALE, 1.0f));
+  material->properties.insert(
+      std::make_pair(Semantics::MATERIAL_COLOR, Float4{1, 1, 1, 1}));
+  material->properties.insert(
+      std::make_pair(Semantics::MATERIAL_NORMAL_SCALE, 1.0f));
   return {material, MaterialStatesNone};
 }
 
@@ -149,7 +160,8 @@ load_material(const nlohmann::json &gltf, const nlohmann::json &gltf_material,
       material->textures[Semantics::MATERIAL_NORMAL] = textures[texture_index];
     }
     if (texture.contains("scale")) {
-      material->properties[Semantics::MATERIAL_NORMAL_SCALE] = (float)texture["scale"];
+      material->properties[Semantics::MATERIAL_NORMAL_SCALE] =
+          (float)texture["scale"];
     }
   }
 
@@ -289,6 +301,20 @@ size_t load_indices(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
   return indices.size();
 }
 
+template <typename T>
+std::optional<std::span<const T>>
+get_attribute(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
+              const nlohmann::json &gltf_prim, const char *key) {
+  auto attributes = gltf_prim["attributes"];
+  if (!attributes.contains(key)) {
+    return {};
+  }
+
+  int accessor_index = attributes[key];
+  auto values = from_accessor<T>(gltf, get_buffer, accessor_index);
+  return values;
+}
+
 static std::shared_ptr<Mesh>
 load_mesh(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
           const nlohmann::json &gltf_mesh,
@@ -309,48 +335,65 @@ load_mesh(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
       submesh.state = s;
     }
 
-    auto attributes = gltf_prim["attributes"];
+    auto positions =
+        get_attribute<Float3>(gltf, get_buffer, gltf_prim, POSITION);
     size_t vertex_count = 0;
-
-    {
-      // position
-      int position_accessor_index = attributes["POSITION"];
-      auto position =
-          from_accessor<Float3>(gltf, get_buffer, position_accessor_index);
-      vertex_count = position.size();
-      mesh->vertices.resize((vertex_offset + position.size()) * sizeof(Vertex));
+    if (positions.has_value()) {
+      vertex_count = positions->size();
+      mesh->vertices.resize((vertex_offset + positions->size()) *
+                            sizeof(Vertex));
       size_t i = 0;
       auto vertices = (Vertex *)mesh->vertices.data();
-      for (auto &p : position) {
+      for (auto &p : *positions) {
         vertices[vertex_offset + (i++)].position = p;
         mesh->aabb.expand(p);
       }
+    } else {
+      throw std::runtime_error("no POSITION");
     }
 
-    if (attributes.contains("TEXCOORD_0")) {
-      // tex
-      int tex_accessor_index = attributes["TEXCOORD_0"];
-      auto tex = from_accessor<Float2>(gltf, get_buffer, tex_accessor_index);
-      assert(tex.size() == vertex_count);
-      size_t i = 0;
-      auto vertices = (Vertex *)mesh->vertices.data();
-      for (auto &uv : tex) {
-        vertices[vertex_offset + i++].tex0 = uv;
+    {
+      auto tex = get_attribute<Float2>(gltf, get_buffer, gltf_prim, TEXCOORD_0);
+      if (tex.has_value()) {
+        assert(tex->size() == vertex_count);
+        size_t i = 0;
+        auto vertices = (Vertex *)mesh->vertices.data();
+        for (auto &uv : *tex) {
+          vertices[vertex_offset + i++].tex0 = uv;
+        }
       }
     }
 
-    auto has_tangent = attributes.contains("TANGENT");
-    if (has_tangent) {
-      // tangent
-      int accessor_index = attributes["TANGENT"];
-      auto tangents = from_accessor<Float4>(gltf, get_buffer, accessor_index);
-      assert(tangents.size() == vertex_count);
-      size_t i = 0;
-      auto vertices = (Vertex *)mesh->vertices.data();
-      for (auto &tangent : tangents) {
-        vertices[vertex_offset + i++].tangent = tangent;
+    {
+      auto normal = get_attribute<Float3>(gltf, get_buffer, gltf_prim, NORMAL);
+      if (normal.has_value()) {
+        assert(normal->size() == vertex_count);
+        size_t i = 0;
+        auto vertices = (Vertex *)mesh->vertices.data();
+        for (auto &n : *normal) {
+          vertices[vertex_offset + i++].normal = n;
+        }
       }
     }
+
+    bool has_tangent = false;
+    {
+      auto tangent =
+          get_attribute<Float4>(gltf, get_buffer, gltf_prim, TANGENT);
+      if (tangent.has_value()) {
+        has_tangent = true;
+        assert(tangent->size() == vertex_count);
+        size_t i = 0;
+        auto vertices = (Vertex *)mesh->vertices.data();
+        for (auto &t : *tangent) {
+          vertices[vertex_offset + i++].tangent = t;
+        }
+      }
+    }
+
+    // TODO Color
+    // TODO Joint
+    // TODO Weight
 
     if (gltf_prim.contains("indices")) {
       // indices

@@ -1,9 +1,9 @@
 struct VS_IN {
   float3 Position : POSITION;
-  float3 NORMAL : NORMAL;
   float2 Tex : TEXCOORD0;
-  float4 COLOR : COLOR0;
+  float3 NORMAL : NORMAL;
   float4 TANGENT : TANGENT;
+  float4 COLOR : COLOR0;
 };
 
 #if defined(TEXTURE_COLOR)
