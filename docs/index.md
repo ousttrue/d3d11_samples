@@ -60,6 +60,7 @@ three_d/depth_test
 
 shading/ads
 shading/tangent_space
+shading/fresnel
 shading/pbr
 ```
 

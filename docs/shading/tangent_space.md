@@ -4,7 +4,7 @@ Tangent 空間で法線(n)と光源方向(s)の内積をする。
 
 <http://www.mikktspace.com/>
 
-# tangent
+## tangent
 
 tangent は、頂点バッファ(position, normal, tex)から mikktspace アルゴリズムにより得る。
 
