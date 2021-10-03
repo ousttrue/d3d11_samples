@@ -51,9 +51,83 @@
   <section class="tex2jax_ignore mathjax_ignore" id="tangent-space-lighting">
 <h1>Tangent Space Lighting<a class="headerlink" href="#tangent-space-lighting" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>Tangent 空間で法線(n)と光源方向(s)の内積をする。</p>
+<p><a class="reference external" href="http://www.mikktspace.com/">http://www.mikktspace.com/</a></p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="tangent">
+<h1>tangent<a class="headerlink" href="#tangent" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>tangent は、頂点バッファ(position, normal, tex)から mikktspace アルゴリズムにより得る。</p>
+<section id="vs">
+<h2>vs<a class="headerlink" href="#vs" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">../../assets/lighting/tspace.hlsl</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
+<div class="highlight-hlsl notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">VS_IN</span> <span class="p">{</span>
+  <span class="kt">float3</span> <span class="n">Position</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
+  <span class="kt">float2</span> <span class="n">Tex</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
+  <span class="kt">float3</span> <span class="n">Normal</span> <span class="o">:</span> <span class="n">NORMAL</span><span class="p">;</span>
+  <span class="kt">float4</span> <span class="n">Tangent</span> <span class="o">:</span> <span class="n">TANGENT</span><span class="p">;</span>
+  <span class="kt">float4</span> <span class="n">Color</span> <span class="o">:</span> <span class="n">COLOR0</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">row_major</span> <span class="kt">matrix</span> <span class="n">MVP</span> <span class="o">:</span> <span class="n">WORLDVIEWPROJECTION</span><span class="p">;</span>
+<span class="k">row_major</span> <span class="kt">matrix</span> <span class="n">ModelViewMatrix</span> <span class="o">:</span> <span class="n">WORLDVIEW</span><span class="p">;</span>
+<span class="k">row_major</span> <span class="kt">float3x3</span> <span class="n">NormalMatrix</span> <span class="o">:</span> <span class="n">NORMAL_MATRIX</span><span class="p">;</span>
+<span class="k">struct</span> <span class="n">LightInfo</span> <span class="p">{</span>
+  <span class="c1">// w == 1 ? point : directional</span>
+  <span class="kt">float4</span> <span class="n">Position</span><span class="p">;</span>
+  <span class="kt">float4</span> <span class="n">Intensity</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">LightInfo</span> <span class="n">Lights</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">:</span> <span class="n">LIGHT_LIST</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">PS_IN</span> <span class="p">{</span>
+  <span class="kt">float4</span> <span class="n">Position</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
+  <span class="kt">float2</span> <span class="n">Tex</span> <span class="o">:</span> <span class="n">TEXCOORD</span><span class="p">;</span>
+  <span class="kt">float3</span> <span class="n">LightDir</span> <span class="o">:</span> <span class="n">TANGENT</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">float3</span> <span class="n">get_light_dir</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">normalize</span><span class="p">(</span><span class="kt">float3</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">));</span> <span class="p">}</span>
+
+<span class="kt">float3x3</span> <span class="n">get_tspace</span><span class="p">(</span><span class="kt">float3</span> <span class="n">object_normal</span><span class="p">,</span> <span class="kt">float4</span> <span class="n">object_tangent</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">float3</span> <span class="n">normal</span> <span class="o">=</span> <span class="nb">normalize</span><span class="p">(</span><span class="nb">mul</span><span class="p">(</span><span class="n">object_normal</span><span class="p">,</span> <span class="n">NormalMatrix</span><span class="p">));</span>
+  <span class="kt">float3</span> <span class="n">tangent</span> <span class="o">=</span> <span class="nb">normalize</span><span class="p">(</span><span class="nb">mul</span><span class="p">(</span><span class="n">object_tangent</span><span class="p">.</span><span class="n">xyz</span><span class="p">,</span> <span class="n">NormalMatrix</span><span class="p">));</span>
+  <span class="kt">float3</span> <span class="n">binormal</span> <span class="o">=</span> <span class="nb">normalize</span><span class="p">(</span><span class="nb">cross</span><span class="p">(</span><span class="n">normal</span><span class="p">,</span> <span class="n">tangent</span><span class="p">))</span> <span class="o">*</span> <span class="n">object_tangent</span><span class="p">.</span><span class="n">w</span><span class="p">;</span>
+  <span class="k">return</span> <span class="kt">float3x3</span><span class="p">(</span><span class="n">tangent</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">binormal</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">normal</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">tangent</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">binormal</span><span class="p">.</span><span class="n">y</span><span class="p">,</span>
+                  <span class="n">normal</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">tangent</span><span class="p">.</span><span class="n">z</span><span class="p">,</span> <span class="n">binormal</span><span class="p">.</span><span class="n">z</span><span class="p">,</span> <span class="n">normal</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">PS_IN</span> <span class="n">vsMain</span><span class="p">(</span><span class="n">VS_IN</span> <span class="n">In</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">PS_IN</span> <span class="n">Out</span><span class="p">;</span>
+  <span class="n">Out</span><span class="p">.</span><span class="n">Position</span> <span class="o">=</span> <span class="nb">mul</span><span class="p">(</span><span class="kt">float4</span><span class="p">(</span><span class="n">In</span><span class="p">.</span><span class="n">Position</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">MVP</span><span class="p">);</span>
+  <span class="n">Out</span><span class="p">.</span><span class="n">Tex</span> <span class="o">=</span> <span class="n">In</span><span class="p">.</span><span class="n">Tex</span><span class="p">;</span>
+  <span class="n">Out</span><span class="p">.</span><span class="n">LightDir</span> <span class="o">=</span> <span class="nb">mul</span><span class="p">(</span><span class="n">get_light_dir</span><span class="p">(),</span> <span class="n">get_tspace</span><span class="p">(</span><span class="n">In</span><span class="p">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">In</span><span class="p">.</span><span class="n">Tangent</span><span class="p">));</span>
+  <span class="k">return</span> <span class="n">Out</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">Texture2D</span> <span class="n">NormalMapTexture</span> <span class="o">:</span> <span class="n">MATERIAL_NORMAL</span><span class="p">;</span>
+<span class="kt">SamplerState</span> <span class="n">NormalMapSampler</span> <span class="o">:</span> <span class="n">MATERIAL_NORMAL</span><span class="p">;</span>
+
+<span class="kt">float4</span> <span class="n">psMain</span><span class="p">(</span><span class="n">PS_IN</span> <span class="n">In</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span> <span class="p">{</span>
+  <span class="kt">float3</span> <span class="n">normal</span> <span class="o">=</span> <span class="n">NormalMapTexture</span><span class="p">.</span><span class="n">Sample</span><span class="p">(</span><span class="n">NormalMapSampler</span><span class="p">,</span> <span class="n">In</span><span class="p">.</span><span class="n">Tex</span><span class="p">).</span><span class="n">xyz</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">float</span> <span class="n">I</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">dot</span><span class="p">(</span><span class="n">In</span><span class="p">.</span><span class="n">LightDir</span><span class="p">,</span> <span class="n">normal</span><span class="p">),</span> <span class="mo">0</span><span class="p">);</span>
+  <span class="k">return</span> <span class="kt">float4</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+<p>Light ベクトル を <code class="docutils literal notranslate"><span class="pre">tspace</span></code> に変形しておく。
+tspace は、頂点の normal と tangent から得ることができる。</p>
+</section>
+<section id="ps">
+<h2>ps<a class="headerlink" href="#ps" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>uv から法線マップにアクセスして法線を得る。
+この法線は、 <code class="docutils literal notranslate"><span class="pre">tspace</span></code> の法線。</p>
+</section>
+<section id="normalmap">
+<h2>NormalMap を作る方法<a class="headerlink" href="#normalmap" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
-<li><p>NormalMap</p></li>
+<li><p>Substance Painter がデファクトらしい(使ったことない)。</p></li>
+<li><p><a class="reference external" href="https://www.tomog-storage.com/entry/Blender-Beginner-ExportNomarlMapByBlender">Blender ノーマルマップ作成・出力方法</a></p></li>
 </ul>
+</section>
 </section>
 
 
@@ -63,6 +137,17 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tangent Space Lighting</a></li>
+<li><a class="reference internal" href="#tangent">tangent</a><ul>
+<li><a class="reference internal" href="#vs">vs</a></li>
+<li><a class="reference internal" href="#ps">ps</a></li>
+<li><a class="reference internal" href="#normalmap">NormalMap を作る方法</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>前のトピックへ</h4>
   <p class="topless"><a href="ads.html"
                         title="前の章へ">Phong reflection model: ADS(Ambient Diffuse Specular)</a></p>

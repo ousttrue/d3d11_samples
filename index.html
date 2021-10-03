@@ -49,6 +49,10 @@
 <p>d3d11 の備忘録。</p>
 <section id="id1">
 <h2>準備<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces">https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces</a></p></li>
+<li><p><a class="reference external" href="https://tositeru.github.io/ImasaraDX11/">https://tositeru.github.io/ImasaraDX11/</a></p></li>
+</ul>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="source.html">Source</a></li>
@@ -84,17 +88,18 @@
 <li class="toctree-l1"><a class="reference internal" href="basic/basic_pipeline.html">Basic Pipeline</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="basic/basic_pipeline.html#id1">頂点バッファを省略</a></li>
 <li class="toctree-l2"><a class="reference internal" href="basic/basic_pipeline.html#geometryshader">GeometryShader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic/basic_pipeline.html#id2">ビューポート座標系</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="basic/basic_pipeline.html#id3d11rasterizerstate"><code class="docutils literal notranslate"><span class="pre">ID3D11RasterizerState</span></code> のデフォルト</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="basic/basic_pipeline.html#id2">ビューポート座標系</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="basic/constant_buffer.html">Constant Buffer</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic/constant_buffer.html#c">C側のメモリレイアウト</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/constant_buffer.html#cpu">CPU側のメモリレイアウト</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="basic/texture.html">Texture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic/texture.html">Texture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="basic/texture.html#srv">SRV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/texture.html#sampler">Sampler</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="basic/input_assembler.html">InputAssembler</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="basic/input_assembler.html#id1">頂点レイアウト</a></li>
 <li class="toctree-l2"><a class="reference internal" href="basic/input_assembler.html#indexbuffer">IndexBuffer</a></li>
@@ -144,12 +149,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="shading/tangent_space.html">Tangent Space Lighting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shading/pbr.html">Physically based rendering</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="shading/pbr.html#khronos">KHRONOS</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="shading/pbr.html#old-version">old version</a></li>
-<li class="toctree-l3"><a class="reference internal" href="shading/pbr.html#new-version">new version</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shading/tangent_space.html#tangent">tangent</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="shading/tangent_space.html#vs">vs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shading/tangent_space.html#ps">ps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shading/tangent_space.html#normalmap">NormalMap を作る方法</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="shading/pbr.html">Physically based rendering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="shading/pbr.html#khronos">KHRONOS</a></li>
 </ul>
 </li>
 </ul>
@@ -160,29 +167,12 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="three_d/scene.html">SceneGraph</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="three_d/scene.html#constantbuffer">ConstantBuffer</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="three_d/scene.html#world-vs-gs">World(VS|GS)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="three_d/scene.html#draw-ps">Draw(PS)</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="three_d/scene.html#constantbuffer">ConstantBuffer</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="three_d/gltf.html">glTF</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="three_d/gltf.html#data">data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="three_d/gltf.html#texture">texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="three_d/gltf.html#material">material</a></li>
-<li class="toctree-l3"><a class="reference internal" href="three_d/gltf.html#mesh">mesh</a></li>
-<li class="toctree-l3"><a class="reference internal" href="three_d/gltf.html#node">node</a></li>
-<li class="toctree-l3"><a class="reference internal" href="three_d/gltf.html#skinning">skinning</a></li>
-<li class="toctree-l3"><a class="reference internal" href="three_d/gltf.html#morphtarget">morphTarget</a></li>
-<li class="toctree-l3"><a class="reference internal" href="three_d/gltf.html#animation">animation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="three_d/gltf.html#extensions">extensions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="three_d/gltf.html#draco">draco</a></li>
-<li class="toctree-l3"><a class="reference internal" href="three_d/gltf.html#basisu">basisu</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="three_d/gltf.html#data">data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="three_d/gltf.html#extensions">extensions</a></li>
 </ul>
 </li>
 </ul>
@@ -206,13 +196,6 @@
 </li>
 </ul>
 </div>
-</section>
-<section class="tex2jax_ignore mathjax_ignore" id="id3">
-<h1>参考<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<ul class="simple">
-<li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces">https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces</a></p></li>
-<li><p><a class="reference external" href="https://tositeru.github.io/ImasaraDX11/">https://tositeru.github.io/ImasaraDX11/</a></p></li>
-</ul>
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="tool">
 <h1>Tool<a class="headerlink" href="#tool" title="このヘッドラインへのパーマリンク">¶</a></h1>
@@ -255,7 +238,6 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#gizmo">Gizmo</a></li>
-<li><a class="reference internal" href="#id3">参考</a></li>
 <li><a class="reference internal" href="#tool">Tool</a></li>
 <li><a class="reference internal" href="#gltf">glTF</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
