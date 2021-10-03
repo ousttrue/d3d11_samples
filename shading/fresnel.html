@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Physically Based Rendering &#8212; d3d11 samples  ドキュメント</title>
+    <title>Fresnel &#8212; d3d11 samples  ドキュメント</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css" />
     
@@ -19,8 +19,8 @@
     <script src="../_static/bizstyle.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
-    <link rel="next" title="SceneGraph" href="../three_d/scene.html" />
-    <link rel="prev" title="Fresnel" href="fresnel.html" />
+    <link rel="next" title="Physically Based Rendering" href="pbr.html" />
+    <link rel="prev" title="Tangent Space Lighting" href="tangent_space.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
@@ -33,13 +33,13 @@
           <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="../three_d/scene.html" title="SceneGraph"
+          <a href="pbr.html" title="Physically Based Rendering"
              accesskey="N">次へ</a> |</li>
         <li class="right" >
-          <a href="fresnel.html" title="Fresnel"
+          <a href="tangent_space.html" title="Tangent Space Lighting"
              accesskey="P">前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Physically Based Rendering</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Fresnel</a></li> 
       </ul>
     </div>  
 
@@ -48,20 +48,16 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section class="tex2jax_ignore mathjax_ignore" id="physically-based-rendering">
-<h1>Physically Based Rendering<a class="headerlink" href="#physically-based-rendering" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p><a class="reference external" href="https://learnopengl.com/PBR/Lighting">https://learnopengl.com/PBR/Lighting</a></p>
-<section id="khronos">
-<h2>KHRONOS<a class="headerlink" href="#khronos" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>比較的シンプルな古いバージョンらしい。
-<a class="reference external" href="https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/glTF-WebGL-PBR/shaders/pbr-frag.glsl">https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/glTF-WebGL-PBR/shaders/pbr-frag.glsl</a></p>
-<div class="highlight-glsl notranslate"><div class="highlight"><pre><span></span><span class="c1">// Calculation of analytical lighting contribution</span>
-<span class="kt">vec3</span> <span class="n">diffuseContrib</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">F</span><span class="p">)</span> <span class="o">*</span> <span class="n">diffuse</span><span class="p">(</span><span class="n">pbrInputs</span><span class="p">);</span>
-<span class="kt">vec3</span> <span class="n">specContrib</span> <span class="o">=</span> <span class="n">F</span> <span class="o">*</span> <span class="n">G</span> <span class="o">*</span> <span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">NdotL</span> <span class="o">*</span> <span class="n">NdotV</span><span class="p">);</span>
-<span class="c1">// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)</span>
-<span class="kt">vec3</span> <span class="n">color</span> <span class="o">=</span> <span class="n">NdotL</span> <span class="o">*</span> <span class="n">u_LightColor</span> <span class="o">*</span> <span class="p">(</span><span class="n">diffuseContrib</span> <span class="o">+</span> <span class="n">specContrib</span><span class="p">);</span>
-</pre></div>
-</div>
+  <section class="tex2jax_ignore mathjax_ignore" id="fresnel">
+<h1>Fresnel<a class="headerlink" href="#fresnel" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>PBR やるのに順番にやったほうがよさそうなので。</p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://www.slis.tsukuba.ac.jp/~fujisawa.makoto.fu/cgi-bin/wiki/index.php?GLSL%A4%C7%B4%C4%B6%AD%A5%DE%A5%C3%A5%D7%A1%F5%A5%D5%A5%EC%A5%CD%A5%EB%B8%FA%B2%CC">GLSLで環境マップ＆フレネル効果</a></p></li>
+<li><p><a class="reference external" href="https://ny-program.hatenablog.com/entry/2021/07/20/104420">【Unity】【シェーダー】 フレネル反射</a></p></li>
+</ul>
+<section id="cubemap">
+<h2>CubeMap<a class="headerlink" href="#cubemap" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>フレネル感を出すのにキューブマップが要りそう。</p>
 </section>
 </section>
 
@@ -74,22 +70,22 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">目次</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Physically Based Rendering</a><ul>
-<li><a class="reference internal" href="#khronos">KHRONOS</a></li>
+<li><a class="reference internal" href="#">Fresnel</a><ul>
+<li><a class="reference internal" href="#cubemap">CubeMap</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>前のトピックへ</h4>
-  <p class="topless"><a href="fresnel.html"
-                        title="前の章へ">Fresnel</a></p>
+  <p class="topless"><a href="tangent_space.html"
+                        title="前の章へ">Tangent Space Lighting</a></p>
   <h4>次のトピックへ</h4>
-  <p class="topless"><a href="../three_d/scene.html"
-                        title="次の章へ">SceneGraph</a></p>
+  <p class="topless"><a href="pbr.html"
+                        title="次の章へ">Physically Based Rendering</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/shading/pbr.md.txt"
+      <li><a href="../_sources/shading/fresnel.md.txt"
             rel="nofollow">ソースコードを表示</a></li>
     </ul>
    </div>
@@ -114,13 +110,13 @@
           <a href="../genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="../three_d/scene.html" title="SceneGraph"
+          <a href="pbr.html" title="Physically Based Rendering"
              >次へ</a> |</li>
         <li class="right" >
-          <a href="fresnel.html" title="Fresnel"
+          <a href="tangent_space.html" title="Tangent Space Lighting"
              >前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Physically Based Rendering</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Fresnel</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

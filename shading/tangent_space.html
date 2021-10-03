@@ -19,7 +19,7 @@
     <script src="../_static/bizstyle.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
-    <link rel="next" title="Physically based rendering" href="pbr.html" />
+    <link rel="next" title="Fresnel" href="fresnel.html" />
     <link rel="prev" title="Phong reflection model: ADS(Ambient Diffuse Specular)" href="ads.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
@@ -33,7 +33,7 @@
           <a href="../genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="pbr.html" title="Physically based rendering"
+          <a href="fresnel.html" title="Fresnel"
              accesskey="N">次へ</a> |</li>
         <li class="right" >
           <a href="ads.html" title="Phong reflection model: ADS(Ambient Diffuse Specular)"
@@ -52,10 +52,10 @@
 <h1>Tangent Space Lighting<a class="headerlink" href="#tangent-space-lighting" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <p>Tangent 空間で法線(n)と光源方向(s)の内積をする。</p>
 <p><a class="reference external" href="http://www.mikktspace.com/">http://www.mikktspace.com/</a></p>
-</section>
-<section class="tex2jax_ignore mathjax_ignore" id="tangent">
-<h1>tangent<a class="headerlink" href="#tangent" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<section id="tangent">
+<h2>tangent<a class="headerlink" href="#tangent" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>tangent は、頂点バッファ(position, normal, tex)から mikktspace アルゴリズムにより得る。</p>
+</section>
 <section id="vs">
 <h2>vs<a class="headerlink" href="#vs" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <div class="literal-block-wrapper docutils container" id="id1">
@@ -139,8 +139,8 @@ tspace は、頂点の normal と tangent から得ることができる。</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">目次</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Tangent Space Lighting</a></li>
-<li><a class="reference internal" href="#tangent">tangent</a><ul>
+<li><a class="reference internal" href="#">Tangent Space Lighting</a><ul>
+<li><a class="reference internal" href="#tangent">tangent</a></li>
 <li><a class="reference internal" href="#vs">vs</a></li>
 <li><a class="reference internal" href="#ps">ps</a></li>
 <li><a class="reference internal" href="#normalmap">NormalMap を作る方法</a></li>
@@ -152,8 +152,8 @@ tspace は、頂点の normal と tangent から得ることができる。</p>
   <p class="topless"><a href="ads.html"
                         title="前の章へ">Phong reflection model: ADS(Ambient Diffuse Specular)</a></p>
   <h4>次のトピックへ</h4>
-  <p class="topless"><a href="pbr.html"
-                        title="次の章へ">Physically based rendering</a></p>
+  <p class="topless"><a href="fresnel.html"
+                        title="次の章へ">Fresnel</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
@@ -182,7 +182,7 @@ tspace は、頂点の normal と tangent から得ることができる。</p>
           <a href="../genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="pbr.html" title="Physically based rendering"
+          <a href="fresnel.html" title="Fresnel"
              >次へ</a> |</li>
         <li class="right" >
           <a href="ads.html" title="Phong reflection model: ADS(Ambient Diffuse Specular)"
