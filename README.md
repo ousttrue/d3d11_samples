@@ -24,7 +24,7 @@
 * [x] DepthBuffer
 * [x] glTF
 * [x] ImageLoader
-* [ ] MikkTSpace
+* [x] MikkTSpace
 * [ ] skinning
 * [ ] morph target
 * [ ] Animation: BVH

@@ -1,7 +1,5 @@
 # Texture
 
-SRV と Sampler を使う。
-
 ```{image} ./texture.jpg
 :width: 482px
 :height: 528px
@@ -15,3 +13,7 @@ uv は 左上原点になるようにした。
 :emphasize-lines: 25-28
 :linenos:
 ```
+
+## SRV
+
+## Sampler
