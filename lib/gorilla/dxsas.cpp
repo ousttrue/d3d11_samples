@@ -2,11 +2,157 @@
 #include <algorithm>
 #include <assert.h>
 #include <cctype>
+#include <format>
 #include <iterator>
 #include <set>
 #include <stdexcept>
 #include <string_view>
 #include <unordered_map>
+
+static bool is_symbol(char c) {
+  if (std::isalnum(c)) {
+    return true;
+  }
+  switch (c) {
+  case '_':
+    return true;
+  }
+  return false;
+}
+
+namespace gorilla {
+namespace hlsl {
+
+class LexerImpl {
+  std::shared_ptr<banana::Asset> _asset;
+  std::string_view _source;
+  std::string_view::iterator _it;
+
+public:
+  LexerImpl(const std::shared_ptr<banana::Asset> &asset) : _asset(asset) {
+    _source = asset->string_view();
+    _it = _source.begin();
+  }
+
+  Token next() {
+    skip_space();
+    if (is_end()) {
+      return {TokenTypes::End};
+    }
+
+    switch (*_it) {
+    case ':': {
+      ++_it;
+      return {TokenTypes::Colon};
+    }
+
+    case ';': {
+      ++_it;
+      return {TokenTypes::Semicolon};
+
+    case 'a':
+    case 'b':
+    case 'c':
+    case 'd':
+    case 'e':
+    case 'f':
+    case 'g':
+    case 'h':
+    case 'i':
+    case 'j':
+    case 'k':
+    case 'l':
+    case 'm':
+    case 'n':
+    case 'o':
+    case 'p':
+    case 'q':
+    case 'r':
+    case 's':
+    case 't':
+    case 'u':
+    case 'v':
+    case 'w':
+    case 'x':
+    case 'y':
+    case 'z':
+    case 'A':
+    case 'B':
+    case 'C':
+    case 'D':
+    case 'E':
+    case 'F':
+    case 'G':
+    case 'H':
+    case 'I':
+    case 'J':
+    case 'K':
+    case 'L':
+    case 'M':
+    case 'N':
+    case 'O':
+    case 'P':
+    case 'Q':
+    case 'R':
+    case 'S':
+    case 'T':
+    case 'U':
+    case 'V':
+    case 'W':
+    case 'X':
+    case 'Y':
+    case 'Z':
+      return get_symbol();
+    }
+
+    default:
+      throw std::runtime_error(std::format("unknown char: {}", *_it));
+    }
+
+    return {};
+  }
+
+private:
+  bool is_end() { return _it == _source.end(); }
+
+  void skip_space() {
+    while (!is_end()) {
+      switch (*_it) {
+      case ' ':
+      case '\t':
+      case '\r':
+      case '\n':
+        ++_it;
+        break;
+
+      default:
+        return;
+      }
+    }
+  }
+
+  Token get_symbol() {
+    auto begin = _it;
+    for (; !is_end(); ++_it) {
+      if (!is_symbol(*_it)) {
+        break;
+      }
+    }
+    return Token{
+        TokenTypes::Symbol,
+        std::string_view(begin, _it),
+    };
+  }
+};
+
+Lexer::Lexer(const std::shared_ptr<banana::Asset> &asset)
+    : _impl(new LexerImpl(asset)) {}
+Lexer::~Lexer() { delete _impl; }
+
+Token Lexer::next() { return _impl->next(); }
+
+} // namespace hlsl
+} // namespace gorilla
 
 enum class TokenTypes {
   None,
@@ -65,17 +211,6 @@ struct Token {
     return false;
   }
 };
-
-static bool is_symbol(char c) {
-  if (std::isalnum(c)) {
-    return true;
-  }
-  switch (c) {
-  case '_':
-    return true;
-  }
-  return false;
-}
 
 class Tokenizer {
   std::shared_ptr<banana::Asset> _asset;

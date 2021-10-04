@@ -11,21 +11,33 @@ namespace hlsl {
 
 enum class TokenTypes {
   End,
+  Symbol,
+  Colon,
+  Semicolon,
 };
 
 struct Token {
   TokenTypes type;
+  std::string_view value;
 
-  bool operator==(const Token &rhs) const { return type == rhs.type; }
+  bool operator==(const Token &rhs) const {
+    if (type != rhs.type) {
+      return false;
+    }
+    if (value != rhs.value) {
+      return false;
+    }
+    return true;
+  }
 };
 
 class Lexer {
-  std::shared_ptr<banana::Asset> _asset;
+  class LexerImpl *_impl = nullptr;
 
 public:
-  Lexer(const std::shared_ptr<banana::Asset> &asset) : _asset(asset) {}
-
-  Token next() { return {}; };
+  Lexer(const std::shared_ptr<banana::Asset> &asset);
+  ~Lexer();
+  Token next();
 
   std::vector<Token> list() {
     std::vector<Token> l;

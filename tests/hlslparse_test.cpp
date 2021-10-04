@@ -46,7 +46,15 @@ row_major float4x4 MVP: WORLDVIEWPROJECTION;
 
   gorilla::hlsl::Lexer lexer(source);
   auto list = lexer.list();
-  gorilla::hlsl::Token result[] = {{gorilla::hlsl::TokenTypes::End}};
+  gorilla::hlsl::Token result[] = {
+      {gorilla::hlsl::TokenTypes::Symbol, "row_major"},
+      {gorilla::hlsl::TokenTypes::Symbol, "float4x4"},
+      {gorilla::hlsl::TokenTypes::Symbol, "MVP"},
+      {gorilla::hlsl::TokenTypes::Colon},
+      {gorilla::hlsl::TokenTypes::Symbol, "WORLDVIEWPROJECTION"},
+      {gorilla::hlsl::TokenTypes::Semicolon},
+      {gorilla::hlsl::TokenTypes::End},
+  };
   REQUIRE(list.size() == _countof(result));
   REQUIRE(std::equal(list.begin(), list.end(), result));
 }
@@ -57,7 +65,7 @@ MVP
 )";
 
   static auto INCLUDE = R"(
-float4 
+float4x4
 #include "nest.inc"
 : WORLDVIEWPROJECTION;
 )";
@@ -70,6 +78,14 @@ float4
   gorilla::hlsl::Lexer lexer(source);
   auto list = lexer.list();
 
-  // auto found = dxsas.find(banana::Semantics::WORLDVIEWPROJECTION);
-  // REQUIRE(found->name == "MVP");
+  gorilla::hlsl::Token result[] = {
+      {gorilla::hlsl::TokenTypes::Symbol, "float4x4"},
+      {gorilla::hlsl::TokenTypes::Symbol, "MVP"},
+      {gorilla::hlsl::TokenTypes::Colon},
+      {gorilla::hlsl::TokenTypes::Symbol, "WORLDVIEWPROJECTION"},
+      {gorilla::hlsl::TokenTypes::Semicolon},
+      {gorilla::hlsl::TokenTypes::End},
+  };
+  REQUIRE(list.size() == _countof(result));
+  REQUIRE(std::equal(list.begin(), list.end(), result));
 }
