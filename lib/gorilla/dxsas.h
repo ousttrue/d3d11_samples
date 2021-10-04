@@ -14,17 +14,40 @@ enum class TokenTypes {
   Symbol,
   Colon,
   Semicolon,
+
+  // [
+  OpenBracket,
+  // ]
+  CloseBracket,
+  // (
+  OpenParenthesis,
+  // )
+  CloseParenthesis,
+  // {
+  OpenBrace,
+  // }
+  CloseBrace,
+  // <
+  LessThan,
+  // >
+  GreaterTham,
+  //
+  BinOperator,
+  Integer,
+  Float,
+  LineComment,
+  Directive,
 };
 
 struct Token {
   TokenTypes type;
-  std::string_view value;
+  std::string_view view;
 
   bool operator==(const Token &rhs) const {
     if (type != rhs.type) {
       return false;
     }
-    if (value != rhs.value) {
+    if (view != rhs.view) {
       return false;
     }
     return true;
@@ -37,18 +60,53 @@ class Lexer {
 public:
   Lexer(const std::shared_ptr<banana::Asset> &asset);
   ~Lexer();
-  Token next();
+  // Token next();
+  bool try_get(Token *t);
 
   std::vector<Token> list() {
     std::vector<Token> l;
     while (true) {
-      auto &t = l.emplace_back(next());
-      if (t.type == TokenTypes::End) {
+      Token t;
+      if(!try_get(&t))
+      {
         break;
       }
+      l.push_back(t);
+
+      // Statement s;
+      // if (is_prefix(t)) {
+      //   s.prefix = t;
+      // }
     }
     return l;
   }
+};
+
+enum class StatementType {
+  Empty,    // ;
+  Variable, // row_major float4x4 MVP: WORLDVIEWPROJECTION;
+};
+
+struct Statement {
+  StatementType type;
+  Token prefix;
+
+  bool operator==(const Statement &rhs) const {
+    if (type != rhs.type) {
+      return false;
+    }
+    return true;
+  }
+};
+
+class AST {
+  class ASTImpl *_impl = nullptr;
+
+public:
+  std::vector<Statement> statements;
+  AST();
+  ~AST();
+  bool parse(const std::shared_ptr<banana::Asset> &asset);
 };
 
 } // namespace hlsl

@@ -44,19 +44,31 @@ TEST_CASE("lexer", "[hlsl_parser]") {
 row_major float4x4 MVP: WORLDVIEWPROJECTION;
 )");
 
-  gorilla::hlsl::Lexer lexer(source);
-  auto list = lexer.list();
-  gorilla::hlsl::Token result[] = {
-      {gorilla::hlsl::TokenTypes::Symbol, "row_major"},
-      {gorilla::hlsl::TokenTypes::Symbol, "float4x4"},
-      {gorilla::hlsl::TokenTypes::Symbol, "MVP"},
-      {gorilla::hlsl::TokenTypes::Colon},
-      {gorilla::hlsl::TokenTypes::Symbol, "WORLDVIEWPROJECTION"},
-      {gorilla::hlsl::TokenTypes::Semicolon},
-      {gorilla::hlsl::TokenTypes::End},
-  };
-  REQUIRE(list.size() == _countof(result));
-  REQUIRE(std::equal(list.begin(), list.end(), result));
+  {
+    gorilla::hlsl::Lexer lexer(source);
+    auto list = lexer.list();
+    gorilla::hlsl::Token result[] = {
+        {gorilla::hlsl::TokenTypes::Symbol, "row_major"},
+        {gorilla::hlsl::TokenTypes::Symbol, "float4x4"},
+        {gorilla::hlsl::TokenTypes::Symbol, "MVP"},
+        {gorilla::hlsl::TokenTypes::Colon},
+        {gorilla::hlsl::TokenTypes::Symbol, "WORLDVIEWPROJECTION"},
+        {gorilla::hlsl::TokenTypes::Semicolon},
+        {gorilla::hlsl::TokenTypes::End},
+    };
+    REQUIRE(list.size() == _countof(result));
+    REQUIRE(std::equal(list.begin(), list.end(), result));
+  }
+
+  {
+    gorilla::hlsl::AST ast;
+    ast.parse(source);
+    gorilla::hlsl::Statement result[] = {
+        {gorilla::hlsl::StatementType::Variable},
+    };
+    REQUIRE(ast.statements.size() == _countof(result));
+    REQUIRE(std::equal(ast.statements.begin(), ast.statements.end(), result));
+  }
 }
 
 TEST_CASE("include", "[hlsl_parse]") {

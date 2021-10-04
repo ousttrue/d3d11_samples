@@ -10,6 +10,34 @@
 #include <string_view>
 #include <unordered_map>
 
+static bool is_struct(std::string_view view) { return view == "struct"; }
+static bool is_cbuffer(std::string_view view) { return view == "cbuffer"; }
+
+std::set<std::string_view> prefix_names = {
+    "linear",
+    "row_major",
+};
+
+std::set<std::string_view> type_names = {
+    "void",   "int",      "float",  "float2",    "float3",       "float3x3",
+    "float4", "float4x4", "matrix", "Texture2D", "SamplerState",
+};
+
+static bool is_prefix(std::string_view view) {
+  return prefix_names.find(view) != prefix_names.end();
+}
+
+static bool is_type(std::string_view view,
+                    const std::set<std::string_view> &user_types = {}) {
+  if (type_names.find(view) != type_names.end()) {
+    return true;
+  }
+  if (user_types.find(view) != user_types.end()) {
+    return true;
+  }
+  return true;
+}
+
 static bool is_symbol(char c) {
   if (std::isalnum(c)) {
     return true;
@@ -146,7 +174,8 @@ public:
       if (top.view_is("#include")) {
         auto key = top.get_include_key();
         auto nest = top._asset->get(key);
-        top._it = skip(top._it, top._source.end(), [](char c) { return c != '\n'; });
+        top._it =
+            skip(top._it, top._source.end(), [](char c) { return c != '\n'; });
         _stack.emplace(Source(nest));
         goto HEAD;
       } else {
@@ -223,68 +252,52 @@ Lexer::Lexer(const std::shared_ptr<banana::Asset> &asset)
     : _impl(new LexerImpl(asset)) {}
 Lexer::~Lexer() { delete _impl; }
 
-Token Lexer::next() { return _impl->next(); }
+bool Lexer::try_get(Token *t) {
+  *t = _impl->next();
+  return t->type != TokenTypes::End;
+}
 
-} // namespace hlsl
-} // namespace gorilla
+class ASTImpl {
 
-enum class TokenTypes {
-  None,
-  End,
-  Semicolon,
-  Colon,
-  Symbol,
-  // [
-  OpenBracket,
-  // ]
-  CloseBracket,
-  // (
-  OpenParenthesis,
-  // )
-  CloseParenthesis,
-  // {
-  OpenBrace,
-  // }
-  CloseBrace,
-  // <
-  LessThan,
-  // >
-  GreaterTham,
-  //
-  BinOperator,
-  Integer,
-  Float,
-  LineComment,
-  Directive,
-};
+public:
+  bool parse(const std::shared_ptr<banana::Asset> &asset,
+             std::vector<Statement> &statements) {
+    Lexer lexer(asset);
 
-std::set<std::string_view> type_names = {
-    "void",   "int",      "float",  "float2",    "float3",       "float3x3",
-    "float4", "float4x4", "matrix", "Texture2D", "SamplerState",
-};
+    while (true) {
+      Token t;
+      if (!lexer.try_get(&t)) {
+        break;
+      }
 
-std::set<std::string_view> prefix_names = {
-    "linear",
-    "row_major",
-};
+      if (t.type == TokenTypes::Symbol) {
+        Statement s;
+        if (::is_prefix(t.view)) {
+          s.prefix = t;
+          if (!lexer.try_get(&t)) {
+            throw std::runtime_error("invlaid end");
+          }
+        }
+        if (!::is_type(t.view)) {
+          throw std::runtime_error("not type");
+        }
 
-struct Token {
-  TokenTypes type;
-  std::string_view view;
-
-  bool is_struct() const { return view == "struct"; }
-  bool is_cbuffer() const { return view == "cbuffer"; }
-  bool is_prefix() const {
-    return prefix_names.find(view) != prefix_names.end();
-  }
-  bool is_type() const {
-    if (type_names.find(view) != type_names.end()) {
-      return true;
+      } else {
+        throw std::runtime_error("not implemented");
+      }
     }
 
     return false;
   }
 };
+
+AST::AST() : _impl(new ASTImpl) {}
+
+AST::~AST() { delete _impl; }
+
+bool AST::parse(const std::shared_ptr<banana::Asset> &asset) {
+  return _impl->parse(asset, statements);
+}
 
 class Tokenizer {
   std::shared_ptr<banana::Asset> _asset;
@@ -549,7 +562,7 @@ public:
   int current_line = 1;
 };
 
-namespace gorilla {
+} // namespace hlsl
 
 // auto token = z.next();
 
@@ -573,10 +586,11 @@ namespace gorilla {
 //   }
 // }
 
-std::optional<AnnotationSemantics> parse_field(Tokenizer &z, Token token) {
+std::optional<AnnotationSemantics> parse_field(hlsl::Tokenizer &z,
+                                               hlsl::Token token) {
   std::optional<AnnotationSemantics> result;
   auto type = token;
-  if (type.is_prefix()) {
+  if (is_prefix(type.view)) {
     type = z.next();
   }
   // if (!type.is_type()) {
@@ -585,31 +599,31 @@ std::optional<AnnotationSemantics> parse_field(Tokenizer &z, Token token) {
   // }
   auto name = z.next();
   token = z.next();
-  if (token.type == TokenTypes::OpenParenthesis) {
+  if (token.type == hlsl::TokenTypes::OpenParenthesis) {
     // function ()
     z.skip_params();
     token = z.next();
-    Token semantic = {};
-    if (token.type == TokenTypes::Colon) {
+    hlsl::Token semantic = {};
+    if (token.type == hlsl::TokenTypes::Colon) {
       semantic = z.next(); // float4 psMAin() : SV_TARGET
       token = z.next();
     }
-    if (token.type == TokenTypes::OpenBrace) {
+    if (token.type == hlsl::TokenTypes::OpenBrace) {
       // function body
       z.skip_block();
       // without smicolon
     } else {
-      if (token.type != TokenTypes::Semicolon) {
+      if (token.type != hlsl::TokenTypes::Semicolon) {
         throw std::runtime_error("not ;");
       }
     }
   } else {
-    if (token.type == TokenTypes::OpenBracket) {
+    if (token.type == hlsl::TokenTypes::OpenBracket) {
       // array
-      z.skip(1, TokenTypes::OpenBracket, TokenTypes::CloseBracket);
+      z.skip(1, hlsl::TokenTypes::OpenBracket, hlsl::TokenTypes::CloseBracket);
       token = z.next();
     }
-    if (token.type == TokenTypes::Colon) {
+    if (token.type == hlsl::TokenTypes::Colon) {
       auto semantic_token = z.next();
       token = z.next();
 
@@ -621,25 +635,25 @@ std::optional<AnnotationSemantics> parse_field(Tokenizer &z, Token token) {
       field.semantic = banana::semantics_from_string(semantic_token.view);
       result = field;
     }
-    if (token.type != TokenTypes::Semicolon) {
+    if (token.type != hlsl::TokenTypes::Semicolon) {
       throw std::runtime_error("field not ;");
     }
   }
   return result;
 }
 
-static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
+static std::vector<AnnotationSemantics> parse_struct(hlsl::Tokenizer &z,
                                                      bool is_struct) {
   auto name = z.next();
-  if (name.type != TokenTypes::Symbol) {
+  if (name.type != hlsl::TokenTypes::Symbol) {
     throw std::runtime_error("struct not name");
   }
   auto token = z.next();
-  if (token.type == TokenTypes::Colon) {
+  if (token.type == hlsl::TokenTypes::Colon) {
     z.skip_register();
     token = z.next();
   }
-  if (token.type != TokenTypes::OpenBrace) {
+  if (token.type != hlsl::TokenTypes::OpenBrace) {
     throw std::runtime_error("struct not {");
   }
 
@@ -648,15 +662,15 @@ static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
   for (auto level = 1; level;) {
     auto token = z.next();
     switch (token.type) {
-    case TokenTypes::OpenBrace:
+    case hlsl::TokenTypes::OpenBrace:
       ++level;
       break;
 
-    case TokenTypes::CloseBrace:
+    case hlsl::TokenTypes::CloseBrace:
       --level;
       break;
 
-    case TokenTypes::Symbol: {
+    case hlsl::TokenTypes::Symbol: {
       auto field = parse_field(z, token);
       if (field.has_value()) {
         fields.push_back(field.value());
@@ -669,7 +683,7 @@ static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
   }
   if (is_struct) {
     auto fourth = z.next();
-    if (fourth.type != TokenTypes::Semicolon) {
+    if (fourth.type != hlsl::TokenTypes::Semicolon) {
       throw std::runtime_error("struct not ;");
     }
   }
@@ -677,31 +691,31 @@ static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
 }
 
 void DXSAS::parse(const std::shared_ptr<banana::Asset> &asset) {
-  Tokenizer z(asset);
+  hlsl::Tokenizer z(asset);
   while (true) {
     auto first = z.next();
-    if (first.type == TokenTypes::End) {
+    if (first.type == hlsl::TokenTypes::End) {
       break;
     }
 
-    if (first.is_struct() || first.is_cbuffer()) {
+    if (::is_struct(first.view) || ::is_cbuffer(first.view)) {
       // struct
       auto fields = parse_struct(z, first.view == "struct");
       for (auto &f : fields) {
         semantics.push_back(f);
       }
-    } else if (first.type == TokenTypes::Symbol) {
+    } else if (first.type == hlsl::TokenTypes::Symbol) {
       // constant ?
       auto field = parse_field(z, first);
       if (field.has_value()) {
         semantics.push_back(field.value());
       }
-    } else if (first.type == TokenTypes::OpenBracket) {
+    } else if (first.type == hlsl::TokenTypes::OpenBracket) {
       // [maxvertexcount(6)]
-      z.skip(1, TokenTypes::OpenBracket, TokenTypes::CloseBracket);
-    } else if (first.type == TokenTypes::Directive) {
+      z.skip(1, hlsl::TokenTypes::OpenBracket, hlsl::TokenTypes::CloseBracket);
+    } else if (first.type == hlsl::TokenTypes::Directive) {
       // skip
-    } else if (first.type == TokenTypes::Semicolon) {
+    } else if (first.type == hlsl::TokenTypes::Semicolon) {
       // skip
     } else {
       throw std::runtime_error("unknown token");
