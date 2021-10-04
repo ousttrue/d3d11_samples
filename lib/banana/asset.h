@@ -13,9 +13,7 @@ class Asset {
   std::string _key;
   std::vector<uint8_t> _bytes;
 
-  Asset(std::string_view key, std::string_view source) : _key(key) {
-    _bytes.assign(source.begin(), source.end());
-  }
+  Asset(std::string_view key, std::string_view source);
 
 public:
   std::function<std::shared_ptr<Asset>(std::string_view)> get;

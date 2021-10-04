@@ -53,11 +53,19 @@ Database &get_or_default() {
 
 namespace banana {
 
+Asset::Asset(std::string_view key, std::string_view source) : _key(key) {
+  _bytes.assign(source.begin(), source.end());
+
+  get = get_asset;
+}
+
 Asset::Asset(std::string_view key, std::istream &is) : _key(key) {
   is.seekg(0, is.end);
   _bytes.resize(is.tellg());
   is.seekg(0, is.beg);
   is.read((char *)_bytes.data(), _bytes.size());
+
+  get = get_asset;
 }
 
 std::shared_ptr<Asset> get_asset(std::string_view key) {
