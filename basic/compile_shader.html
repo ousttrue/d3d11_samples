@@ -52,7 +52,8 @@
 <h1>CompileShader<a class="headerlink" href="#compileshader" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-text">../../lib/gorilla/shader.cpp</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;shader.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;d3dcompiler.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;filesystem&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
@@ -64,14 +65,35 @@
 <span class="k">namespace</span> <span class="n">gorilla</span> <span class="p">{</span>
 <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">ComPtr</span> <span class="o">=</span> <span class="n">Microsoft</span><span class="o">::</span><span class="n">WRL</span><span class="o">::</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
 
-<span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;&gt;</span>
-<span class="n">compile_shader</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">source</span><span class="p">,</span>
+<span class="k">class</span> <span class="nc">AssetInclude</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ID3DInclude</span> <span class="p">{</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">banana</span><span class="o">::</span><span class="n">Asset</span><span class="o">&gt;</span> <span class="n">_asset</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">AssetInclude</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">banana</span><span class="o">::</span><span class="n">Asset</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">asset</span><span class="p">)</span> <span class="o">:</span> <span class="n">_asset</span><span class="p">(</span><span class="n">asset</span><span class="p">)</span> <span class="p">{}</span>
+
+  <span class="n">HRESULT</span> <span class="n">Open</span><span class="p">(</span><span class="n">D3D_INCLUDE_TYPE</span> <span class="n">IncludeType</span><span class="p">,</span> <span class="n">LPCSTR</span> <span class="n">pFileName</span><span class="p">,</span>
+               <span class="n">LPCVOID</span> <span class="n">pParentData</span><span class="p">,</span> <span class="n">LPCVOID</span> <span class="o">*</span><span class="n">ppData</span><span class="p">,</span> <span class="n">UINT</span> <span class="o">*</span><span class="n">pBytes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">nest</span> <span class="o">=</span> <span class="n">_asset</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">pFileName</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">bytes</span> <span class="o">=</span> <span class="n">nest</span><span class="o">-&gt;</span><span class="n">bytes</span><span class="p">();</span>
+    <span class="o">*</span><span class="n">ppData</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">.</span><span class="n">data</span><span class="p">();</span>
+    <span class="o">*</span><span class="n">pBytes</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">UINT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bytes</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+    <span class="k">return</span> <span class="n">S_OK</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">HRESULT</span> <span class="n">Close</span><span class="p">(</span><span class="n">LPCVOID</span> <span class="n">pData</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">S_OK</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">Microsoft</span><span class="o">::</span><span class="n">WRL</span><span class="o">::</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">Microsoft</span><span class="o">::</span><span class="n">WRL</span><span class="o">::</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;&gt;</span>
+<span class="n">compile_shader</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;::</span><span class="n">banana</span><span class="o">::</span><span class="n">Asset</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">asset</span><span class="p">,</span>
                <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">entry_point</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span>
                <span class="k">const</span> <span class="n">D3D_SHADER_MACRO</span> <span class="o">*</span><span class="n">define</span><span class="p">)</span> <span class="p">{</span>
   <span class="n">UINT</span> <span class="n">flags</span> <span class="o">=</span> <span class="n">D3DCOMPILE_ENABLE_STRICTNESS</span><span class="p">;</span>
   <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
   <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="n">err</span><span class="p">;</span>
-  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">D3DCompile</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">source</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">name</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">,</span>
+  <span class="k">auto</span> <span class="n">source</span> <span class="o">=</span> <span class="n">asset</span><span class="o">-&gt;</span><span class="n">string_view</span><span class="p">();</span>
+  <span class="n">AssetInclude</span> <span class="nf">include</span><span class="p">(</span><span class="n">asset</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">D3DCompile</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">source</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">name</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">include</span><span class="p">,</span>
                        <span class="n">entry_point</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">err</span><span class="p">);</span>
   <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
     <span class="k">return</span> <span class="p">{</span><span class="k">nullptr</span><span class="p">,</span> <span class="n">err</span><span class="p">};</span>
