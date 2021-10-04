@@ -7,11 +7,13 @@ namespace banana {
 // view
 //
 void OrbitCamera::calc_view() {
+  auto ORIGIN = DirectX::XMMatrixTranslation(-gaze.x, -gaze.y, -gaze.z);
   auto Y = DirectX::XMMatrixRotationY(yaw);
   auto P = DirectX::XMMatrixRotationX(pitch);
   auto T =
       DirectX::XMMatrixTranslation(translation.x, translation.y, translation.z);
-  auto M = DirectX::XMMatrixMultiply(DirectX::XMMatrixMultiply(Y, P), T);
+  auto M = DirectX::XMMatrixMultiply(
+      ORIGIN, DirectX::XMMatrixMultiply(DirectX::XMMatrixMultiply(Y, P), T));
   DirectX::XMStoreFloat4x4((DirectX::XMFLOAT4X4 *)&view, M);
 }
 
@@ -54,11 +56,13 @@ Matrix3x4 OrbitCamera::normal_matrix() const {
 }
 
 DirectX::XMFLOAT3 OrbitCamera::position() const {
+  auto ORIGIN = DirectX::XMMatrixTranslation(gaze.x, gaze.y, gaze.z);
   auto Y = DirectX::XMMatrixRotationY(-yaw);
   auto P = DirectX::XMMatrixRotationX(-pitch);
   auto T = DirectX::XMMatrixTranslation(-translation.x, -translation.y,
                                         -translation.z);
-  auto M = DirectX::XMMatrixMultiply(T, DirectX::XMMatrixMultiply(P, Y));
+  auto M = DirectX::XMMatrixMultiply(
+      DirectX::XMMatrixMultiply(T, DirectX::XMMatrixMultiply(P, Y)), ORIGIN);
   DirectX::XMFLOAT4 pos(0, 0, 0, 1);
   auto POS = DirectX::XMLoadFloat4(&pos);
   POS = DirectX::XMVector4Transform(POS, M);
@@ -124,7 +128,7 @@ void OrbitCamera::fit(const banana::AABB &aabb) {
   _far = std::abs(translation.z) + aabb.depth() * 10.0f;
 
   // y
-  translation.y = (aabb.min.y + aabb.max.y) / 2;
+  gaze.y = (aabb.min.y + aabb.max.y) / 2;
 
   calc_projection();
   calc_view();

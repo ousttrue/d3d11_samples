@@ -14,7 +14,6 @@ auto WINDOW_TITLE = "GltfScene";
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 class GltfSamples {
-  std::shared_ptr<banana::Node> _root;
   std::string _base;
 
   struct Entry {
@@ -49,6 +48,8 @@ class GltfSamples {
 
 public:
   banana::OrbitCamera camera;
+  std::shared_ptr<banana::Node> root;
+  banana::AABB aabb;
 
   GltfSamples(std::string_view base) : _base(base) {
     // std::filesystem::path root("assets/glTF-Sample-Models/2.0");
@@ -103,8 +104,6 @@ public:
     return io.WantCaptureMouse;
   }
 
-  std::shared_ptr<banana::Node> root() const { return _root; }
-
   // "glTF-Sample-Models/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
   // "glTF-Sample-Models/2.0/Avocado/glTF-Binary/Avocado.glb"
   // "glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
@@ -116,16 +115,18 @@ public:
       if (!loader.load_from_asset(key)) {
         return {};
       }
-      _root = loader.root;
+      root = loader.root;
 
-      banana::AABB aabb;
-      _root->calc_aabb(banana::Matrix4x4::identity(), &aabb);
-      banana::Float3 move{0, -aabb.min.y, 0};
-      _root->transform.translation -= move;
+      aabb = {};
+      root->calc_aabb(banana::Matrix4x4::identity(), &aabb);
+      banana::Float3 move{0, aabb.min.y, 0};
+      root->transform.translation -= move;
       aabb.min += move;
       aabb.max += move;
 
+      std::cerr << aabb.min.y << ", " << aabb.max.y << std::endl;
       camera.fit(aabb);
+      std::cerr << camera.translation.y << std::endl;
 
       return true;
     } catch (const std::runtime_error &ex) {
@@ -165,8 +166,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       update_camera(&samples.camera, state);
     }
 
+    renderer.render(device, context, samples.root, &samples.camera);
     grid->draw(context, samples.camera);
-    renderer.render(device, context, samples.root(), &samples.camera);
+
     app.end_frame();
   }
 

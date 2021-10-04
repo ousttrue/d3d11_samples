@@ -9,6 +9,7 @@ struct OrbitCamera {
   //
   // view
   //
+  Float3 gaze = {0, 0, 0};
   Float3 translation = {0, 0, -5};
   float yaw = 0;
   float pitch = 0;
