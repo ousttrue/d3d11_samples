@@ -53,14 +53,12 @@ three_d/depth_test
 
 ## Shading
 
-* Cook-Torrance
-
 ```{toctree}
 :maxdepth: 2
 
 shading/ads
 shading/tangent_space
-shading/fresnel
+shading/specular
 shading/pbr
 ```
 
