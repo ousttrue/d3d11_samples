@@ -1,4 +1,3 @@
-#include <update_camera.h>
 #include <DirectXMath.h>
 #include <assert.h>
 #include <banana/asset.h>
@@ -14,6 +13,8 @@
 #include <gorilla/window.h>
 #include <iostream>
 #include <stb_easy_font.h>
+#include <update_camera.h>
+
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "FontMesh";
@@ -119,12 +120,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   gorilla::ScreenState state;
   for (UINT frame_count = 0; window.process_messages(&state); ++frame_count) {
 
-    if (state.width != desc.BufferDesc.Width || state.height != desc.BufferDesc.Height) {
+    if (state.width != desc.BufferDesc.Width ||
+        state.height != desc.BufferDesc.Height) {
       // clear backbuffer reference
       render_target.release();
       // resize swapchain
-      swapchain->ResizeBuffers(desc.BufferCount, state.width, state.height, desc.BufferDesc.Format,
-                               desc.Flags);
+      swapchain->ResizeBuffers(desc.BufferCount, static_cast<UINT>(state.width),
+                               static_cast<UINT>(state.height),
+                               desc.BufferDesc.Format, desc.Flags);
     }
 
     // ensure create backbuffer

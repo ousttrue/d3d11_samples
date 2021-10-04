@@ -70,7 +70,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       // clear backbuffer reference
       render_target.release();
       // resize swapchain
-      swapchain->ResizeBuffers(desc.BufferCount, state.width, state.height,
+      swapchain->ResizeBuffers(desc.BufferCount, static_cast<UINT>(state.width),
+                               static_cast<UINT>(state.height),
                                desc.BufferDesc.Format, desc.Flags);
     }
 

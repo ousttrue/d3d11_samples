@@ -129,6 +129,7 @@ public:
       return true;
     } catch (const std::runtime_error &ex) {
       std::cerr << ex.what() << std::endl;
+      return false;
     }
   }
 };

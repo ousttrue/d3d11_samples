@@ -61,6 +61,7 @@ struct AABB {
                 -std::numeric_limits<float>::infinity(),
                 -std::numeric_limits<float>::infinity()};
 
+  float width() const { return max.x - min.x; }
   float height() const { return max.y - min.y; }
   float depth() const { return max.z - min.z; }
 

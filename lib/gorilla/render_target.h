@@ -24,6 +24,9 @@ public:
                   const ComPtr<ID3D11Texture2D> &texture);
   bool create_dsv(const ComPtr<ID3D11Device> &device);
   void setup(const ComPtr<ID3D11DeviceContext> &context, float w, float h);
+  void setup(const ComPtr<ID3D11DeviceContext> &context, int w, int h) {
+    setup(context, static_cast<float>(w), static_cast<float>(h));
+  }
 };
 
 } // namespace gorilla
