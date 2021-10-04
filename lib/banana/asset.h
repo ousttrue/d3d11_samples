@@ -18,7 +18,7 @@ class Asset {
   }
 
 public:
-  std::function<std::span<const uint8_t>(const char *)> get;
+  std::function<std::shared_ptr<Asset>(std::string_view)> get;
 
   Asset(std::string_view key, std::istream &is);
 

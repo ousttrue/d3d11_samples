@@ -5,6 +5,7 @@
 #include <format>
 #include <iterator>
 #include <set>
+#include <stack>
 #include <stdexcept>
 #include <string_view>
 #include <unordered_map>
@@ -20,35 +21,140 @@ static bool is_symbol(char c) {
   return false;
 }
 
+static bool is_space(char c) {
+  switch (c) {
+  case ' ':
+  case '\t':
+  case '\r':
+  case '\n':
+    return true;
+
+  default:
+    return false;
+  }
+}
+
+std::string_view::iterator skip(std::string_view::iterator it,
+                                std::string_view::iterator end,
+                                const std::function<bool(char)> &pred) {
+  while (it != end) {
+    if (pred(*it)) {
+      ++it;
+    } else {
+      break;
+    }
+  }
+  return it;
+}
+
 namespace gorilla {
 namespace hlsl {
 
 class LexerImpl {
-  std::shared_ptr<banana::Asset> _asset;
-  std::string_view _source;
-  std::string_view::iterator _it;
+  struct Source {
+    std::shared_ptr<banana::Asset> _asset;
+    std::string_view _source;
+    std::string_view::iterator _it;
+
+    Source(const std::shared_ptr<banana::Asset> &asset) : _asset(asset) {
+      _source = asset->string_view();
+      _it = _source.begin();
+    }
+
+    bool is_end() { return _it == _source.end(); }
+
+    bool view_is(std::string_view target) {
+      auto end = _it;
+      for (size_t i = 0; i < target.size(); ++i, ++end) {
+        if (end == _source.end()) {
+          return false;
+        }
+      }
+      return std::string_view(_it, end) == target;
+    }
+
+    void skip_space() { _it = skip(_it, _source.end(), is_space); }
+
+    Token get_symbol() {
+      auto begin = _it;
+      for (; !is_end(); ++_it) {
+        if (!is_symbol(*_it)) {
+          break;
+        }
+      }
+      return Token{
+          TokenTypes::Symbol,
+          std::string_view(begin, _it),
+      };
+    }
+
+    std::string_view get_include_key() {
+      auto p = _it;
+      for (auto _ : "#include") {
+        ++p;
+      }
+
+      p = skip(p, _source.end(), is_space);
+      if (*p != '"') {
+        throw std::runtime_error("not double quote");
+      }
+      // skip "
+      ++p;
+      auto begin = p;
+
+      // skip other than "
+      p = skip(p, _source.end(), [](char c) { return c != '"'; });
+      if (*p != '"') {
+        throw std::runtime_error("not double quote");
+      }
+
+      return {begin, p};
+    }
+  };
+  std::stack<Source> _stack;
 
 public:
-  LexerImpl(const std::shared_ptr<banana::Asset> &asset) : _asset(asset) {
-    _source = asset->string_view();
-    _it = _source.begin();
+  LexerImpl(const std::shared_ptr<banana::Asset> &asset) {
+    _stack.emplace(Source(asset));
   }
 
   Token next() {
-    skip_space();
-    if (is_end()) {
-      return {TokenTypes::End};
+
+  HEAD:
+    _stack.top().skip_space();
+    if (_stack.top().is_end()) {
+      _stack.pop();
+      if (_stack.empty()) {
+        return {TokenTypes::End};
+      }
+      goto HEAD;
     }
 
-    switch (*_it) {
+    auto &top = _stack.top();
+    switch (*top._it) {
     case ':': {
-      ++_it;
+      ++top._it;
       return {TokenTypes::Colon};
     }
 
     case ';': {
-      ++_it;
+      ++top._it;
       return {TokenTypes::Semicolon};
+
+    case '#': {
+      // macro
+      if (top.view_is("#include")) {
+        auto key = top.get_include_key();
+        auto nest = top._asset->get(key);
+        top._it = skip(top._it, top._source.end(), [](char c) { return c != '\n'; });
+        _stack.emplace(Source(nest));
+        goto HEAD;
+      } else {
+        // skip line
+        throw std::runtime_error("not implemented");
+      }
+      break;
+    }
 
     case 'a':
     case 'b':
@@ -102,46 +208,14 @@ public:
     case 'X':
     case 'Y':
     case 'Z':
-      return get_symbol();
+      return top.get_symbol();
     }
 
     default:
-      throw std::runtime_error(std::format("unknown char: {}", *_it));
+      throw std::runtime_error(std::format("unknown char: {}", *top._it));
     }
 
     return {};
-  }
-
-private:
-  bool is_end() { return _it == _source.end(); }
-
-  void skip_space() {
-    while (!is_end()) {
-      switch (*_it) {
-      case ' ':
-      case '\t':
-      case '\r':
-      case '\n':
-        ++_it;
-        break;
-
-      default:
-        return;
-      }
-    }
-  }
-
-  Token get_symbol() {
-    auto begin = _it;
-    for (; !is_end(); ++_it) {
-      if (!is_symbol(*_it)) {
-        break;
-      }
-    }
-    return Token{
-        TokenTypes::Symbol,
-        std::string_view(begin, _it),
-    };
   }
 };
 

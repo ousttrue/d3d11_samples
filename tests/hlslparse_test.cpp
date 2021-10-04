@@ -71,9 +71,8 @@ float4x4
 )";
 
   auto source = banana::Asset::from_string(INCLUDE);
-  source->get = [](const char *path) {
-    return std::span{(const uint8_t *)NEST, strlen(NEST)};
-  };
+  auto nest = banana::Asset::from_string(NEST);
+  source->get = [nest](auto) { return nest; };
 
   gorilla::hlsl::Lexer lexer(source);
   auto list = lexer.list();

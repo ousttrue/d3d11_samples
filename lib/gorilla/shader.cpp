@@ -20,7 +20,8 @@ public:
 
   HRESULT Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName,
                LPCVOID pParentData, LPCVOID *ppData, UINT *pBytes) {
-    auto bytes = _asset->get(pFileName);
+    auto nest = _asset->get(pFileName);
+    auto bytes = nest->bytes();
     *ppData = bytes.data();
     *pBytes = static_cast<UINT>(bytes.size());
     return S_OK;
