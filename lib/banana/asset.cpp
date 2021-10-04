@@ -60,21 +60,6 @@ Asset::Asset(std::string_view key, std::istream &is) : _key(key) {
   is.read((char *)_bytes.data(), _bytes.size());
 }
 
-HRESULT Asset::Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName,
-                    LPCVOID pParentData, LPCVOID *ppData, UINT *pBytes) {
-
-  auto asset = get_asset(pFileName);
-  if (!asset) {
-    return E_FAIL;
-  }
-
-  *ppData = asset->_bytes.data();
-  *pBytes = static_cast<UINT>(asset->_bytes.size());
-  return S_OK;
-}
-
-HRESULT Asset::Close(LPCVOID pData) { return S_OK; }
-
 std::shared_ptr<Asset> get_asset(std::string_view key) {
   auto &db = get_or_default();
   return db.try_get(key);

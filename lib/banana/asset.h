@@ -1,6 +1,6 @@
 #pragma once
 #include <assert.h>
-#include <d3dcommon.h>
+#include <functional>
 #include <memory>
 #include <span>
 #include <stdint.h>
@@ -9,7 +9,7 @@
 
 namespace banana {
 
-class Asset : public ID3DInclude {
+class Asset {
   std::string _key;
   std::vector<uint8_t> _bytes;
 
@@ -18,6 +18,8 @@ class Asset : public ID3DInclude {
   }
 
 public:
+  std::function<std::span<const uint8_t>(const char *)> get;
+
   Asset(std::string_view key, std::istream &is);
 
   static std::shared_ptr<Asset> from_string(std::string_view source) {
@@ -26,10 +28,6 @@ public:
   }
 
   std::string_view key() const { return _key; }
-
-  HRESULT Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName,
-               LPCVOID pParentData, LPCVOID *ppData, UINT *pBytes);
-  HRESULT Close(LPCVOID pData);
 
   std::string_view string_view() const {
     return std::string_view((char *)_bytes.data(), _bytes.size());
@@ -44,7 +42,5 @@ public:
 };
 
 std::shared_ptr<Asset> get_asset(std::string_view key);
-// std::string_view get_string(std::string_view key);
-// std::span<const uint8_t> get_bytes(std::string_view key);
 
 } // namespace banana

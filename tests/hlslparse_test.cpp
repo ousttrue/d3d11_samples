@@ -39,14 +39,27 @@ TEST_CASE("gltf", "[hlsl_parse]") {
   REQUIRE(found->name == "BaseColorTexture");
 }
 
+auto NEST = R"(
+MVP
+)";
+
+auto INCLUDE = R"(
+float4 
+#include "nest.inc"
+: WORLDVIEWPROJECTION;
+)";
+
 TEST_CASE("include", "[hlsl_parse]") {
-  auto source = banana::get_asset("gltf.hlsl");
-  REQUIRE(source);
+  auto source = banana::Asset::from_string(INCLUDE);
+  source->get = [](const char *path)
+  {
+    return std::span{(const uint8_t*)NEST, strlen(NEST)};
+  };
 
   gorilla::DXSAS dxsas;
   dxsas.parse(source);
 
-  auto found = dxsas.find(banana::Semantics::MATERIAL_COLOR, "Texture2D");
+  auto found = dxsas.find(banana::Semantics::WORLDVIEWPROJECTION);
   REQUIRE(found);
-  REQUIRE(found->name == "BaseColorTexture");
+  REQUIRE(found->name == "MVP");
 }
