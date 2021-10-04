@@ -40,7 +40,7 @@ void SceneProcessor::traverse(const std::shared_ptr<banana::Node> &node,
           commands::SetVariable{Semantics::VIEWPROJECTION, viewprojection});
       commands.push_back(commands::SetVariable{Semantics::WORLDVIEW, view});
       commands.push_back(
-          commands::SetVariable{Semantics::NORMAL_MATRIX, m * view});
+          commands::SetVariable{Semantics::NORMAL_MATRIX, m});
       commands.push_back(
           commands::SetVariable{Semantics::CAMERA_POSITION, camera_position});
 

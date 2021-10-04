@@ -7,6 +7,7 @@
 #include <DirectXMath.h>
 #include <array>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <mikktspace.h>
 #include <nlohmann/json.hpp>
@@ -134,9 +135,12 @@ static MaterialWithState create_default_material(std::string_view name) {
 // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/schema/material.schema.json
 static MaterialWithState
 load_material(const nlohmann::json &gltf, const nlohmann::json &gltf_material,
-              const std::vector<std::shared_ptr<Image>> &textures) {
-
-  auto [material, s] = create_default_material(gltf_material["name"]);
+              const std::vector<std::shared_ptr<Image>> &textures,
+              std::string name) {
+  if (gltf_material.contains("name")) {
+    name = gltf_material["name"];
+  }
+  auto [material, s] = create_default_material(name);
 
   if (gltf_material.contains("pbrMetallicRoughness")) {
     auto pbrMetallicRoughness = gltf_material["pbrMetallicRoughness"];
@@ -517,8 +521,12 @@ bool GltfLoader::load() {
     textures.push_back(load_texture(gltf, get_buffer, gltf_texture));
   }
 
-  for (auto &gltf_material : gltf["materials"]) {
-    materials.push_back(load_material(gltf, gltf_material, textures));
+  {
+    size_t i = 0;
+    for (auto &gltf_material : gltf["materials"]) {
+      materials.push_back(load_material(gltf, gltf_material, textures,
+                                        std::format("material{}", i++)));
+    }
   }
 
   for (auto &gltf_mesh : gltf["meshes"]) {
@@ -529,18 +537,19 @@ bool GltfLoader::load() {
     nodes.push_back(load_node(gltf, gltf_node, meshes));
   }
 
-  int i = 0;
-  for (auto &gltf_node : gltf["nodes"]) {
+  {
+    int i = 0;
+    for (auto &gltf_node : gltf["nodes"]) {
 
-    if (gltf_node.contains("children")) {
-      for (int child_index : gltf_node["children"]) {
-        auto child = nodes[child_index];
-        auto self = nodes[i];
-        self->add_child(child);
+      if (gltf_node.contains("children")) {
+        for (int child_index : gltf_node["children"]) {
+          auto child = nodes[child_index];
+          auto self = nodes[i];
+          self->add_child(child);
+        }
       }
+      ++i;
     }
-
-    ++i;
   }
 
   for (auto &gltf_scene : gltf["scenes"]) {
