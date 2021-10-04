@@ -577,7 +577,7 @@ bool GltfLoader::load() {
 }
 
 bool GltfLoader::load_from_asset(std::string_view key) {
-  auto bytes = banana::get_bytes(key);
+  auto bytes = banana::get_asset(key)->span<uint8_t>();
   if (bytes.empty()) {
     return false;
   }
@@ -596,7 +596,7 @@ bool GltfLoader::load_from_asset(std::string_view key) {
   std::filesystem::path path(key);
   auto dir = path.parent_path();
   this->get_buffer = [dir](std::string_view uri) {
-    return get_bytes((dir / uri).generic_string());
+    return get_asset((dir / uri).generic_string())->span<uint8_t>();
   };
   return load();
 }

@@ -39,10 +39,12 @@ public:
     assert(_bytes.size() % sizeof(T) == 0);
     return std::span<T>((T *)_bytes.data(), _bytes.size() / sizeof(T));
   }
+
+  std::span<const uint8_t> bytes() const { return span<uint8_t>(); }
 };
 
 std::shared_ptr<Asset> get_asset(std::string_view key);
-std::string_view get_string(std::string_view key);
-std::span<const uint8_t> get_bytes(std::string_view key);
+// std::string_view get_string(std::string_view key);
+// std::span<const uint8_t> get_bytes(std::string_view key);
 
 } // namespace banana

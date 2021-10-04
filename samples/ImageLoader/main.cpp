@@ -80,7 +80,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UINT sampler_slot = 0;
   UINT srv_slot = 0;
 
-  auto image_bytes = banana::get_bytes("image.png");
+  auto image_bytes = banana::get_asset("image.png")->bytes();
   banana::Image image;
   if (!image.load(image_bytes)) {
     return 9;

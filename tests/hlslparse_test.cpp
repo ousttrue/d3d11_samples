@@ -38,3 +38,15 @@ TEST_CASE("gltf", "[hlsl_parse]") {
   REQUIRE(found);
   REQUIRE(found->name == "BaseColorTexture");
 }
+
+TEST_CASE("include", "[hlsl_parse]") {
+  auto source = banana::get_asset("gltf.hlsl");
+  REQUIRE(source);
+
+  gorilla::DXSAS dxsas;
+  dxsas.parse(source);
+
+  auto found = dxsas.find(banana::Semantics::MATERIAL_COLOR, "Texture2D");
+  REQUIRE(found);
+  REQUIRE(found->name == "BaseColorTexture");
+}

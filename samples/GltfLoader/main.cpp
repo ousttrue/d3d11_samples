@@ -5,7 +5,7 @@
 int main(int argc, char **argv) {
 
   auto bytes =
-      banana::get_bytes("glTF-Sample-Models/2.0/Box/glTF-Binary/Box.glb");
+      banana::get_asset("glTF-Sample-Models/2.0/Box/glTF-Binary/Box.glb")->bytes();
   if (bytes.empty()) {
     return 1;
   }

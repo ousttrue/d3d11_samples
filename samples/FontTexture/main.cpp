@@ -61,7 +61,7 @@ public:
     assert(pipeline.ps_stage.reflection.sampler_slots.size() == 1);
     assert(pipeline.ps_stage.reflection.srv_slots.size() == 1);
 
-    auto image_bytes = banana::get_bytes(key + ".png");
+    auto image_bytes = banana::get_asset(key + ".png")->bytes();
     banana::Image image;
     if (!image.load(image_bytes)) {
       return false;
@@ -73,7 +73,7 @@ public:
       return false;
     }
 
-    auto json = nlohmann::json::parse(banana::get_string("font/Arial32.json"));
+    auto json = nlohmann::json::parse(banana::get_asset("font/Arial32.json")->string_view());
     for (auto [k, v] : json["characters"].items()) {
       auto key = k.c_str()[0];
       auto added = _char_map.insert(std::make_pair(key, Glyph{}));
