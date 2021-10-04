@@ -39,27 +39,37 @@ TEST_CASE("gltf", "[hlsl_parse]") {
   REQUIRE(found->name == "BaseColorTexture");
 }
 
-auto NEST = R"(
+TEST_CASE("lexer", "[hlsl_parser]") {
+  auto source = banana::Asset::from_string(R"(
+row_major float4x4 MVP: WORLDVIEWPROJECTION;
+)");
+
+  gorilla::hlsl::Lexer lexer(source);
+  auto list = lexer.list();
+  gorilla::hlsl::Token result[] = {{gorilla::hlsl::TokenTypes::End}};
+  REQUIRE(list.size() == _countof(result));
+  REQUIRE(std::equal(list.begin(), list.end(), result));
+}
+
+TEST_CASE("include", "[hlsl_parse]") {
+  static auto NEST = R"(
 MVP
 )";
 
-auto INCLUDE = R"(
+  static auto INCLUDE = R"(
 float4 
 #include "nest.inc"
 : WORLDVIEWPROJECTION;
 )";
 
-TEST_CASE("include", "[hlsl_parse]") {
   auto source = banana::Asset::from_string(INCLUDE);
-  source->get = [](const char *path)
-  {
-    return std::span{(const uint8_t*)NEST, strlen(NEST)};
+  source->get = [](const char *path) {
+    return std::span{(const uint8_t *)NEST, strlen(NEST)};
   };
 
-  gorilla::DXSAS dxsas;
-  dxsas.parse(source);
+  gorilla::hlsl::Lexer lexer(source);
+  auto list = lexer.list();
 
-  auto found = dxsas.find(banana::Semantics::WORLDVIEWPROJECTION);
-  REQUIRE(found);
-  REQUIRE(found->name == "MVP");
+  // auto found = dxsas.find(banana::Semantics::WORLDVIEWPROJECTION);
+  // REQUIRE(found->name == "MVP");
 }
