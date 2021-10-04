@@ -20,7 +20,7 @@
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="検索" href="../search.html" />
     <link rel="next" title="SceneGraph" href="../three_d/scene.html" />
-    <link rel="prev" title="Fresnel" href="fresnel.html" />
+    <link rel="prev" title="Specular reflection" href="specular.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
@@ -36,7 +36,7 @@
           <a href="../three_d/scene.html" title="SceneGraph"
              accesskey="N">次へ</a> |</li>
         <li class="right" >
-          <a href="fresnel.html" title="Fresnel"
+          <a href="specular.html" title="Specular reflection"
              accesskey="P">前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Physically Based Rendering</a></li> 
@@ -50,7 +50,34 @@
             
   <section class="tex2jax_ignore mathjax_ignore" id="physically-based-rendering">
 <h1>Physically Based Rendering<a class="headerlink" href="#physically-based-rendering" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p><a class="reference external" href="https://learnopengl.com/PBR/Lighting">https://learnopengl.com/PBR/Lighting</a></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://tech.cygames.co.jp/archives/2129/">物理ベースレンダリング -基礎編-</a></p></li>
+<li><p><a class="reference external" href="https://qiita.com/emadurandal/items/76348ad118c36317ec5c">物理ベースレンダリングを柔らかく説明してみる（４）</a></p></li>
+<li><p><a class="reference external" href="https://learnopengl.com/PBR/Lighting">https://learnopengl.com/PBR/Lighting</a></p></li>
+</ul>
+<section id="brdf">
+<h2>BRDF<a class="headerlink" href="#brdf" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</section>
+<section id="albedo">
+<h2>Albedo<a class="headerlink" href="#albedo" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>色の反射率</p>
+</section>
+<section id="metallic">
+<h2>Metallic<a class="headerlink" href="#metallic" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>粘土 &lt; 陶器 &lt; 鏡</p>
+</section>
+<section id="roughness">
+<h2>Roughness<a class="headerlink" href="#roughness" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p>鏡面のぼやけ具合</p></li>
+<li><p>艶消し</p></li>
+</ul>
+</section>
+<section id="cook-torrance">
+<h2>Cook-Torrance<a class="headerlink" href="#cook-torrance" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="http://www.codinglabs.net/article_physically_based_rendering_cook_torrance.aspx">http://www.codinglabs.net/article_physically_based_rendering_cook_torrance.aspx</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">fr=kdflambert+ksfcook−torrance</span></code></p>
+</section>
 <section id="khronos">
 <h2>KHRONOS<a class="headerlink" href="#khronos" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>比較的シンプルな古いバージョンらしい。
@@ -75,14 +102,19 @@
   <h3><a href="../index.html">目次</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Physically Based Rendering</a><ul>
+<li><a class="reference internal" href="#brdf">BRDF</a></li>
+<li><a class="reference internal" href="#albedo">Albedo</a></li>
+<li><a class="reference internal" href="#metallic">Metallic</a></li>
+<li><a class="reference internal" href="#roughness">Roughness</a></li>
+<li><a class="reference internal" href="#cook-torrance">Cook-Torrance</a></li>
 <li><a class="reference internal" href="#khronos">KHRONOS</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>前のトピックへ</h4>
-  <p class="topless"><a href="fresnel.html"
-                        title="前の章へ">Fresnel</a></p>
+  <p class="topless"><a href="specular.html"
+                        title="前の章へ">Specular reflection</a></p>
   <h4>次のトピックへ</h4>
   <p class="topless"><a href="../three_d/scene.html"
                         title="次の章へ">SceneGraph</a></p>
@@ -117,7 +149,7 @@
           <a href="../three_d/scene.html" title="SceneGraph"
              >次へ</a> |</li>
         <li class="right" >
-          <a href="fresnel.html" title="Fresnel"
+          <a href="specular.html" title="Specular reflection"
              >前へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Physically Based Rendering</a></li> 
