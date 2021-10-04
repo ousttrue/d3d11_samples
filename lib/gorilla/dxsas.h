@@ -4,8 +4,17 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 namespace gorilla {
+
+struct AnnotationSemantics {
+  int line;
+  std::string type;
+  std::string name;
+  banana::Semantics semantic;
+  std::string annotation;
+};
 
 namespace hlsl {
 
@@ -43,6 +52,8 @@ struct Token {
   TokenTypes type;
   std::string_view view;
 
+  std::string string() const { return {view.begin(), view.end()}; }
+
   bool operator==(const Token &rhs) const {
     if (type != rhs.type) {
       return false;
@@ -67,8 +78,7 @@ public:
     std::vector<Token> l;
     while (true) {
       Token t;
-      if(!try_get(&t))
-      {
+      if (!try_get(&t)) {
         break;
       }
       l.push_back(t);
@@ -90,6 +100,11 @@ enum class StatementType {
 struct Statement {
   StatementType type;
   Token prefix;
+  Token value_type;
+  Token name;
+  Token semantic;
+  std::vector<AnnotationSemantics> fields;
+  int line = -1;
 
   bool operator==(const Statement &rhs) const {
     if (type != rhs.type) {
@@ -110,14 +125,6 @@ public:
 };
 
 } // namespace hlsl
-
-struct AnnotationSemantics {
-  int line;
-  std::string type;
-  std::string name;
-  banana::Semantics semantic;
-  std::string annotation;
-};
 
 struct DXSAS {
   std::vector<AnnotationSemantics> semantics;

@@ -562,119 +562,100 @@ public:
   int current_line = 1;
 };
 
-} // namespace hlsl
-
-// auto token = z.next();
-
-//   // type name;
-//   // type name : SEMANTIC;
-//   Token semantic_token = {};
-//   if (token.type == TokenTypes::Colon) {
-//     semantic_token = z.next();
-//     token = z.next();
-//   }
-//   if (token.type != TokenTypes::Semicolon) {
-//     // ;
-//     throw std::runtime_error("not ;");
-//   }
-//   if (!semantic_token.view.empty()) {
-//     auto &s = semantics.emplace_back(AnnotationSemantics{});
-//     s.line = z.current_line;
-//     s.name = name.view;
-//     s.type = first.view;
-//     s.semantic = banana::semantics_from_string(semantic_token.view);
-//   }
-// }
-
-std::optional<AnnotationSemantics> parse_field(hlsl::Tokenizer &z,
-                                               hlsl::Token token) {
-  std::optional<AnnotationSemantics> result;
-  auto type = token;
-  if (is_prefix(type.view)) {
-    type = z.next();
+Statement parse_field(Tokenizer &z, Token token) {
+  if (is_prefix(token.view)) {
+    token = z.next();
   }
-  // if (!type.is_type()) {
-  //   throw std::runtime_error(
-  //       (std::string("not type: ") + std::string(type.view)).c_str());
-  // }
-  auto name = z.next();
+
+  if (!is_type(token.view)) {
+    throw std::runtime_error(std::format("not type: {}", token.view));
+  }
+  Statement s;
+  s.value_type = token;
+
   token = z.next();
-  if (token.type == hlsl::TokenTypes::OpenParenthesis) {
+  s.name = token;
+
+  token = z.next();
+  if (token.type == TokenTypes::OpenParenthesis) {
     // function ()
     z.skip_params();
     token = z.next();
-    hlsl::Token semantic = {};
-    if (token.type == hlsl::TokenTypes::Colon) {
+    Token semantic = {};
+    if (token.type == TokenTypes::Colon) {
       semantic = z.next(); // float4 psMAin() : SV_TARGET
       token = z.next();
     }
-    if (token.type == hlsl::TokenTypes::OpenBrace) {
+    if (token.type == TokenTypes::OpenBrace) {
       // function body
       z.skip_block();
       // without smicolon
     } else {
-      if (token.type != hlsl::TokenTypes::Semicolon) {
+      if (token.type != TokenTypes::Semicolon) {
         throw std::runtime_error("not ;");
       }
     }
   } else {
-    if (token.type == hlsl::TokenTypes::OpenBracket) {
+    if (token.type == TokenTypes::OpenBracket) {
       // array
-      z.skip(1, hlsl::TokenTypes::OpenBracket, hlsl::TokenTypes::CloseBracket);
+      z.skip(1, TokenTypes::OpenBracket, TokenTypes::CloseBracket);
       token = z.next();
     }
-    if (token.type == hlsl::TokenTypes::Colon) {
-      auto semantic_token = z.next();
+    if (token.type == TokenTypes::Colon) {
+      s.semantic = z.next();
+      s.line = z.current_line;
       token = z.next();
-
-      auto s = std::string(semantic_token.view);
-      AnnotationSemantics field{};
-      field.line = z.current_line;
-      field.name = name.view;
-      field.type = type.view;
-      field.semantic = banana::semantics_from_string(semantic_token.view);
-      result = field;
     }
-    if (token.type != hlsl::TokenTypes::Semicolon) {
+    if (token.type != TokenTypes::Semicolon) {
       throw std::runtime_error("field not ;");
     }
   }
-  return result;
+  return s;
 }
 
-static std::vector<AnnotationSemantics> parse_struct(hlsl::Tokenizer &z,
-                                                     bool is_struct) {
-  auto name = z.next();
-  if (name.type != hlsl::TokenTypes::Symbol) {
-    throw std::runtime_error("struct not name");
-  }
+AnnotationSemantics create_annotation_semantics(const Statement &s) {
+  AnnotationSemantics a;
+  a.line = s.line;
+  a.type = s.value_type.string();
+  a.name = s.name.string();
+  a.semantic = banana::semantics_from_string(s.semantic.view);
+  return a;
+}
+
+static Statement parse_struct(Tokenizer &z, bool is_struct) {
   auto token = z.next();
-  if (token.type == hlsl::TokenTypes::Colon) {
+  if (token.type != TokenTypes::Symbol) {
+    throw std::runtime_error("struct has no name");
+  }
+  Statement s = {};
+  s.name = token;
+
+  token = z.next();
+  if (token.type == TokenTypes::Colon) {
     z.skip_register();
     token = z.next();
   }
-  if (token.type != hlsl::TokenTypes::OpenBrace) {
+
+  if (token.type != TokenTypes::OpenBrace) {
     throw std::runtime_error("struct not {");
   }
 
   // struct body
-  std::vector<AnnotationSemantics> fields;
   for (auto level = 1; level;) {
     auto token = z.next();
     switch (token.type) {
-    case hlsl::TokenTypes::OpenBrace:
+    case TokenTypes::OpenBrace:
       ++level;
       break;
 
-    case hlsl::TokenTypes::CloseBrace:
+    case TokenTypes::CloseBrace:
       --level;
       break;
 
-    case hlsl::TokenTypes::Symbol: {
+    case TokenTypes::Symbol: {
       auto field = parse_field(z, token);
-      if (field.has_value()) {
-        fields.push_back(field.value());
-      }
+      AnnotationSemantics a = {};
+      s.fields.push_back(a);
     }
 
     default:
@@ -683,12 +664,15 @@ static std::vector<AnnotationSemantics> parse_struct(hlsl::Tokenizer &z,
   }
   if (is_struct) {
     auto fourth = z.next();
-    if (fourth.type != hlsl::TokenTypes::Semicolon) {
+    if (fourth.type != TokenTypes::Semicolon) {
       throw std::runtime_error("struct not ;");
     }
   }
-  return fields;
+
+  return s;
 }
+
+} // namespace hlsl
 
 void DXSAS::parse(const std::shared_ptr<banana::Asset> &asset) {
   hlsl::Tokenizer z(asset);
@@ -700,16 +684,15 @@ void DXSAS::parse(const std::shared_ptr<banana::Asset> &asset) {
 
     if (::is_struct(first.view) || ::is_cbuffer(first.view)) {
       // struct
-      auto fields = parse_struct(z, first.view == "struct");
-      for (auto &f : fields) {
+      auto s = parse_struct(z, first.view == "struct");
+      for (auto &f : s.fields) {
         semantics.push_back(f);
       }
     } else if (first.type == hlsl::TokenTypes::Symbol) {
       // constant ?
       auto field = parse_field(z, first);
-      if (field.has_value()) {
-        semantics.push_back(field.value());
-      }
+      auto a = create_annotation_semantics(field);
+      semantics.push_back(a);
     } else if (first.type == hlsl::TokenTypes::OpenBracket) {
       // [maxvertexcount(6)]
       z.skip(1, hlsl::TokenTypes::OpenBracket, hlsl::TokenTypes::CloseBracket);
