@@ -443,16 +443,16 @@ load_mesh(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
             submesh.material->textures.end() &&
         !has_tangent) {
       // calc tangent
-      SMikkTSpaceInterface interface = {0};
-      interface.m_getNumFaces = &getNumFaces;
-      interface.m_getNumVerticesOfFace = &getNumVerticesOfFace;
-      interface.m_getPosition = &getPosition;
-      interface.m_getNormal = &getNormal;
-      interface.m_getTexCoord = &getTexCoord;
-      interface.m_setTSpaceBasic = &setTSpaceBasic;
+      SMikkTSpaceInterface iMikk = {0};
+      iMikk.m_getNumFaces = &getNumFaces;
+      iMikk.m_getNumVerticesOfFace = &getNumVerticesOfFace;
+      iMikk.m_getPosition = &getPosition;
+      iMikk.m_getNormal = &getNormal;
+      iMikk.m_getTexCoord = &getTexCoord;
+      iMikk.m_setTSpaceBasic = &setTSpaceBasic;
 
       SMikkTSpaceContext context = {0};
-      context.m_pInterface = &interface;
+      context.m_pInterface = &iMikk;
 
       TangentData user_data;
       user_data.index_count = submesh.draw_count;

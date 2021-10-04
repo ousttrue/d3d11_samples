@@ -46,8 +46,8 @@ struct FontManger {
 
 public:
   bool load(const ComPtr<ID3D11Device> &device, const std::string &key) {
-    auto shader = banana::get_string(key + ".hlsl");
-    if (shader.empty()) {
+    auto shader = banana::get_asset(key + ".hlsl");
+    if (!shader) {
       return false;
     }
 

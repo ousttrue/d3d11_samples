@@ -9,8 +9,8 @@ namespace gorilla::gizmo {
 
 std::shared_ptr<Drawable> create_grid(const ComPtr<ID3D11Device> &device) {
 
-  auto shader = banana::get_string("grid.hlsl");
-  if (shader.empty()) {
+  auto shader = banana::get_asset("grid.hlsl");
+  if (!shader) {
     return {};
   }
 

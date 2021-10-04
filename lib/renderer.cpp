@@ -43,8 +43,8 @@ Renderer::get_or_create(const ComPtr<ID3D11Device> &device,
   auto pipeline = std::make_shared<gorilla::Pipeline>();
   _material_map.insert(std::make_pair(src, pipeline));
 
-  auto shader = banana::get_string(src->shader_name);
-  if (shader.empty()) {
+  auto shader = banana::get_asset(src->shader_name);
+  if (!shader) {
     assert(false);
     return {};
   }

@@ -1,8 +1,9 @@
 #pragma once
+#include <banana/asset.h>
+#include <banana/semantics.h>
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <banana/semantics.h>
 
 namespace gorilla {
 
@@ -16,7 +17,7 @@ struct AnnotationSemantics {
 
 struct DXSAS {
   std::vector<AnnotationSemantics> semantics;
-  void parse(std::string_view source);
+  void parse(const std::shared_ptr<banana::Asset> &asset);
   const AnnotationSemantics *find(banana::Semantics semantic,
                                   std::string_view type = {}) const {
     for (auto &s : semantics) {

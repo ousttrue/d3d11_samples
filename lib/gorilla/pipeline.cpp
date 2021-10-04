@@ -28,12 +28,12 @@ void ShaderStage::create_semantics_map(
         }
       }
     }
-    for (size_t i = 0; i < reflection.srv_slots.size(); ++i) {
+    for (UINT i = 0; i < reflection.srv_slots.size(); ++i) {
       if (match(s, reflection.srv_slots[i])) {
         semantics_srv_map.insert(std::make_pair(s.semantic, i));
       }
     }
-    for (size_t i = 0; i < reflection.sampler_slots.size(); ++i) {
+    for (UINT i = 0; i < reflection.sampler_slots.size(); ++i) {
       if (match(s, reflection.sampler_slots[i])) {
         semantics_sampler_map.insert(std::make_pair(s.semantic, i));
       }
@@ -73,7 +73,7 @@ void ShaderStage::set_variables(const banana::OrbitCamera &camera) {
       set_variable(banana::Semantics::CAMERA_POSITION,
                    banana::Float3{p.x, p.y, p.z});
       break;
-      
+
     case banana::Semantics::CURSOR_SCREEN_SIZE:
       set_variable(banana::Semantics::CURSOR_SCREEN_SIZE,
                    banana::Float4{0, 0, camera.screen.x, camera.screen.y});
@@ -85,10 +85,10 @@ void ShaderStage::set_variables(const banana::OrbitCamera &camera) {
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
-                     std::string_view source, const char *entry_point,
+                     const std::shared_ptr<banana::Asset> &asset, const char *entry_point,
                      const D3D_SHADER_MACRO *define) {
   auto [compiled, error] =
-      gorilla::compile_vs(name, source, entry_point, define);
+      gorilla::compile_vs(name, asset, entry_point, define);
   if (!compiled) {
     return {{}, error};
   }
@@ -111,10 +111,10 @@ Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
-                     std::string_view source, const char *entry_point,
+                     const std::shared_ptr<banana::Asset> &asset, const char *entry_point,
                      const D3D_SHADER_MACRO *define) {
   auto [compiled, error] =
-      gorilla::compile_gs(name, source, entry_point, define);
+      gorilla::compile_gs(name, asset, entry_point, define);
   if (!compiled) {
     return {{}, error};
   }
@@ -132,10 +132,10 @@ Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
-                     std::string_view source, const char *entry_point,
+                     const std::shared_ptr<banana::Asset> &asset, const char *entry_point,
                      const D3D_SHADER_MACRO *define) {
   auto [compiled, error] =
-      gorilla::compile_ps(name, source, entry_point, define);
+      gorilla::compile_ps(name, asset, entry_point, define);
   if (!compiled) {
     return {{}, error};
   }
@@ -165,29 +165,29 @@ void Pipeline::create_cb(ShaderStage &stage, const ComPtr<ID3D11Device> &device,
 
 std::pair<bool, std::string>
 Pipeline::compile_shader(const ComPtr<ID3D11Device> &device,
-                         std::string_view source,
+                         const std::shared_ptr<banana::Asset> &asset,
                          const D3D_SHADER_MACRO *define, const char *vs_entry,
                          const char *gs_entry, const char *ps_entry) {
   {
-    auto [compiled, error] = compile_vs(device, "vs", source, vs_entry, define);
+    auto [compiled, error] = compile_vs(device, "vs", asset, vs_entry, define);
     if (!compiled) {
       return {false, (const char *)error->GetBufferPointer()};
     }
   }
   if (gs_entry) {
-    auto [compiled, error] = compile_gs(device, "gs", source, gs_entry, define);
+    auto [compiled, error] = compile_gs(device, "gs", asset, gs_entry, define);
     if (!compiled) {
       return {false, (const char *)error->GetBufferPointer()};
     }
   }
   {
-    auto [compiled, error] = compile_ps(device, "ps", source, ps_entry, define);
+    auto [compiled, error] = compile_ps(device, "ps", asset, ps_entry, define);
     if (!compiled) {
       return {false, (const char *)error->GetBufferPointer()};
     }
   }
 
-  _dxsas.parse(source);
+  _dxsas.parse(asset);
   vs_stage.create_semantics_map(_dxsas.semantics);
   gs_stage.create_semantics_map(_dxsas.semantics);
   ps_stage.create_semantics_map(_dxsas.semantics);

@@ -44,8 +44,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   // setup pipeline
-  auto shader = banana::get_string("mvp.hlsl");
-  if (shader.empty()) {
+  auto shader = banana::get_asset("mvp.hlsl");
+  if (!shader) {
     return 7;
   }
   gorilla::Pipeline pipeline;

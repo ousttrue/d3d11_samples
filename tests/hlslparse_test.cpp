@@ -8,8 +8,8 @@
 
 TEST_CASE("grid", "[hlsl_parse]") {
 
-  auto source = banana::get_string("grid.hlsl");
-  REQUIRE(!source.empty());
+  auto source = banana::get_asset("grid.hlsl");
+  REQUIRE(source);
   auto [compiled, error] = gorilla::compile_gs("gs", source, "gsMain", {});
   if (!compiled) {
     std::cerr << (const char *)error->GetBufferPointer() << std::endl;
@@ -28,8 +28,8 @@ TEST_CASE("grid", "[hlsl_parse]") {
 }
 
 TEST_CASE("gltf", "[hlsl_parse]") {
-  auto source = banana::get_string("gltf.hlsl");
-  REQUIRE(!source.empty());
+  auto source = banana::get_asset("gltf.hlsl");
+  REQUIRE(source);
 
   gorilla::DXSAS dxsas;
   dxsas.parse(source);

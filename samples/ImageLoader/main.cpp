@@ -23,11 +23,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
 
-  auto shader = banana::get_string("texture.hlsl");
-  if (shader.empty()) {
-    return 7;
-  }
-
   gorilla::Window window;
   auto hwnd = window.create(hInstance, CLASS_NAME, WINDOW_TITLE, WIDTH, HEIGHT);
   if (!hwnd) {
@@ -50,6 +45,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   // setup pipeline
+  auto shader = banana::get_asset("texture.hlsl");
+  if (!shader) {
+    return 7;
+  }
   gorilla::Pipeline pipeline;
   auto [vs, vserror] = pipeline.compile_vs(device, "vs", shader, "vsMain");
   if (!vs) {

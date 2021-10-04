@@ -1,11 +1,11 @@
 #pragma once
 
-#include "banana/orbit_camera.h"
 #include "constant_buffer.h"
 #include "dxsas.h"
 #include "shader_reflection.h"
-#include <banana/semantics.h>
+#include <banana/asset.h>
 #include <banana/orbit_camera.h>
+#include <banana/semantics.h>
 #include <d3d11.h>
 #include <string_view>
 #include <vcruntime.h>
@@ -60,27 +60,29 @@ public:
   ShaderStage ps_stage;
   std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
   compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
-             std::string_view source, const char *entry_point,
-             const D3D_SHADER_MACRO *define = {});
+             const std::shared_ptr<banana::Asset> &asset,
+             const char *entry_point, const D3D_SHADER_MACRO *define = {});
   std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
   compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
-             std::string_view source, const char *entry_point,
-             const D3D_SHADER_MACRO *define = {});
+             const std::shared_ptr<banana::Asset> &asset,
+             const char *entry_point, const D3D_SHADER_MACRO *define = {});
   std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
   compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
-             std::string_view source, const char *entry_point,
-             const D3D_SHADER_MACRO *define = {});
+             const std::shared_ptr<banana::Asset> &asset,
+             const char *entry_point, const D3D_SHADER_MACRO *define = {});
 
   std::pair<bool, std::string>
-  compile_shader(const ComPtr<ID3D11Device> &device, std::string_view source,
+  compile_shader(const ComPtr<ID3D11Device> &device,
+                 const std::shared_ptr<banana::Asset> &asset,
                  const D3D_SHADER_MACRO *define, const char *vs_entry,
                  const char *gs_entry, const char *ps_entry);
 
   std::pair<bool, std::string>
-  compile_shader(const ComPtr<ID3D11Device> &device, std::string_view source,
+  compile_shader(const ComPtr<ID3D11Device> &device,
+                 const std::shared_ptr<banana::Asset> &asset,
                  const char *vs_entry, const char *gs_entry,
                  const char *ps_entry) {
-    return compile_shader(device, source, {}, vs_entry, gs_entry, ps_entry);
+    return compile_shader(device, asset, {}, vs_entry, gs_entry, ps_entry);
   }
 
   void set_variable(std::string_view name, const void *p, size_t size,

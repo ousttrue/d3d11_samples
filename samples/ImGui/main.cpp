@@ -1,16 +1,16 @@
-#include <update_camera.h>
 #include <banana/asset.h>
 #include <banana/gltf.h>
 #include <banana/orbit_camera.h>
 #include <chrono>
-#include <gorilla/drawable.h>
 #include <gorilla/device_and_target.h>
+#include <gorilla/drawable.h>
 #include <gorilla/window.h>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <iostream>
 #include <string_view>
 #include <teapot.h>
+#include <update_camera.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "ImGui";
@@ -189,8 +189,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   // drawable
-  auto shader = banana::get_string("teapot.hlsl");
-  if (shader.empty()) {
+  auto shader = banana::get_asset("teapot.hlsl");
+  if (!shader) {
     return 3;
   }
   struct TeapotConstant {
@@ -199,8 +199,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   };
   TeapotConstant c;
   gorilla::Drawable drawable;
-  if(!drawable.state.create(device))
-  {
+  if (!drawable.state.create(device)) {
     return 4;
   }
   auto [ok, error] =

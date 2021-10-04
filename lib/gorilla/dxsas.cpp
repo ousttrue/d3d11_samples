@@ -78,6 +78,7 @@ static bool is_symbol(char c) {
 }
 
 class Tokenizer {
+  std::shared_ptr<banana::Asset> _asset;
   std::string_view _source;
   std::string_view::iterator _it;
 
@@ -85,7 +86,10 @@ class Tokenizer {
   Tokenizer &operator=(const Tokenizer &) = delete;
 
 public:
-  Tokenizer(std::string_view source) : _source(source), _it(_source.begin()) {}
+  Tokenizer(const std::shared_ptr<banana::Asset> &asset) : _asset(asset) {
+    _source = asset->string_view();
+    _it = _source.begin();
+  }
 
   void skip_space() {
     for (; !is_end();) {
@@ -463,8 +467,8 @@ static std::vector<AnnotationSemantics> parse_struct(Tokenizer &z,
   return fields;
 }
 
-void DXSAS::parse(std::string_view source) {
-  Tokenizer z(source);
+void DXSAS::parse(const std::shared_ptr<banana::Asset> &asset) {
+  Tokenizer z(asset);
   while (true) {
     auto first = z.next();
     if (first.type == TokenTypes::End) {

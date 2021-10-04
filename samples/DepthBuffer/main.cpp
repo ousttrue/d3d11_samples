@@ -37,8 +37,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 2;
   }
 
-  auto shader = banana::get_string("depth.hlsl");
-  if (shader.empty()) {
+  auto shader = banana::get_asset("depth.hlsl");
+  if (!shader) {
     return 3;
   }
   gorilla::Drawable drawable;
