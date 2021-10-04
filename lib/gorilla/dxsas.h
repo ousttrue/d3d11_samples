@@ -45,7 +45,7 @@ enum class TokenTypes {
   Integer,
   Float,
   LineComment,
-  Directive,
+  Macro,
 };
 
 struct Token {

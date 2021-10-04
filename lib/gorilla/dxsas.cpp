@@ -90,7 +90,18 @@ class LexerImpl {
       _it = _source.begin();
     }
 
-    bool is_end() { return _it == _source.end(); }
+    bool peek_is(std::string_view target) const {
+      auto end = _it;
+      for (auto _ : target) {
+        if (is_end()) {
+          return false;
+        }
+        ++end;
+      }
+      return std::string_view{_it, end} == target;
+    }
+
+    bool is_end() const { return _it == _source.end(); }
 
     bool view_is(std::string_view target) {
       auto end = _it;
@@ -110,6 +121,19 @@ class LexerImpl {
         }
         return is;
       });
+    }
+
+    Token get_number() {
+      auto begin = _it;
+      for (; !is_end(); ++_it) {
+        if (!std::isdigit(*_it)) {
+          break;
+        }
+      }
+      return Token{
+          TokenTypes::Integer,
+          std::string_view(begin, _it),
+      };
     }
 
     Token get_symbol() {
@@ -147,6 +171,24 @@ class LexerImpl {
 
       return {begin, p};
     }
+
+    Token get_line(TokenTypes t) {
+      auto begin = _it;
+      for (; !is_end(); ++_it) {
+        if (*_it == '\n') {
+          ++_line;
+          ++_it;
+          break;
+        }
+      }
+      return Token{
+          t,
+          std::string_view(begin, _it),
+      };
+    }
+
+    Token get_line_comment() { return get_line(TokenTypes::LineComment); }
+    Token get_macro() { return get_line(TokenTypes::Macro); }
   };
 
 public:
@@ -168,6 +210,12 @@ public:
     }
 
     auto &top = _stack.top();
+    if (top.peek_is("//")) {
+      // comment
+      auto _comment = top.get_line_comment();
+      goto HEAD;
+    }
+
     switch (*top._it) {
     case ':': {
       ++top._it;
@@ -189,10 +237,56 @@ public:
         goto HEAD;
       } else {
         // skip line
-        throw std::runtime_error("not implemented");
+        return top.get_macro();
       }
       break;
     }
+
+    case '[':
+      return Token{TokenTypes::OpenBracket, {top._it, ++top._it}};
+
+    case ']':
+      return Token{TokenTypes::CloseBracket, {top._it, ++top._it}};
+
+    case '(':
+      return Token{TokenTypes::OpenParenthesis, {top._it, ++top._it}};
+
+    case ')':
+      return Token{TokenTypes::CloseParenthesis, {top._it, ++top._it}};
+
+    case '{':
+      return Token{TokenTypes::OpenBrace, {top._it, ++top._it}};
+
+    case '}':
+      return Token{TokenTypes::CloseBrace, {top._it, ++top._it}};
+
+    case '<':
+      return Token{TokenTypes::LessThan, {top._it, ++top._it}};
+
+    case '>':
+      return Token{TokenTypes::GreaterTham, {top._it, ++top._it}};
+
+    case '=':
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case '%':
+    case '.':
+    case ',':
+    case '?':
+      return Token{TokenTypes::BinOperator, {top._it, ++top._it}};
+
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+      return top.get_number();
 
     case 'a':
     case 'b':
@@ -412,13 +506,6 @@ public:
              std::vector<Statement> &statements) {
     Lexer lexer(asset);
 
-    //   } else if (first.type == hlsl::TokenTypes::Symbol) {
-    //     // constant ?
-    //     auto field = parse_field(z, first);
-    //     auto a = create_annotation_semantics(field);
-    //     semantics.push_back(a);
-    // }
-
     while (true) {
       Token t;
       if (!lexer.try_get(&t)) {
@@ -436,7 +523,7 @@ public:
         // [maxvertexcount(6)]
         lexer.skip(1, hlsl::TokenTypes::OpenBracket,
                    hlsl::TokenTypes::CloseBracket);
-      } else if (t.type == hlsl::TokenTypes::Directive) {
+      } else if (t.type == hlsl::TokenTypes::Macro) {
         // skip
       } else if (t.type == hlsl::TokenTypes::Semicolon) {
         // skip
@@ -458,166 +545,6 @@ AST::~AST() { delete _impl; }
 bool AST::parse(const std::shared_ptr<banana::Asset> &asset) {
   return _impl->parse(asset, statements);
 }
-
-// class Tokenizer {
-//   std::shared_ptr<banana::Asset> _asset;
-//   std::string_view _source;
-//   std::string_view::iterator _it;
-
-//   Tokenizer(const Tokenizer &) = delete;
-//   Tokenizer &operator=(const Tokenizer &) = delete;
-
-// public:
-//   Tokenizer(const std::shared_ptr<banana::Asset> &asset) : _asset(asset) {
-//     _source = asset->string_view();
-//     _it = _source.begin();
-//   }
-
-//   void skip_space() {
-//     for (; !is_end();) {
-//       auto value = *_it;
-//       switch (value) {
-//       case ' ':
-//       case '\t':
-//       case '\r':
-//         ++_it;
-//         continue;
-//       case '\n':
-//         ++_it;
-//         ++current_line;
-//         continue;
-//       default:
-//         return;
-//       }
-//     }
-//   }
-
-//   bool is_end() { return _it == _source.end(); }
-
-//   Token get_symbol() {
-//     auto begin = _it;
-//     for (; !is_end(); ++_it) {
-//       if (!is_symbol(*_it)) {
-//         break;
-//       }
-//     }
-//     return Token{
-//         TokenTypes::Symbol,
-//         std::string_view(begin, _it),
-//     };
-//   }
-
-//   Token get_number() {
-//     auto begin = _it;
-//     for (; !is_end(); ++_it) {
-//       if (!std::isdigit(*_it)) {
-//         break;
-//       }
-//     }
-//     return Token{
-//         TokenTypes::Integer,
-//         std::string_view(begin, _it),
-//     };
-//   }
-
-//   Token get_line(TokenTypes t) {
-//     auto begin = _it;
-//     for (; !is_end(); ++_it) {
-//       if (*_it == '\n') {
-//         ++current_line;
-//         ++_it;
-//         break;
-//       }
-//     }
-//     return Token{
-//         t,
-//         std::string_view(begin, _it),
-//     };
-//   }
-
-//   Token get_line_comment() { return get_line(TokenTypes::LineComment); }
-
-//   Token get_directive() { return get_line(TokenTypes::Directive); }
-
-//   char peek() const {
-//     auto p = _it;
-//     ++p;
-//     return *p;
-//   }
-
-//   Token next() {
-//     if (is_end()) {
-//       throw std::runtime_error("eof");
-//     }
-
-//     while (true) {
-//       skip_space();
-//       if (is_end()) {
-//         break;
-//       }
-//       auto value = *_it;
-
-//       if (value == '/' && peek() == '/') {
-//         // comment
-//         auto comment = get_line_comment();
-//         continue;
-//       }
-
-//       switch (value) {
-//       case ';':
-//         return Token{TokenTypes::Semicolon, {_it, ++_it}};
-
-//       case ':':
-//         return Token{TokenTypes::Colon, {_it, ++_it}};
-
-//       case '[':
-//         return Token{TokenTypes::OpenBracket, {_it, ++_it}};
-
-//       case ']':
-//         return Token{TokenTypes::CloseBracket, {_it, ++_it}};
-
-//       case '(':
-//         return Token{TokenTypes::OpenParenthesis, {_it, ++_it}};
-
-//       case ')':
-//         return Token{TokenTypes::CloseParenthesis, {_it, ++_it}};
-
-//       case '{':
-//         return Token{TokenTypes::OpenBrace, {_it, ++_it}};
-
-//       case '}':
-//         return Token{TokenTypes::CloseBrace, {_it, ++_it}};
-
-//       case '<':
-//         return Token{TokenTypes::LessThan, {_it, ++_it}};
-
-//       case '>':
-//         return Token{TokenTypes::GreaterTham, {_it, ++_it}};
-
-//       case '=':
-//       case '+':
-//       case '-':
-//       case '*':
-//       case '/':
-//       case '%':
-//       case '.':
-//       case ',':
-//       case '?':
-//         return Token{TokenTypes::BinOperator, {_it, ++_it}};
-
-//       case '#':
-//         return get_directive();
-
-//       case '0':
-//       case '1':
-//       case '2':
-//       case '3':
-//       case '4':
-//       case '5':
-//       case '6':
-//       case '7':
-//       case '8':
-//         return get_number();
 
 //       case 'a':
 //       case 'b':
@@ -704,16 +631,19 @@ void DXSAS::parse(const std::shared_ptr<banana::Asset> &asset) {
     switch (s.type) {
     case hlsl::StatementTypes::Struct:
       for (auto &f : s.fields) {
-        auto a = hlsl::create_annotation_semantics(f);
-        semantics.push_back(a);
+        if (!f.semantic.view.empty()) {
+          auto a = hlsl::create_annotation_semantics(f);
+          semantics.push_back(a);
+        }
       }
       break;
 
-    case hlsl::StatementTypes::Field: {
-      auto a = hlsl::create_annotation_semantics(s);
-      semantics.push_back(a);
-      break;
-    }
+    case hlsl::StatementTypes::Field:
+      if (!s.semantic.view.empty()) {
+        auto a = hlsl::create_annotation_semantics(s);
+        semantics.push_back(a);
+        break;
+      }
     }
   }
 }

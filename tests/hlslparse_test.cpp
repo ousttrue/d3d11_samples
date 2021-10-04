@@ -9,6 +9,11 @@
 TEST_CASE("grid", "[hlsl_parse]") {
 
   auto source = banana::get_asset("grid.hlsl");
+  {
+    gorilla::hlsl::Lexer lexer(source);
+    auto list = lexer.list();
+  }
+
   REQUIRE(source);
   auto [compiled, error] = gorilla::compile_gs("gs", source, "gsMain", {});
   if (!compiled) {

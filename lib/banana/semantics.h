@@ -42,6 +42,10 @@ enum class Semantics {
 };
 
 inline Semantics semantics_from_string(std::string_view src) {
+  if (src.empty()) {
+    throw std::runtime_error("no semantic");
+  }
+
   auto opt = magic_enum::enum_cast<Semantics>(src);
   if (opt.has_value()) {
     return opt.value();
