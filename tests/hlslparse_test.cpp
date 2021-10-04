@@ -54,7 +54,6 @@ row_major float4x4 MVP: WORLDVIEWPROJECTION;
         {gorilla::hlsl::TokenTypes::Colon},
         {gorilla::hlsl::TokenTypes::Symbol, "WORLDVIEWPROJECTION"},
         {gorilla::hlsl::TokenTypes::Semicolon},
-        {gorilla::hlsl::TokenTypes::End},
     };
     REQUIRE(list.size() == _countof(result));
     REQUIRE(std::equal(list.begin(), list.end(), result));
@@ -64,7 +63,7 @@ row_major float4x4 MVP: WORLDVIEWPROJECTION;
     gorilla::hlsl::AST ast;
     ast.parse(source);
     gorilla::hlsl::Statement result[] = {
-        {gorilla::hlsl::StatementType::Variable},
+        {gorilla::hlsl::StatementTypes::Field},
     };
     REQUIRE(ast.statements.size() == _countof(result));
     REQUIRE(std::equal(ast.statements.begin(), ast.statements.end(), result));
@@ -95,7 +94,6 @@ float4x4
       {gorilla::hlsl::TokenTypes::Colon},
       {gorilla::hlsl::TokenTypes::Symbol, "WORLDVIEWPROJECTION"},
       {gorilla::hlsl::TokenTypes::Semicolon},
-      {gorilla::hlsl::TokenTypes::End},
   };
   REQUIRE(list.size() == _countof(result));
   REQUIRE(std::equal(list.begin(), list.end(), result));

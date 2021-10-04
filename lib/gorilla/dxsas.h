@@ -71,8 +71,13 @@ class Lexer {
 public:
   Lexer(const std::shared_ptr<banana::Asset> &asset);
   ~Lexer();
-  // Token next();
   bool try_get(Token *t);
+  Token next() {
+    Token t;
+    try_get(&t);
+    return t;
+  }
+  int line() const;
 
   std::vector<Token> list() {
     std::vector<Token> l;
@@ -90,20 +95,31 @@ public:
     }
     return l;
   }
+
+  void skip_register();
+  void skip(int init_level, TokenTypes open, TokenTypes close);
+  void skip_block(int init_level = 1) {
+    skip(init_level, TokenTypes::OpenBrace, TokenTypes::CloseBrace);
+  }
+
+  void skip_params(int init_level = 1) {
+    skip(init_level, TokenTypes::OpenParenthesis, TokenTypes::CloseParenthesis);
+  }
 };
 
-enum class StatementType {
-  Empty,    // ;
-  Variable, // row_major float4x4 MVP: WORLDVIEWPROJECTION;
+enum class StatementTypes {
+  Empty, // ;
+  Field, // row_major float4x4 MVP: WORLDVIEWPROJECTION;
+  Struct,
 };
 
 struct Statement {
-  StatementType type;
+  StatementTypes type;
   Token prefix;
   Token value_type;
   Token name;
   Token semantic;
-  std::vector<AnnotationSemantics> fields;
+  std::vector<Statement> fields;
   int line = -1;
 
   bool operator==(const Statement &rhs) const {
