@@ -122,6 +122,10 @@
 <span class="p">};</span>
 
 <span class="kr">inline</span> <span class="n">Semantics</span> <span class="nf">semantics_from_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;no semantic&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+
   <span class="k">auto</span> <span class="n">opt</span> <span class="o">=</span> <span class="n">magic_enum</span><span class="o">::</span><span class="n">enum_cast</span><span class="o">&lt;</span><span class="n">Semantics</span><span class="o">&gt;</span><span class="p">(</span><span class="n">src</span><span class="p">);</span>
   <span class="k">if</span> <span class="p">(</span><span class="n">opt</span><span class="p">.</span><span class="n">has_value</span><span class="p">())</span> <span class="p">{</span>
     <span class="k">return</span> <span class="n">opt</span><span class="p">.</span><span class="n">value</span><span class="p">();</span>
