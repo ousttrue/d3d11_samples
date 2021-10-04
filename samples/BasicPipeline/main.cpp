@@ -91,13 +91,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         0.5f;
     float clear[] = {0.5, v, 0.5, 1.0f};
     render_target.clear(context, clear);
-    render_target.setup(context, w, h);
+    render_target.setup(context, static_cast<float>(w), static_cast<float>(h));
 
     // draw
     pipeline.setup(context);
     pipeline.draw_empty(context);
 
-    // vsync
+    // v-sync
     swapchain->Present(1, 0);
   }
 

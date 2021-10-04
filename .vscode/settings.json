@@ -47,7 +47,9 @@
         "DXSAS",
         "gltf",
         "Hlsl",
-        "imgui"
+        "hwnd",
+        "imgui",
+        "LPSTR"
     ],
     "testMate.cpp.test.workingDirectory": "${workspaceFolder}",
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
