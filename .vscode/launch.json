@@ -180,6 +180,9 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/GltfScene.exe",
+            "args": [
+                "CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb"
+            ]
         },
         {
             "name": "TinyGizmo",

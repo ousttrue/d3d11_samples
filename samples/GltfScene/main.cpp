@@ -1,8 +1,9 @@
-#include "banana/orbit_camera.h"
-#include "gorilla/window.h"
 #include <app.h>
 #include <banana/gltf.h>
+#include <banana/orbit_camera.h>
 #include <filesystem>
+#include <gorilla/gizmo.h>
+#include <gorilla/window.h>
 #include <imgui.h>
 #include <iostream>
 #include <renderer.h>
@@ -146,9 +147,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 1;
   }
 
+  auto grid = gorilla::gizmo::create_grid(device);
+
   GltfSamples samples("glTF-Sample-Models/2.0/");
-  if (!samples.load("CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb")) {
-    return 2;
+  if (lpCmdLine) {
+    samples.load(lpCmdLine);
   }
 
   // main loop
@@ -162,6 +165,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       update_camera(&samples.camera, state);
     }
 
+    grid->draw(context, samples.camera);
     renderer.render(device, context, samples.root(), &samples.camera);
     app.end_frame();
   }

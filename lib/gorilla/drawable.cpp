@@ -36,9 +36,7 @@ bool State::create(const ComPtr<ID3D11Device> &device,
 
 void State::setup(const ComPtr<ID3D11DeviceContext> &context) {
   context->RSSetState(rs.Get());
-  if (bs) {
-    context->OMSetBlendState(bs.Get(), blend_factor, 0xffffffff);
-  }
+  context->OMSetBlendState(bs.Get(), blend_factor, 0xffffffff);
 }
 
 void Drawable::draw(const ComPtr<ID3D11DeviceContext> &context) {
@@ -52,8 +50,8 @@ void Drawable::draw(const ComPtr<ID3D11DeviceContext> &context) {
 }
 
 void Drawable::draw(const ComPtr<ID3D11DeviceContext> &context,
-                      const banana::OrbitCamera &camera,
-                      std::span<const banana::LightInfo> lights) {
+                    const banana::OrbitCamera &camera,
+                    std::span<const banana::LightInfo> lights) {
   // update backing store
   pipeline.vs_stage.set_variables(camera);
   pipeline.gs_stage.set_variables(camera);
