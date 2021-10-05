@@ -425,6 +425,17 @@ load_mesh(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
         break;
       }
 
+      case 5125: {
+        // UNSIGNED_INT
+        auto indices =
+            from_accessor<uint32_t>(gltf, get_buffer, indices_accessor_index);
+        mesh->index_stride = sizeof(uint32_t);
+        add_range<uint32_t>(mesh, vertex_offset, index_offset, indices);
+        submesh.draw_offset = static_cast<uint32_t>(index_offset);
+        submesh.draw_count = static_cast<uint32_t>(indices.size());
+        break;
+      }
+
       default:
         throw std::runtime_error("UNKNOWN indices type not implemented");
       }
