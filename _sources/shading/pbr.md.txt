@@ -1,37 +1,46 @@
 # Physically Based Rendering
 
-* [物理ベースレンダリング -基礎編-](https://tech.cygames.co.jp/archives/2129/)
-* [物理ベースレンダリングを柔らかく説明してみる（４）](https://qiita.com/emadurandal/items/76348ad118c36317ec5c)
-* <https://learnopengl.com/PBR/Lighting>
+[GLSLで物理ベースシェーディング](https://qiita.com/aa_debdeb/items/f813bdcbd8524a66a11b)
 
-## BRDF
+```hlsl
+float3 color = (1-metallic) * diffuse + metallic * specular;
+```
 
+ということでよさそう。
 
+## Diffuse
+### 正規化Lambert
 
-## Albedo
-色の反射率
-
-## Metallic
-粘土 < 陶器 < 鏡
-
-## Roughness
-* 鏡面のぼやけ具合
-* 艶消し
-
-## Cook-Torrance
-
-<http://www.codinglabs.net/article_physically_based_rendering_cook_torrance.aspx>
-
-`fr=kdflambert+ksfcook−torrance`
-
-## KHRONOS
-比較的シンプルな古いバージョンらしい。
 <https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/glTF-WebGL-PBR/shaders/pbr-frag.glsl>
 
 ```glsl
-// Calculation of analytical lighting contribution
-vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
-vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
-// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-vec3 color = NdotL * u_LightColor * (diffuseContrib + specContrib);
+// Basic Lambertian diffuse
+// Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
+// See also [1], Equation 1
+vec3 diffuse(PBRInfo pbrInputs)
+{
+    return pbrInputs.diffuseColor / M_PI;
+}
+
+// irradiance x BRDF
+dot(S, N) * diffuse(pbrInputs);
 ```
+
+という具合にに `PI` で割る。
+[正規化Lambert](http://www.project-asura.com/program/d3d11/d3d11_004.html)
+というらしい。
+
+#### Albedo
+
+ここで `pbrInputs.diffuseColor` が `color` とちょっと違うので `Albedo` と名付けたぽい？
+
+* `sRGB` でなくて `linear` で扱う
+* PI で割ることをあらかじめ加味しておく
+
+## Specular: 鏡面反射モデル
+
+[GLSLによるフォンシェーディング](http://www.slis.tsukuba.ac.jp/~fujisawa.makoto.fu/cgi-bin/wiki/index.php?GLSL%A4%CB%A4%E8%A4%EB%A5%D5%A5%A9%A5%F3%A5%B7%A5%A7%A1%BC%A5%C7%A5%A3%A5%F3%A5%B0)
+
+|  | D | G | F |
+|--|---|---|---|
+|  |   |   |   |
