@@ -49,6 +49,7 @@ dxsas
 
 three_d/orbit_camera
 three_d/depth_test
+three_d/scene
 ```
 
 ## Shading
@@ -61,13 +62,12 @@ shading/tangent_space
 shading/pbr
 ```
 
-## SceneGraph
+## glTF
 
 ```{toctree}
 :maxdepth: 2
 
-three_d/scene
-three_d/gltf
+gltf/gltf
 ```
 
 # Gizmo
@@ -84,11 +84,6 @@ tinygizmo
 # Tool
 
 * <https://renderdoc.org/>
-
-# glTF
-
-* <https://github.com/KhronosGroup/glTF>
-* <https://github.com/KhronosGroup/glTF-Sample-Models>
 
 # Indices and tables
 
