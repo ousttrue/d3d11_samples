@@ -58,7 +58,6 @@ three_d/depth_test
 
 shading/ads
 shading/tangent_space
-shading/specular
 shading/pbr
 ```
 

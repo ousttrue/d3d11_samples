@@ -111,6 +111,7 @@ enum class StatementTypes {
   Empty, // ;
   Field, // row_major float4x4 MVP: WORLDVIEWPROJECTION;
   Struct,
+  Function, // void main(){}
 };
 
 struct Statement {

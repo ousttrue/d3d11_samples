@@ -394,7 +394,6 @@ void Lexer::skip(int init_level, TokenTypes open, TokenTypes close) {
 
 Statement parse_field(Lexer &z, Token token) {
   Statement s;
-  s.type = StatementTypes::Field;
 
   if (is_prefix(token.view)) {
     s.prefix = token;
@@ -421,15 +420,19 @@ Statement parse_field(Lexer &z, Token token) {
       token = z.next();
     }
     if (token.type == TokenTypes::OpenBrace) {
+      s.type = StatementTypes::Function;
       // function body
       z.skip_block();
       // without smicolon
     } else {
-      if (token.type != TokenTypes::Semicolon) {
-        throw std::runtime_error("not ;");
-      }
+      throw std::runtime_error("no function body");
+      // s.type = StatementTypes::FunctionDeclaration;
+      // if (token.type != TokenTypes::Semicolon) {
+      //   throw std::runtime_error("not ;");
+      // }
     }
   } else {
+    s.type = StatementTypes::Field;
     if (token.type == TokenTypes::OpenBracket) {
       // array
       z.skip(1, TokenTypes::OpenBracket, TokenTypes::CloseBracket);
