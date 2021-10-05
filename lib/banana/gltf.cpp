@@ -289,20 +289,15 @@ static void setTSpaceBasic(const SMikkTSpaceContext *pContext,
   t->w = fSign;
 }
 
-template <typename T>
-size_t load_indices(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
-                    const std::shared_ptr<Mesh> &mesh,
-                    int indices_accessor_index, size_t vertex_offset,
-                    size_t index_offset) {
-  mesh->index_stride = sizeof(T);
-  auto indices = from_accessor<T>(gltf, get_buffer, indices_accessor_index);
+template <typename S, typename T>
+void add_range(const std::shared_ptr<Mesh> &mesh, size_t vertex_offset,
+               size_t index_offset, std::span<const T> indices) {
   mesh->indices.resize((index_offset + indices.size()) * mesh->index_stride);
-  auto dst = (T *)mesh->indices.data();
+  auto dst = (S *)mesh->indices.data();
   size_t i = 0;
   for (auto &index : indices) {
-    dst[index_offset + i++] = static_cast<T>(vertex_offset + index);
+    dst[index_offset + i++] = static_cast<S>(vertex_offset + index);
   }
-  return indices.size();
 }
 
 template <typename T>
@@ -407,23 +402,26 @@ load_mesh(const nlohmann::json &gltf, const get_buffer_t &get_buffer,
       switch (indices_type) {
       case 5120: // BYTE
         throw std::runtime_error("BYTE not implemented");
+
       case 5121: {
         // UNSIGNED_BYTE
-        auto indices_size = load_indices<uint8_t>(gltf, get_buffer, mesh,
-                                                  indices_accessor_index,
-                                                  vertex_offset, index_offset);
+        auto indices =
+            from_accessor<uint8_t>(gltf, get_buffer, indices_accessor_index);
+        mesh->index_stride = 2; // uint16_t
+        add_range<uint16_t>(mesh, vertex_offset, index_offset, indices);
         submesh.draw_offset = static_cast<uint32_t>(index_offset);
-        submesh.draw_count = static_cast<uint32_t>(indices_size);
+        submesh.draw_count = static_cast<uint32_t>(indices.size());
         break;
       }
 
       case 5123: {
         // UNSIGNED_SHORT
-        auto indices_size = load_indices<uint16_t>(gltf, get_buffer, mesh,
-                                                   indices_accessor_index,
-                                                   vertex_offset, index_offset);
+        auto indices =
+            from_accessor<uint16_t>(gltf, get_buffer, indices_accessor_index);
+        mesh->index_stride = sizeof(uint16_t);
+        add_range<uint16_t>(mesh, vertex_offset, index_offset, indices);
         submesh.draw_offset = static_cast<uint32_t>(index_offset);
-        submesh.draw_count = static_cast<uint32_t>(indices_size);
+        submesh.draw_count = static_cast<uint32_t>(indices.size());
         break;
       }
 
