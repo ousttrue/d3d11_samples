@@ -64,15 +64,11 @@
 <div class="highlight-hlsl notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">VS_IN</span> <span class="p">{</span>
   <span class="kt">float3</span> <span class="n">POSITION</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
   <span class="kt">float3</span> <span class="n">NORMAL</span> <span class="o">:</span> <span class="n">NORMAL</span><span class="p">;</span>
-  <span class="kt">float2</span> <span class="n">UV0</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
-  <span class="kt">float4</span> <span class="n">COLOR</span> <span class="o">:</span> <span class="n">COLOR0</span><span class="p">;</span>
-  <span class="kt">float4</span> <span class="n">TANGENT</span> <span class="o">:</span> <span class="n">TANGENT</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="k">struct</span> <span class="n">PS_IN</span> <span class="p">{</span>
   <span class="kt">float4</span> <span class="n">POSITION</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
   <span class="kt">float3</span> <span class="n">COLOR</span> <span class="o">:</span> <span class="n">COLOR0</span><span class="p">;</span>
-  <span class="kt">float2</span> <span class="n">UV0</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="k">struct</span> <span class="n">LightInfo</span> <span class="p">{</span>
@@ -81,18 +77,14 @@
   <span class="kt">float4</span> <span class="n">Intensity</span><span class="p">;</span>
 <span class="p">};</span>
 
-<span class="k">cbuffer</span> <span class="n">World</span> <span class="p">{</span>
-  <span class="k">row_major</span> <span class="kt">float4x4</span> <span class="n">ModelViewMatrix</span> <span class="o">:</span> <span class="n">WORLDVIEW</span><span class="p">;</span>
-  <span class="k">row_major</span> <span class="kt">float3x3</span> <span class="n">NormalMatrix</span> <span class="o">:</span> <span class="n">OBJECT_NORMAL</span><span class="p">;</span>
-  <span class="k">row_major</span> <span class="kt">float4x4</span> <span class="n">MVP</span> <span class="o">:</span> <span class="n">WORLDVIEWPROJECTION</span><span class="p">;</span>
-  <span class="n">LightInfo</span> <span class="n">Lights</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">:</span> <span class="n">LIGHT_LIST</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="k">row_major</span> <span class="kt">float4x4</span> <span class="n">ModelViewMatrix</span> <span class="o">:</span> <span class="n">WORLDVIEW</span><span class="p">;</span>
+<span class="k">row_major</span> <span class="kt">float3x4</span> <span class="n">NormalMatrix</span> <span class="o">:</span> <span class="n">NORMAL_MATRIX</span><span class="p">;</span>
+<span class="k">row_major</span> <span class="kt">float4x4</span> <span class="n">MVP</span> <span class="o">:</span> <span class="n">WORLDVIEWPROJECTION</span><span class="p">;</span>
+<span class="n">LightInfo</span> <span class="n">Lights</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">:</span> <span class="n">LIGHT_LIST</span><span class="p">;</span>
 
-<span class="k">cbuffer</span> <span class="n">Material</span> <span class="p">{</span>
-  <span class="kt">float3</span> <span class="n">Kd</span> <span class="o">:</span> <span class="n">MATERIAL_COLOR</span><span class="p">;</span>
-  <span class="kt">float3</span> <span class="n">Ka</span> <span class="o">:</span> <span class="n">MATERIAL_AMBIENT</span><span class="p">;</span>
-  <span class="kt">float4</span> <span class="n">Ks</span> <span class="o">:</span> <span class="n">MATERIAL_SPECULAR</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="kt">float3</span> <span class="n">Kd</span> <span class="o">:</span> <span class="n">MATERIAL_COLOR</span><span class="p">;</span>
+<span class="kt">float3</span> <span class="n">Ka</span> <span class="o">:</span> <span class="n">MATERIAL_AMBIENT</span><span class="p">;</span>
+<span class="kt">float4</span> <span class="n">Ks</span> <span class="o">:</span> <span class="n">MATERIAL_SPECULAR</span><span class="p">;</span>
 
 <span class="kt">float</span> <span class="n">lambert</span><span class="p">(</span><span class="kt">float3</span> <span class="n">n</span><span class="p">,</span> <span class="kt">float3</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="nb">dot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="mo">0</span><span class="p">);</span> <span class="p">}</span>
 
@@ -130,7 +122,6 @@
   <span class="n">OUT</span><span class="p">.</span><span class="n">COLOR</span> <span class="o">+=</span> <span class="n">ads</span><span class="p">(</span><span class="n">Lights</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">viewPosition</span><span class="p">,</span> <span class="n">viewNormal</span><span class="p">);</span>
   <span class="n">OUT</span><span class="p">.</span><span class="n">COLOR</span> <span class="o">+=</span> <span class="n">ads</span><span class="p">(</span><span class="n">Lights</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">viewPosition</span><span class="p">,</span> <span class="n">viewNormal</span><span class="p">);</span>
   <span class="n">OUT</span><span class="p">.</span><span class="n">POSITION</span> <span class="o">=</span> <span class="nb">mul</span><span class="p">(</span><span class="kt">float4</span><span class="p">(</span><span class="n">IN</span><span class="p">.</span><span class="n">POSITION</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">MVP</span><span class="p">);</span>
-  <span class="n">OUT</span><span class="p">.</span><span class="n">UV0</span> <span class="o">=</span> <span class="n">IN</span><span class="p">.</span><span class="n">UV0</span><span class="p">;</span>
   <span class="k">return</span> <span class="n">OUT</span><span class="p">;</span>
 <span class="p">}</span>
 
