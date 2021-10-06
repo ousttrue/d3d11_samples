@@ -9,6 +9,7 @@ void ConstantBufferSlot::set_variable(std::string_view name, const void *p,
                                       size_t size, size_t offset) {
   for (auto &v : variables) {
     if (name == v.Name) {
+      assert(v.StartOffset + offset + size <= backing_store.size());
       memcpy(backing_store.data() + v.StartOffset + offset, p, size);
       return;
     }

@@ -1,11 +1,13 @@
 #pragma once
 
+#include "banana/types.h"
 #include "constant_buffer.h"
 #include "dxsas.h"
 #include "shader_reflection.h"
 #include <banana/asset.h>
 #include <banana/orbit_camera.h>
 #include <banana/semantics.h>
+#include <banana/types.h>
 #include <d3d11.h>
 #include <string_view>
 #include <vcruntime.h>
@@ -37,11 +39,24 @@ struct ShaderStage {
   void set_variable(banana::Semantics semantic, const T &t) {
     set_variable(semantic, &t, sizeof(T));
   }
+  struct Visitor {
+    banana::Semantics semantic;
+    std::function<void(banana::Semantics semantic, const void *, size_t, size_t)> setter;
+    template <typename T> void operator()(const T &t) {
+      setter(semantic, &t, sizeof(T), 0);
+    }
+  };
+  void set_variable(banana::Semantics semantic, const banana::Variable &v) {
+    std::visit(Visitor{semantic, [self = this](banana::Semantics semantic, const void *p, size_t size,
+                                               size_t offset) {
+                 self->set_variable(semantic, p, size, offset);
+               }},
+               v);
+  }
   void set_variables(const banana::OrbitCamera &camera);
 };
 
 class Pipeline {
-
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
   ComPtr<ID3D11InputLayout> _input_layout;

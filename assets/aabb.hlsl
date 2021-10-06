@@ -11,7 +11,7 @@ float3 MAX : AABB_MAX;
 
 [maxvertexcount(2)] void gsMain(point DummyInput input[1]
                                 : POSITION,
-                                  inout TriangleStream<GS_OUT> output) {
+                                  inout LineStream<GS_OUT> output) {
   GS_OUT element;
 
   element.position = mul(float4(MIN, 1), MVP);

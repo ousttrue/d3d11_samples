@@ -45,9 +45,9 @@ void ShaderStage::set_variable(banana::Semantics semantic, const void *p,
                                size_t size, size_t offset) {
   auto it = semantics_map.find(semantic);
   if (it != semantics_map.end()) {
-    memcpy(reflection.cb_slots[it->second.slot].backing_store.data() +
-               it->second.offset + offset,
-           p, size);
+    auto &bs = reflection.cb_slots[it->second.slot].backing_store;
+    assert(it->second.offset + offset + size <= bs.size());
+    memcpy(bs.data() + it->second.offset + offset, p, size);
   }
 }
 
