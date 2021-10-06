@@ -11,7 +11,9 @@ subdirs(
   InputAssembler
   DynamicMesh
   #
-  Grid
+  GizmoGrid
+  TinyGizmo
+  #
   Camera
   FontMesh
   DepthBuffer
@@ -25,4 +27,4 @@ subdirs(
   MikkTSpace
   GltfScene
   ImGui
-  TinyGizmo)
+  )

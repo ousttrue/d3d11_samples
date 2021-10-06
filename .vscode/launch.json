@@ -150,13 +150,6 @@
             "program": "${workspaceFolder}/build/Debug/bin/ImGui.exe",
         },
         {
-            "name": "Grid",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/Grid.exe",
-        },
-        {
             "name": "GltfLoader",
             "type": "cppvsdbg",
             "request": "launch",
@@ -183,6 +176,16 @@
             "args": [
                 "CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb"
             ]
+        },
+        {
+            "name": "-- Gizmo --"
+        },
+        {
+            "name": "GizmoGrid",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/Grid.exe",
         },
         {
             "name": "TinyGizmo",

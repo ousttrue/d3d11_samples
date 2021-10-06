@@ -39,8 +39,15 @@ void SceneProcessor::traverse(const std::shared_ptr<banana::Node> &node,
       commands.push_back(
           commands::SetVariable{Semantics::VIEWPROJECTION, viewprojection});
       commands.push_back(commands::SetVariable{Semantics::WORLDVIEW, view});
-      commands.push_back(
-          commands::SetVariable{Semantics::NORMAL_MATRIX, m});
+
+      {
+        // 3x4
+        Matrix3x4 normal;
+        memcpy(&normal, &m, 4 * 12);
+        commands.push_back(
+            commands::SetVariable{Semantics::NORMAL_MATRIX, normal});
+      }
+
       commands.push_back(
           commands::SetVariable{Semantics::CAMERA_POSITION, camera_position});
 

@@ -2,6 +2,11 @@
 
 d3d11 の備忘録。
 
+```{math}
+
+   z(x) = \int_0^{\infty} f(x) dx
+```
+
 ## 準備
 
 * <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>

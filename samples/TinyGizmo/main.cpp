@@ -29,15 +29,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   }
 
   // setup pipeline
-  auto node = std::make_shared<banana::Node>();
+  auto teapot_node = std::make_shared<banana::Node>();
   {
-    node->transform.translation.y = 0.4f;
+    teapot_node->transform.translation.y = 0.4f;
     auto mesh = std::make_shared<banana::Mesh>();
     mesh->assign(teapot::vertices(), teapot::indices());
-    node->mesh = mesh;
-    auto &submesh = node->mesh->submeshes.emplace_back(banana::SubMesh{});
+    teapot_node->mesh = mesh;
+    auto &submesh = teapot_node->mesh->submeshes.emplace_back(banana::SubMesh{});
     submesh.draw_offset = 0;
-    submesh.draw_count = static_cast<UINT>(node->mesh->index_count());
+    submesh.draw_count = static_cast<UINT>(teapot_node->mesh->index_count());
     submesh.material = std::make_shared<banana::Material>();
     submesh.material->shader_name = "lighting/vertex_ads.hlsl";
     submesh.material->properties[banana::Semantics::MATERIAL_COLOR] =
@@ -107,11 +107,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
 
     // draw old position
-    renderer.render(device, context, node, &camera, lights);
+    renderer.render(device, context, teapot_node, &camera, lights);
 
     // update
-    tinygizmo::position("teaport", gizmo_context, &node->transform.rotation.x,
-                        &node->transform.translation.x);
+    tinygizmo::position("teaport", gizmo_context, &teapot_node->transform.rotation.x,
+                        &teapot_node->transform.translation.x);
 
     app.clear_depth();
     {

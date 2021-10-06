@@ -20,7 +20,7 @@ struct LightInfo {
 
 cbuffer World {
   row_major float4x4 ModelViewMatrix : WORLDVIEW;
-  row_major float3x3 NormalMatrix : OBJECT_NORMAL;
+  row_major float3x3 NormalMatrix : NORMAL_MATRIX;
   row_major float4x4 MVP : WORLDVIEWPROJECTION;
   LightInfo Lights[5] : LIGHT_LIST;
 }

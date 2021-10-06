@@ -1,15 +1,11 @@
 struct VS_IN {
   float3 POSITION : POSITION;
   float3 NORMAL : NORMAL;
-  float2 UV0 : TEXCOORD0;
-  float4 COLOR : COLOR0;
-  float4 TANGENT : TANGENT;
 };
 
 struct PS_IN {
   float4 POSITION : SV_POSITION;
   float3 COLOR : COLOR0;
-  float2 UV0 : TEXCOORD0;
 };
 
 struct LightInfo {
@@ -18,18 +14,14 @@ struct LightInfo {
   float4 Intensity;
 };
 
-cbuffer World {
-  row_major float4x4 ModelViewMatrix : WORLDVIEW;
-  row_major float3x3 NormalMatrix : OBJECT_NORMAL;
-  row_major float4x4 MVP : WORLDVIEWPROJECTION;
-  LightInfo Lights[5] : LIGHT_LIST;
-}
+row_major float4x4 ModelViewMatrix : WORLDVIEW;
+row_major float3x4 NormalMatrix : NORMAL_MATRIX;
+row_major float4x4 MVP : WORLDVIEWPROJECTION;
+LightInfo Lights[5] : LIGHT_LIST;
 
-cbuffer Material {
-  float3 Kd : MATERIAL_COLOR;
-  float3 Ka : MATERIAL_AMBIENT;
-  float4 Ks : MATERIAL_SPECULAR;
-}
+float3 Kd : MATERIAL_COLOR;
+float3 Ka : MATERIAL_AMBIENT;
+float4 Ks : MATERIAL_SPECULAR;
 
 float lambert(float3 n, float3 s) { return max(dot(n, s), 0); }
 
@@ -67,7 +59,6 @@ PS_IN vsMain(VS_IN IN) {
   OUT.COLOR += ads(Lights[3], viewPosition, viewNormal);
   OUT.COLOR += ads(Lights[4], viewPosition, viewNormal);
   OUT.POSITION = mul(float4(IN.POSITION, 1), MVP);
-  OUT.UV0 = IN.UV0;
   return OUT;
 }
 

@@ -34,11 +34,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   mesh->assign(teapot::vertices(), teapot::indices());
   node->mesh = mesh;
 
-  // node->mesh = banana::geometry::create_cube(0.4f);
-
   auto &submesh = node->mesh->submeshes.emplace_back(banana::SubMesh{});
   submesh.draw_offset = 0;
-  submesh.draw_count = static_cast<UINT>(node->mesh->indices.size());
+  submesh.draw_count = static_cast<UINT>(node->mesh->index_count());
   submesh.material = std::make_shared<banana::Material>();
   submesh.material->shader_name = "lighting/vertex_ads.hlsl";
   submesh.material->properties[banana::Semantics::MATERIAL_COLOR] =
