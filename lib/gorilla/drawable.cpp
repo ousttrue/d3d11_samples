@@ -49,13 +49,20 @@ void Drawable::draw(const ComPtr<ID3D11DeviceContext> &context) {
   }
 }
 
-void Drawable::draw(const ComPtr<ID3D11DeviceContext> &context,
-                    const banana::OrbitCamera &camera,
-                    std::span<const banana::LightInfo> lights) {
+void Drawable::draw(
+    const ComPtr<ID3D11DeviceContext> &context,
+    const banana::OrbitCamera &camera,
+    const std::unordered_map<banana::Semantics, banana::Variable> &map) {
   // update backing store
   pipeline.vs_stage.set_variables(camera);
   pipeline.gs_stage.set_variables(camera);
   pipeline.ps_stage.set_variables(camera);
+  for (auto &[k, v] : map) {
+    pipeline.vs_stage.set_variable(k, v);
+    pipeline.gs_stage.set_variable(k, v);
+    pipeline.ps_stage.set_variable(k, v);
+  }
+
   // backing store to GPU
   pipeline.update(context);
   // draw

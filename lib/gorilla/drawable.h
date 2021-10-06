@@ -2,6 +2,7 @@
 #include "input_assembler.h"
 #include "pipeline.h"
 #include "window.h"
+#include <banana/types.h>
 
 namespace gorilla {
 
@@ -31,9 +32,10 @@ struct Drawable {
 
   void draw(const ComPtr<ID3D11DeviceContext> &context);
 
-  void draw(const ComPtr<ID3D11DeviceContext> &context,
-            const banana::OrbitCamera &camera,
-            std::span<const banana::LightInfo> lights = {});
+  void
+  draw(const ComPtr<ID3D11DeviceContext> &context,
+       const banana::OrbitCamera &camera,
+       const std::unordered_map<banana::Semantics, banana::Variable> &map = {});
 };
 
 } // namespace gorilla

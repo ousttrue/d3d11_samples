@@ -78,6 +78,11 @@ void ShaderStage::set_variables(const banana::OrbitCamera &camera) {
       set_variable(banana::Semantics::CURSOR_SCREEN_SIZE,
                    banana::Float4{0, 0, camera.screen.x, camera.screen.y});
       break;
+
+    case banana::Semantics::WORLDVIEWPROJECTION:
+      set_variable(banana::Semantics::WORLDVIEWPROJECTION,
+                   camera.view * camera.projection);
+      break;
     }
     }
   }
@@ -85,8 +90,8 @@ void ShaderStage::set_variables(const banana::OrbitCamera &camera) {
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
-                     const std::shared_ptr<banana::Asset> &asset, const char *entry_point,
-                     const D3D_SHADER_MACRO *define) {
+                     const std::shared_ptr<banana::Asset> &asset,
+                     const char *entry_point, const D3D_SHADER_MACRO *define) {
   auto [compiled, error] =
       gorilla::compile_vs(name, asset, entry_point, define);
   if (!compiled) {
@@ -111,8 +116,8 @@ Pipeline::compile_vs(const ComPtr<ID3D11Device> &device, const char *name,
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
-                     const std::shared_ptr<banana::Asset> &asset, const char *entry_point,
-                     const D3D_SHADER_MACRO *define) {
+                     const std::shared_ptr<banana::Asset> &asset,
+                     const char *entry_point, const D3D_SHADER_MACRO *define) {
   auto [compiled, error] =
       gorilla::compile_gs(name, asset, entry_point, define);
   if (!compiled) {
@@ -132,8 +137,8 @@ Pipeline::compile_gs(const ComPtr<ID3D11Device> &device, const char *name,
 
 std::tuple<ComPtr<ID3DBlob>, ComPtr<ID3DBlob>>
 Pipeline::compile_ps(const ComPtr<ID3D11Device> &device, const char *name,
-                     const std::shared_ptr<banana::Asset> &asset, const char *entry_point,
-                     const D3D_SHADER_MACRO *define) {
+                     const std::shared_ptr<banana::Asset> &asset,
+                     const char *entry_point, const D3D_SHADER_MACRO *define) {
   auto [compiled, error] =
       gorilla::compile_ps(name, asset, entry_point, define);
   if (!compiled) {

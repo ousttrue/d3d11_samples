@@ -11,6 +11,7 @@ subdirs(
   InputAssembler
   DynamicMesh
   #
+  GizmoAABB
   GizmoGrid
   TinyGizmo
   #
@@ -26,5 +27,4 @@ subdirs(
   GltfLoader
   MikkTSpace
   GltfScene
-  ImGui
-  )
+  ImGui)

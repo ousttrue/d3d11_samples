@@ -39,6 +39,10 @@ enum class Semantics {
                       // unit
   //
   LIGHT_LIST, // LightInfo[5]
+
+  //
+  AABB_MIN,
+  AABB_MAX,
 };
 
 inline Semantics semantics_from_string(std::string_view src) {

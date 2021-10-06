@@ -181,11 +181,18 @@
             "name": "-- Gizmo --"
         },
         {
+            "name": "GizmoAABB",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/GizmoAABB.exe",
+        },
+        {
             "name": "GizmoGrid",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/Grid.exe",
+            "program": "${workspaceFolder}/build/Debug/bin/GizmoGrid.exe",
         },
         {
             "name": "TinyGizmo",
