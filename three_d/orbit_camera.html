@@ -86,9 +86,9 @@
   <span class="kt">bool</span> <span class="n">_left</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
   <span class="kt">bool</span> <span class="n">_right</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
   <span class="kt">bool</span> <span class="n">_middle</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-  <span class="kt">float</span> <span class="n">_x</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">quiet_NaN</span><span class="p">();</span>
-  <span class="kt">float</span> <span class="n">_y</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;::</span><span class="n">quiet_NaN</span><span class="p">();</span>
-  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3</span> <span class="n">get_ray_direction</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+  <span class="c1">// float _x = std::numeric_limits&lt;float&gt;::quiet_NaN();</span>
+  <span class="c1">// float _y = std::numeric_limits&lt;float&gt;::quiet_NaN();</span>
+  <span class="n">DirectX</span><span class="o">::</span><span class="n">XMFLOAT3</span> <span class="n">get_ray_direction</span><span class="p">(</span><span class="kt">float</span> <span class="n">x</span><span class="p">,</span> <span class="kt">float</span> <span class="n">y</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
 
   <span class="c1">//</span>
   <span class="c1">// projection</span>
@@ -164,7 +164,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, ousttrue.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>
 </html>
