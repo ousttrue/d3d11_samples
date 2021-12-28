@@ -150,6 +150,13 @@
             "program": "${workspaceFolder}/build/Debug/bin/ImGui.exe",
         },
         {
+            "name": "ImGuiDockspace",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/ImGuiDockspace.exe",
+        },
+        {
             "name": "GltfLoader",
             "type": "cppvsdbg",
             "request": "launch",

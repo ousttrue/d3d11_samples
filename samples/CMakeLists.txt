@@ -27,4 +27,6 @@ subdirs(
   GltfLoader
   MikkTSpace
   GltfScene
-  ImGui)
+  ImGui
+  ImGuiDockspace
+  )
