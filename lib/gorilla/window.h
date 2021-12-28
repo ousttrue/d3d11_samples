@@ -42,6 +42,7 @@ class Window {
   std::list<OnKeyDown_t> _on_key;
 
   ScreenState _state = {};
+  bool _is_maximized = false;
 
 public:
   ~Window();
@@ -62,6 +63,9 @@ public:
   }
 
   void bind_key(const OnKeyDown_t &key) { _on_key.push_back(key); }
+
+  void load_ini();
+  void save_ini();
 };
 
 } // namespace gorilla

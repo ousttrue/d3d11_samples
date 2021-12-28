@@ -10,6 +10,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!hwnd) {
     return 1;
   }
+  window.load_ini();
 
   ShowWindow(hwnd, nCmdShow);
   UpdateWindow(hwnd);
@@ -17,6 +18,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   // main loop
   for (UINT frameCount = 0; window.process_messages(); ++frameCount) {
   }
+
+  window.save_ini();
 
   return 0;
 }

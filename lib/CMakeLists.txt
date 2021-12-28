@@ -37,7 +37,7 @@ add_library(
   gorilla/gizmo.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PUBLIC d3d11.lib d3dcompiler.lib
-                                            dxguid.lib Shlwapi.lib banana)
+                                            dxguid.lib Shlwapi.lib banana json)
 
 # app
 set(TARGET_NAME app)
