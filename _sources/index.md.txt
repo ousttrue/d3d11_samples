@@ -2,15 +2,15 @@
 
 d3d11 の備忘録。
 
-```{math}
-
-   z(x) = \int_0^{\infty} f(x) dx
-```
-
 ## 準備
 
-* <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>
-* <https://tositeru.github.io/ImasaraDX11/>
+ImGui + DockSpace をスタート地点にすることにした。
+
+* CreateWindow
+* CreateDevice
+* ImGui
+* ImGui + DockSpace
+* ImGui + RenderTarget
 
 ```{toctree}
 :maxdepth: 2
@@ -21,8 +21,6 @@ basic/create_window
 basic/create_device
 basic/create_swapchain
 basic/render_target
-basic/compile_shader
-basic/shader_reflection
 ```
 
 ## パイプラインとバッファーの取り扱い
@@ -30,6 +28,8 @@ basic/shader_reflection
 ```{toctree}
 :maxdepth: 2
 
+basic/compile_shader
+basic/shader_reflection
 basic/basic_pipeline
 basic/constant_buffer
 basic/texture
@@ -90,7 +90,11 @@ tinygizmo
 
 * <https://renderdoc.org/>
 
-# Indices and tables
+## 参考
+* <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>
+* [いまさらDirect3D11入門](https://tositeru.github.io/ImasaraDX11/)
+
+## Indices and tables
 
 * {ref}`genindex`
 * {ref}`modindex`
