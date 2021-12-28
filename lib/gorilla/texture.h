@@ -8,6 +8,7 @@ class Texture {
   template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 public:
+  D3D11_TEXTURE2D_DESC desc;
   ComPtr<ID3D11Texture2D> _texture;
   ComPtr<ID3D11ShaderResourceView> _srv;
   ComPtr<ID3D11SamplerState> _sampler;

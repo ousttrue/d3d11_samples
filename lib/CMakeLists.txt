@@ -32,6 +32,7 @@ add_library(
   gorilla/texture.cpp
   gorilla/window.cpp
   gorilla/device_and_target.cpp
+  gorilla/texture_and_target.cpp
   gorilla/drawable.cpp
   gorilla/gizmo.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)

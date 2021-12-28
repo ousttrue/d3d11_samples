@@ -29,9 +29,9 @@ struct OrbitCamera {
   bool _left = false;
   bool _right = false;
   bool _middle = false;
-  float _x = std::numeric_limits<float>::quiet_NaN();
-  float _y = std::numeric_limits<float>::quiet_NaN();
-  DirectX::XMFLOAT3 get_ray_direction() const;
+  // float _x = std::numeric_limits<float>::quiet_NaN();
+  // float _y = std::numeric_limits<float>::quiet_NaN();
+  DirectX::XMFLOAT3 get_ray_direction(float x, float y) const;
 
   //
   // projection

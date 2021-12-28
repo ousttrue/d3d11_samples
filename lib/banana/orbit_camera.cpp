@@ -81,7 +81,7 @@ DirectX::XMFLOAT4 OrbitCamera::rotation() const {
 //
 // screen
 //
-DirectX::XMFLOAT3 OrbitCamera::get_ray_direction() const {
+DirectX::XMFLOAT3 OrbitCamera::get_ray_direction(float _x, float _y) const {
   auto Y = DirectX::XMMatrixRotationY(-yaw);
   auto P = DirectX::XMMatrixRotationX(-pitch);
   auto R = DirectX::XMMatrixMultiply(P, Y);
@@ -134,7 +134,7 @@ void OrbitCamera::fit(const banana::AABB &aabb) {
   calc_view();
 }
 
-void OrbitCamera::update(float x, float y, float w, float h, bool left,
+void OrbitCamera::update(float dx, float dy, float w, float h, bool left,
                          bool right, bool middle, float wheel) {
 
   resize(w, h);
@@ -143,16 +143,16 @@ void OrbitCamera::update(float x, float y, float w, float h, bool left,
   _right = right;
   _middle = middle;
 
-  if (_x == std::numeric_limits<float>::quiet_NaN()) {
-    _x = x;
-    _y = y;
-    return;
-  }
+  // if (_x == std::numeric_limits<float>::quiet_NaN()) {
+  //   _x = x;
+  //   _y = y;
+  //   return;
+  // }
 
-  auto dx = x - _x;
-  _x = x;
-  auto dy = y - _y;
-  _y = y;
+  // auto dx = x - _x;
+  // _x = x;
+  // auto dy = y - _y;
+  // _y = y;
   if (_right) {
     yaw_pitch(dx, dy);
   }

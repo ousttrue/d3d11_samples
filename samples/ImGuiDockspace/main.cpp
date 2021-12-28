@@ -6,6 +6,7 @@
 #include <gorilla/device_and_target.h>
 #include <gorilla/drawable.h>
 #include <gorilla/window.h>
+#include <gorilla/texture_and_target.h>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <iostream>
@@ -29,6 +30,11 @@ class Gui
 
 public:
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+  banana::OrbitCamera view_camera;
+  gorilla::Drawable view_drawable;
+  gorilla::TextureAndTarget view_rt;
+  ImVec4 view_clear_color = ImVec4(0.6f, 0.35f, 0.60f, 1.00f);
 
   Gui(const ComPtr<ID3D11Device> &device,
       const ComPtr<ID3D11DeviceContext> &context)
@@ -130,6 +136,87 @@ public:
       ImGui::End();
     };
     _docks.push_back({"hello", show_hello});
+
+    // 3D View
+    // drawable
+    auto shader = banana::get_asset("teapot.hlsl");
+    if (!shader)
+    {
+      return;
+    }
+    struct TeapotConstant
+    {
+      banana::Matrix4x4 MVP;
+      banana::Matrix4x4 M;
+    };
+    if (!view_drawable.state.create(device))
+    {
+      return;
+    }
+    auto [ok, error] =
+        view_drawable.pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
+    if (!ok)
+    {
+      std::cerr << error << std::endl;
+      return;
+    }
+    if (!view_drawable.ia.create(device, teapot::vertices(), teapot::indices()))
+    {
+      return;
+    }
+    // float clear[] = {gui.clear_color.x * gui.clear_color.w,
+    //                  gui.clear_color.y * gui.clear_color.w,
+    //                  gui.clear_color.z * gui.clear_color.w, 1.0f};
+    // if (!gui_focus)
+    // {
+    //   // mouse event to camera
+    //   update_camera(&camera, state);
+    // }
+    auto show_view = [&camera = this->view_camera, &device, &context, &view_drawable = this->view_drawable, &rt = this->view_rt, &view_clear_color = this->view_clear_color](bool *p_open)
+    {
+      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+      if (ImGui::Begin("render target", p_open,
+                       ImGuiWindowFlags_NoScrollbar |
+                           ImGuiWindowFlags_NoScrollWithMouse))
+      {
+        auto size = ImGui::GetContentRegionAvail();
+        auto texture = rt.set_rtv(device, context,
+                                  static_cast<int>(size.x), static_cast<int>(size.y), &view_clear_color.x);
+        if (texture)
+        {
+          ImGui::BeginChild("cameraview");
+          ImGui::Image(texture.Get(), size);
+
+          // update
+          auto topLeft = ImGui::GetWindowPos();
+          topLeft.y += ImGui::GetFrameHeight();
+          auto &io = ImGui::GetIO();
+          if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+          {
+            camera.update(io.MouseDelta.x, io.MouseDelta.y, size.x, size.y, io.MouseDown[0], io.MouseDown[1], io.MouseDown[2], io.MouseWheel);
+          }
+          if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1) || ImGui::IsItemClicked(2))
+          {
+            std::cout << "click" << std::endl;
+            ImGui::SetWindowFocus();
+          }
+
+          TeapotConstant c;
+          c.MVP = camera.view * camera.projection;
+          c.M = banana::Matrix4x4::identity();
+          view_drawable.pipeline.vs_stage.cb[0].update(context, c);
+
+          // render to texture
+          view_drawable.draw(context);
+
+          // rt.hovered = ImGui::IsItemHovered();
+          ImGui::EndChild();
+        }
+      }
+      ImGui::End();
+      ImGui::PopStyleVar();
+    };
+    _docks.push_back({"view", show_view});
   }
 
   ~Gui()
@@ -140,14 +227,13 @@ public:
     ImGui::DestroyContext();
   }
 
-  bool draw(const ComPtr<ID3D11DeviceContext> &context,
-            const gorilla::ScreenState &state)
+  void update(const ComPtr<ID3D11DeviceContext> &context,
+              const gorilla::ScreenState &state)
   {
-    ImGuiIO &io = ImGui::GetIO();
-
     //
     // update custom backend
     //
+    ImGuiIO &io = ImGui::GetIO();
     if (last == std::chrono::system_clock::time_point{})
     {
     }
@@ -167,9 +253,8 @@ public:
     io.MousePos = {state.mouse_x, state.mouse_y};
     io.MouseDown[0] = state.mouse_button_flag & gorilla::MouseButtonLeftDown;
     io.MouseDown[1] = state.mouse_button_flag & gorilla::MouseButtonRightDown;
+    io.MouseDown[2] = state.mouse_button_flag & gorilla::MouseButtonMiddleDown;
     io.MouseWheel = state.wheel;
-
-    // update
 
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
@@ -178,10 +263,11 @@ public:
     dockspace(_docks);
     // Rendering
     ImGui::Render();
+  }
 
+  void render()
+  {
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-    return io.WantCaptureMouse;
   }
 };
 
@@ -207,63 +293,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 2;
   }
 
-  // drawable
-  auto shader = banana::get_asset("teapot.hlsl");
-  if (!shader)
-  {
-    return 3;
-  }
-  struct TeapotConstant
-  {
-    banana::Matrix4x4 MVP;
-    banana::Matrix4x4 M;
-  };
-  TeapotConstant c;
-  gorilla::Drawable drawable;
-  if (!drawable.state.create(device))
-  {
-    return 4;
-  }
-  auto [ok, error] =
-      drawable.pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
-  if (!ok)
-  {
-    std::cerr << error << std::endl;
-    return 5;
-  }
-  if (!drawable.ia.create(device, teapot::vertices(), teapot::indices()))
-  {
-    return 6;
-  }
-
   //
   // main loop
   //
   Gui gui(device, context);
-  banana::OrbitCamera camera;
   gorilla::ScreenState state;
   for (UINT frame_count = 0; window.process_messages(&state); ++frame_count)
   {
-
-    // update
-    c.MVP = camera.view * camera.projection;
-    c.M = banana::Matrix4x4::identity();
-    drawable.pipeline.vs_stage.cb[0].update(context, c);
-    float clear[] = {gui.clear_color.x * gui.clear_color.w,
-                     gui.clear_color.y * gui.clear_color.w,
-                     gui.clear_color.z * gui.clear_color.w, 1.0f};
-
+    gui.update(context, state);
     // draw
-    renderer.begin_frame(state, clear);
-    drawable.draw(context);
-    bool gui_focus = gui.draw(context, state);
+    renderer.begin_frame(state, &gui.clear_color.x);
+    gui.render();
     renderer.end_frame();
-
-    if (!gui_focus)
-    {
-      // mouse event to camera
-      update_camera(&camera, state);
-    }
   }
 
   return 0;

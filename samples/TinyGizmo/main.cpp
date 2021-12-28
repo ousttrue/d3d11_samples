@@ -97,7 +97,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       auto r = camera.rotation();
       gizmo_state.cam.orientation = {r.x, r.y, r.z, r.w};
 
-      auto dir = camera.get_ray_direction();
+      auto dir = camera.get_ray_direction(state.mouse_x, state.mouse_y);
       gizmo_state.ray_origin = {p.x, p.y, p.z};
       gizmo_state.ray_direction = {dir.x, dir.y, dir.z};
       // optional flag to draw the gizmos at a constant screen-space scale
