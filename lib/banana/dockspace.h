@@ -2,7 +2,7 @@
 #include <functional>
 #include <string>
 
-namespace gorilla {
+namespace banana {
 
 using DockFunc = std::function<void(bool *p_open)>;
 struct Dock {
@@ -12,4 +12,4 @@ struct Dock {
 };
 void dockspace(std::list<Dock> &docks);
 
-} // namespace gorilla
+} // namespace banana

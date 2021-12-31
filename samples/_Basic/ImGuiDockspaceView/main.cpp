@@ -1,4 +1,4 @@
-#include <gorilla/dockspace.h>
+#include <banana/dockspace.h>
 #include <gorilla/device_and_target.h>
 #include <gorilla/drawable.h>
 #include <gorilla/texture_and_target.h>
@@ -21,7 +21,7 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 class DockSpace {
   std::chrono::system_clock::time_point last = {};
-  std::list<gorilla::Dock> _docks;
+  std::list<banana::Dock> _docks;
 
 public:
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);

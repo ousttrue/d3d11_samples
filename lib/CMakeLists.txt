@@ -9,12 +9,13 @@ add_library(
   banana/node.cpp
   banana/types.cpp
   banana/orbit_camera.cpp
-  banana/scene_processor.cpp)
+  banana/scene_processor.cpp
+  banana/dockspace.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(
   ${TARGET_NAME}
   PRIVATE json mikktspace
-  PUBLIC magic_enum)
+  PUBLIC magic_enum imgui)
 
 # 🦍 gorilla(win32api d3d11)
 set(TARGET_NAME gorilla)
@@ -33,12 +34,11 @@ add_library(
   gorilla/window.cpp
   gorilla/device_and_target.cpp
   gorilla/texture_and_target.cpp
-  gorilla/dockspace.cpp
   gorilla/drawable.cpp
   gorilla/gizmo.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PUBLIC d3d11.lib d3dcompiler.lib
-                                            dxguid.lib Shlwapi.lib banana json imgui)
+                                            dxguid.lib Shlwapi.lib banana json)
 
 # app
 set(TARGET_NAME app)

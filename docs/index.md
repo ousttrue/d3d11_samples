@@ -8,10 +8,10 @@
 
 -   window
 -   d3d11, device, resource
+
+🍌 lib/banana: 環境(windows, d3d11)に依存しない
+
 -   imgui
-
-🍌 lib/banana
-
 -   camera
 -   scene
 -   glTF
@@ -30,9 +30,15 @@ env
 
 dependency
 
+-   catch2
+-   magic_enum
 -   [imgui](https://github.com/ocornut/imgui)
--   `DirectXMath`
+-   [nlohmann json](https://github.com/nlohmann/json) (glTFロードなど)
+-   DirectXMath
 -   [mathfu](https://github.com/google/mathfu) (後でシーンをプラットフォーム独立にする場合に、こちらの方が都合がよさそう)
+-   MiKKTSpace
+-   stb
+-   tinygizmo
 
 ## basic
 

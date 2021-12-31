@@ -2,7 +2,7 @@
 #include <imgui.h>
 #include <list>
 
-namespace gorilla {
+namespace banana {
 
 auto DOCKSPACE = "__dockspace__";
 
@@ -50,4 +50,4 @@ void dockspace(std::list<Dock> &docks) {
   }
 }
 
-} // namespace gorilla
+} // namespace banana

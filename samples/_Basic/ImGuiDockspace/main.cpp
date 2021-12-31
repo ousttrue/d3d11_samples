@@ -1,4 +1,4 @@
-#include <gorilla/dockspace.h>
+#include <banana/dockspace.h>
 #include <gorilla/device_and_target.h>
 #include <gorilla/drawable.h>
 #include <gorilla/texture_and_target.h>
@@ -21,7 +21,7 @@ template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 class DockSpace {
   std::chrono::system_clock::time_point last = {};
-  std::list<gorilla::Dock> _docks;
+  std::list<banana::Dock> _docks;
 
 public:
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -77,7 +77,7 @@ public:
     // 1. Show the big demo window (Most of the sample code is in
     // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
     // ImGui!).
-    auto demo = _docks.emplace_back(gorilla::Dock{"demo", &ImGui::ShowDemoWindow});
+    auto demo = _docks.emplace_back(banana::Dock{"demo", &ImGui::ShowDemoWindow});
 
     // 3. Show another simple window.
     auto show_another = [](bool *p_open) {
@@ -91,7 +91,7 @@ public:
 
       ImGui::End();
     };
-    auto another = _docks.emplace_back(gorilla::Dock{"another", show_another});
+    auto another = _docks.emplace_back(banana::Dock{"another", show_another});
 
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair
     // to created a named window.
