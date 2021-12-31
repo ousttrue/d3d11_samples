@@ -1,25 +1,20 @@
-#include <banana/asset.h>
-#include <banana/gltf.h>
-#include <banana/orbit_camera.h>
-#include <chrono>
 #include <gorilla/device_and_target.h>
-#include <gorilla/drawable.h>
 #include <gorilla/window.h>
+//
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
+//
+#include <chrono>
 #include <iostream>
-#include <string_view>
-#include <teapot.h>
-#include <update_camera.h>
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "ImGui";
-auto WIDTH = 1024;
-auto HEIGHT = 768;
+auto WIDTH = 640;
+auto HEIGHT = 480;
 
 template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-class Gui {
+class DockSpace {
   bool show_demo_window = true;
   bool show_another_window = false;
   std::chrono::system_clock::time_point last = {};
@@ -27,7 +22,7 @@ class Gui {
 public:
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-  Gui(const ComPtr<ID3D11Device> &device,
+  DockSpace(const ComPtr<ID3D11Device> &device,
       const ComPtr<ID3D11DeviceContext> &context) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -68,7 +63,7 @@ public:
     ImGui_ImplDX11_Init(device.Get(), context.Get());
   }
 
-  ~Gui() {
+  ~DockSpace() {
     // Cleanup
     ImGui_ImplDX11_Shutdown();
     // ImGui_ImplWin32_Shutdown();
@@ -98,6 +93,7 @@ public:
     io.MousePos = {state.mouse_x, state.mouse_y};
     io.MouseDown[0] = state.mouse_button_flag & gorilla::MouseButtonLeftDown;
     io.MouseDown[1] = state.mouse_button_flag & gorilla::MouseButtonRightDown;
+    io.MouseDown[2] = state.mouse_button_flag & gorilla::MouseButtonMiddleDown;
     io.MouseWheel = state.wheel;
 
     // update
@@ -188,56 +184,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return 2;
   }
 
-  // drawable
-  auto shader = banana::get_asset("teapot.hlsl");
-  if (!shader) {
-    return 3;
-  }
-  struct TeapotConstant {
-    banana::Matrix4x4 MVP;
-    banana::Matrix4x4 M;
-  };
-  TeapotConstant c;
-  gorilla::Drawable drawable;
-  if (!drawable.state.create(device)) {
-    return 4;
-  }
-  auto [ok, error] =
-      drawable.pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
-  if (!ok) {
-    std::cerr << error << std::endl;
-    return 5;
-  }
-  if (!drawable.ia.create(device, teapot::vertices(), teapot::indices())) {
-    return 6;
-  }
-
   //
   // main loop
   //
-  Gui gui(device, context);
-  banana::OrbitCamera camera;
+  DockSpace gui(device, context);
   gorilla::ScreenState state;
   for (UINT frame_count = 0; window.process_messages(&state); ++frame_count) {
 
-    // update
-    c.MVP = camera.view * camera.projection;
-    c.M = banana::Matrix4x4::identity();
-    drawable.pipeline.vs_stage.cb[0].update(context, c);
+    // clear
     float clear[] = {gui.clear_color.x * gui.clear_color.w,
                      gui.clear_color.y * gui.clear_color.w,
                      gui.clear_color.z * gui.clear_color.w, 1.0f};
-
-    // draw
     renderer.begin_frame(state, clear);
-    drawable.draw(context);
-    bool gui_focus = gui.draw(context, state);
-    renderer.end_frame();
 
-    if (!gui_focus) {
-      // mouse event to camera
-      update_camera(&camera, state);
-    }
+    // render
+    gui.draw(context, state);
+
+    // swap buffer
+    renderer.end_frame();
   }
 
   return 0;

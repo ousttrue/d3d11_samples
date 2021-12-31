@@ -1,32 +1,27 @@
-#include <banana/asset.h>
-#include <banana/gltf.h>
-#include <banana/orbit_camera.h>
-#include <chrono>
-#include <list>
+#include <banana/dockspace.h>
 #include <gorilla/device_and_target.h>
 #include <gorilla/drawable.h>
-#include <gorilla/window.h>
 #include <gorilla/texture_and_target.h>
+#include <gorilla/window.h>
+//
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
+//
+#include <chrono>
 #include <iostream>
+#include <list>
 #include <string_view>
-#include <teapot.h>
-#include <update_camera.h>
-#include "dockspace.h"
 
 auto CLASS_NAME = "CLASS_NAME";
 auto WINDOW_TITLE = "ImGuiDockspace";
-auto WIDTH = 1024;
-auto HEIGHT = 768;
+auto WIDTH = 640;
+auto HEIGHT = 480;
 
-template <typename T>
-using ComPtr = Microsoft::WRL::ComPtr<T>;
+template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-class Gui
-{
+class DockSpace {
   std::chrono::system_clock::time_point last = {};
-  std::list<Dock> _docks;
+  std::list<banana::Dock> _docks;
 
 public:
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -36,9 +31,8 @@ public:
   gorilla::TextureAndTarget view_rt;
   ImVec4 view_clear_color = ImVec4(0.6f, 0.35f, 0.60f, 1.00f);
 
-  Gui(const ComPtr<ID3D11Device> &device,
-      const ComPtr<ID3D11DeviceContext> &context)
-  {
+  DockSpace(const ComPtr<ID3D11Device> &device,
+      const ComPtr<ID3D11DeviceContext> &context) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -68,8 +62,7 @@ public:
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform
     // windows can look identical to regular ones.
     ImGuiStyle &style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
       style.WindowRounding = 0.0f;
       style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
@@ -84,28 +77,26 @@ public:
     // 1. Show the big demo window (Most of the sample code is in
     // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
     // ImGui!).
-    auto demo = _docks.emplace_back(Dock{"demo", &ImGui::ShowDemoWindow});
+    auto demo = _docks.emplace_back(banana::Dock{"demo", &ImGui::ShowDemoWindow});
 
     // 3. Show another simple window.
-    auto show_another = [](bool *p_open)
-    {
-      ImGui::Begin(
-          "Another Window",
-          p_open); // Pass a pointer to our bool variable (the
-                   // window will have a closing button that will
-                   // clear the bool when clicked)
+    auto show_another = [](bool *p_open) {
+      ImGui::Begin("Another Window",
+                   p_open); // Pass a pointer to our bool variable (the
+                            // window will have a closing button that will
+                            // clear the bool when clicked)
       ImGui::Text("Hello from another window!");
       if (ImGui::Button("Close Me"))
         *p_open = false;
 
       ImGui::End();
     };
-    auto another = _docks.emplace_back(Dock{"another", show_another});
+    auto another = _docks.emplace_back(banana::Dock{"another", show_another});
 
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair
     // to created a named window.
-    auto show_hello = [&demo, &another, &clear_color = this->clear_color](bool *p_open)
-    {
+    auto show_hello = [&demo, &another,
+                       &clear_color = this->clear_color](bool *p_open) {
       static float f = 0.0f;
       static int counter = 0;
 
@@ -136,91 +127,9 @@ public:
       ImGui::End();
     };
     _docks.push_back({"hello", show_hello});
-
-    // 3D View
-    // drawable
-    auto shader = banana::get_asset("teapot.hlsl");
-    if (!shader)
-    {
-      return;
-    }
-    struct TeapotConstant
-    {
-      banana::Matrix4x4 MVP;
-      banana::Matrix4x4 M;
-    };
-    if (!view_drawable.state.create(device))
-    {
-      return;
-    }
-    auto [ok, error] =
-        view_drawable.pipeline.compile_shader(device, shader, "vsMain", {}, "psMain");
-    if (!ok)
-    {
-      std::cerr << error << std::endl;
-      return;
-    }
-    if (!view_drawable.ia.create(device, teapot::vertices(), teapot::indices()))
-    {
-      return;
-    }
-    // float clear[] = {gui.clear_color.x * gui.clear_color.w,
-    //                  gui.clear_color.y * gui.clear_color.w,
-    //                  gui.clear_color.z * gui.clear_color.w, 1.0f};
-    // if (!gui_focus)
-    // {
-    //   // mouse event to camera
-    //   update_camera(&camera, state);
-    // }
-    auto show_view = [&camera = this->view_camera, &device, &context, &view_drawable = this->view_drawable, &rt = this->view_rt, &view_clear_color = this->view_clear_color](bool *p_open)
-    {
-      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
-      if (ImGui::Begin("render target", p_open,
-                       ImGuiWindowFlags_NoScrollbar |
-                           ImGuiWindowFlags_NoScrollWithMouse))
-      {
-        auto size = ImGui::GetContentRegionAvail();
-        auto texture = rt.set_rtv(device, context,
-                                  static_cast<int>(size.x), static_cast<int>(size.y), &view_clear_color.x);
-        if (texture)
-        {
-          ImGui::BeginChild("cameraview");
-          ImGui::Image(texture.Get(), size);
-
-          // update
-          auto topLeft = ImGui::GetWindowPos();
-          topLeft.y += ImGui::GetFrameHeight();
-          auto &io = ImGui::GetIO();
-          if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
-          {
-            camera.update(io.MouseDelta.x, io.MouseDelta.y, size.x, size.y, io.MouseDown[0], io.MouseDown[1], io.MouseDown[2], io.MouseWheel);
-          }
-          if (ImGui::IsItemClicked(0) || ImGui::IsItemClicked(1) || ImGui::IsItemClicked(2))
-          {
-            std::cout << "click" << std::endl;
-            ImGui::SetWindowFocus();
-          }
-
-          TeapotConstant c;
-          c.MVP = camera.view * camera.projection;
-          c.M = banana::Matrix4x4::identity();
-          view_drawable.pipeline.vs_stage.cb[0].update(context, c);
-
-          // render to texture
-          view_drawable.draw(context);
-
-          // rt.hovered = ImGui::IsItemHovered();
-          ImGui::EndChild();
-        }
-      }
-      ImGui::End();
-      ImGui::PopStyleVar();
-    };
-    _docks.push_back({"view", show_view});
   }
 
-  ~Gui()
-  {
+  ~DockSpace() {
     // Cleanup
     ImGui_ImplDX11_Shutdown();
     // ImGui_ImplWin32_Shutdown();
@@ -228,24 +137,19 @@ public:
   }
 
   void update(const ComPtr<ID3D11DeviceContext> &context,
-              const gorilla::ScreenState &state)
-  {
+              const gorilla::ScreenState &state) {
     //
     // update custom backend
     //
     ImGuiIO &io = ImGui::GetIO();
-    if (last == std::chrono::system_clock::time_point{})
-    {
-    }
-    else
-    {
+    if (last == std::chrono::system_clock::time_point{}) {
+    } else {
       io.DeltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(
                          state.time - last)
                          .count() *
                      0.001f;
     }
-    if (io.DeltaTime == 0)
-    {
+    if (io.DeltaTime == 0) {
       io.DeltaTime = 0.016f;
     }
     last = state.time;
@@ -265,22 +169,17 @@ public:
     ImGui::Render();
   }
 
-  void render()
-  {
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-  }
+  void render() { ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); }
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                   LPSTR lpCmdLine, int nCmdShow)
-{
+                   LPSTR lpCmdLine, int nCmdShow) {
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
   gorilla::Window window;
   auto hwnd = window.create(hInstance, CLASS_NAME, WINDOW_TITLE, WIDTH, HEIGHT);
-  if (!hwnd)
-  {
+  if (!hwnd) {
     return 1;
   }
   ShowWindow(hwnd, nCmdShow);
@@ -288,18 +187,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   gorilla::DeviceAndTarget renderer;
   auto [device, context] = renderer.create(hwnd);
-  if (!device)
-  {
+  if (!device) {
     return 2;
   }
 
   //
   // main loop
   //
-  Gui gui(device, context);
+  DockSpace gui(device, context);
   gorilla::ScreenState state;
-  for (UINT frame_count = 0; window.process_messages(&state); ++frame_count)
-  {
+  for (UINT frame_count = 0; window.process_messages(&state); ++frame_count) {
     gui.update(context, state);
     // draw
     renderer.begin_frame(state, &gui.clear_color.x);

@@ -63,6 +63,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   swapchain->GetDesc(&desc);
   gorilla::RenderTarget render_target;
   gorilla::ScreenState state;
+  float last_mouse_x = 0;
+  float last_mouse_y = 0;
   for (UINT frame_count = 0; window.process_messages(&state); ++frame_count) {
 
     if (state.width != desc.BufferDesc.Width ||
@@ -89,11 +91,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
 
     // update
-    camera.update(state.mouse_x, state.mouse_y, state.width, state.height,
-                  state.mouse_button_flag & gorilla::MouseButtonLeftDown,
-                  state.mouse_button_flag & gorilla::MouseButtonRightDown,
-                  state.mouse_button_flag & gorilla::MouseButtonMiddleDown,
-                  state.wheel);
+    camera.update(
+        frame_count ? state.mouse_x - last_mouse_x : 0,
+        frame_count ? state.mouse_y - last_mouse_y : 0, state.width,
+        state.height, state.mouse_button_flag & gorilla::MouseButtonLeftDown,
+        state.mouse_button_flag & gorilla::MouseButtonRightDown,
+        state.mouse_button_flag & gorilla::MouseButtonMiddleDown, state.wheel);
+    last_mouse_x = state.mouse_x;
+    last_mouse_y = state.mouse_y;
 
     pipeline.gs_stage.cb[0].update(context, camera.view * camera.projection);
 

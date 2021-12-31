@@ -1,101 +1,94 @@
 # Root
 
-d3d11 の備忘録。
+<https://github.com/ousttrue/d3d11_samples>
 
-## 準備
+ツールキット実装ノートになってしまった。
 
-ImGui + DockSpace をスタート地点にすることにした。
+🦍 lib/gorilla
 
-* CreateWindow
-* CreateDevice
-* ImGui
-* ImGui + DockSpace
-* ImGui + RenderTarget
+-   window
+-   d3d11, device, resource
 
-```{toctree}
-:maxdepth: 2
+🍌 lib/banana: 環境(windows, d3d11)に依存しない
 
-source
-spec
-basic/create_window
-basic/create_device
-basic/create_swapchain
-basic/render_target
-```
+-   imgui
+-   camera
+-   scene
+-   glTF
 
-## パイプラインとバッファーの取り扱い
+env
 
-```{toctree}
-:maxdepth: 2
+-   Windows10
+-   vc2019
+-   CMake
+-   `c++17`
+    -   std::string_view
+    -   std::filesystem
+-   clang-format オプションなし
+-   class name: UpperCamel
+-   other: snake_case
 
-basic/compile_shader
-basic/shader_reflection
-basic/basic_pipeline
-basic/constant_buffer
-basic/texture
-basic/input_assembler
-basic/rasterizer_state
-basic/blend_state
-basic/mip_map
-```
+dependency
 
-## DXSAS
+-   catch2
+-   magic_enum
+-   [imgui](https://github.com/ocornut/imgui)
+-   [nlohmann json](https://github.com/nlohmann/json) (glTFロードなど)
+-   DirectXMath
+-   [mathfu](https://github.com/google/mathfu) (後でシーンをプラットフォーム独立にする場合に、こちらの方が都合がよさそう)
+-   MiKKTSpace
+-   stb
+-   tinygizmo
 
-```{toctree}
-:maxdepth: 2
+## basic
 
-dxsas
-```
-
-## Projection の導入と三次元化
+CreateWindow ～ ImGui導入 ～ RenderTargetへの描画
 
 ```{toctree}
-:maxdepth: 2
-
-three_d/orbit_camera
-three_d/depth_test
-three_d/scene
+:maxdepth: 1
+basic/index
 ```
 
-## Shading
+## pipeline
+
+ShaderPipeline 一般
 
 ```{toctree}
-:maxdepth: 2
-
-shading/ads
-shading/tangent_space
-shading/pbr
+:maxdepth: 1
+pipeline/index
 ```
 
-## glTF
+## 二次元シーン
 
 ```{toctree}
-:maxdepth: 2
-
-gltf/gltf
+:maxdepth: 1
+two_d/index
 ```
 
-# Gizmo
-
-* grid
-* aabb pick (ray intersection)
+## 三次元シーン
 
 ```{toctree}
-:maxdepth: 2
-
-tinygizmo
+:maxdepth: 1
+three_d/index
 ```
 
-# Tool
+## Tool
 
-* <https://renderdoc.org/>
+-   <https://renderdoc.org/>
 
 ## 参考
-* <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>
-* [いまさらDirect3D11入門](https://tositeru.github.io/ImasaraDX11/)
 
-## Indices and tables
+-   <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>
+-   [いまさらDirect3D11入門](https://tositeru.github.io/ImasaraDX11/)
 
-* {ref}`genindex`
-* {ref}`modindex`
-* {ref}`search`
+## todo
+
+```{toctree}
+todo
+```
+
+## index
+
+-   {ref}`genindex`
+-   {ref}`modindex`
+-   {ref}`search`

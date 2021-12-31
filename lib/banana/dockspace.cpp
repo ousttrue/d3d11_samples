@@ -2,6 +2,8 @@
 #include <imgui.h>
 #include <list>
 
+namespace banana {
+
 auto DOCKSPACE = "__dockspace__";
 
 void dockspace(std::list<Dock> &docks) {
@@ -47,3 +49,5 @@ void dockspace(std::list<Dock> &docks) {
     }
   }
 }
+
+} // namespace banana

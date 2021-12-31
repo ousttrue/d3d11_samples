@@ -9,12 +9,13 @@ add_library(
   banana/node.cpp
   banana/types.cpp
   banana/orbit_camera.cpp
-  banana/scene_processor.cpp)
+  banana/scene_processor.cpp
+  banana/dockspace.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(
   ${TARGET_NAME}
   PRIVATE json mikktspace
-  PUBLIC magic_enum)
+  PUBLIC magic_enum imgui)
 
 # 🦍 gorilla(win32api d3d11)
 set(TARGET_NAME gorilla)
