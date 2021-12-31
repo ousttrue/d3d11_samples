@@ -30,12 +30,9 @@ env
 
 dependency
 
--   imgui
--   mathfu
-
-```{toctree}
-todo
-```
+-   [imgui](https://github.com/ocornut/imgui)
+-   `DirectXMath`
+-   [mathfu](https://github.com/google/mathfu) (後でシーンをプラットフォーム独立にする場合に、こちらの方が都合がよさそう)
 
 ## basic
 
@@ -51,25 +48,22 @@ basic/index
 ShaderPipeline 一般
 
 ```{toctree}
+:maxdepth: 1
 pipeline/index
-```
-
-## DXSAS
-
-DXSAS
-
-```{toctree}
-dxsas/index
 ```
 
 ## 二次元シーン
 
+```{toctree}
+:maxdepth: 1
+two_d/index
+```
+
 ## 三次元シーン
 
 ```{toctree}
+:maxdepth: 1
 three_d/index
-gltf/index
-gizmo/tinygizmo
 ```
 
 ## Tool
@@ -79,11 +73,16 @@ gizmo/tinygizmo
 ## 参考
 
 -   <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>
-
 -   [いまさらDirect3D11入門](https://tositeru.github.io/ImasaraDX11/)
 
+## todo
+
+```{toctree}
+todo
+```
+
+## index
+
 -   {ref}`genindex`
-
 -   {ref}`modindex`
-
 -   {ref}`search`

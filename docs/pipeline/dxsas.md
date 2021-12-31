@@ -20,7 +20,7 @@
 
 ## Bindings
 
-```{literalinclude} ../lib/banana/semantics.h
+```{literalinclude} /../lib/banana/semantics.h
 :language: cpp
 :caption:
 ```

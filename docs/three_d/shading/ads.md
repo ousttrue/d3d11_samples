@@ -9,7 +9,7 @@
 
 ## VertexADS(Ambient, Diffuse, Specular)
 
-```{literalinclude} ../../assets/lighting/vertex_ads.hlsl
+```{literalinclude} /../assets/lighting/vertex_ads.hlsl
 :language: hlsl
 :caption:
 ```

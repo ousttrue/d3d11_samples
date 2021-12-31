@@ -53,9 +53,8 @@
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/ImGuiDockspaceView.exe",
         },
-
         {
-            "name": "CompileShader",
+            "name": "pipeline/CompileShader",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -63,14 +62,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "BasicPipeline",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/BasicPipeline.exe",
-        },
-        {
-            "name": "ShaderReflection",
+            "name": "pipeline/ShaderReflection",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -78,52 +70,56 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "ConstantBuffer",
+            "name": "pipeline/BasicPipeline",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/BasicPipeline.exe",
+        },
+        {
+            "name": "pipeline/ConstantBuffer",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/ConstantBuffer.exe",
         },
         {
-            "name": "Texture",
+            "name": "pipeline/Texture",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/Texture.exe",
         },
         {
-            "name": "-- 3D --"
-        },
-        {
-            "name": "Camera",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/build/Debug/bin/Camera.exe",
-        },
-        {
-            "name": "InputAssembler",
+            "name": "pipeline/InputAssembler",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/InputAssembler.exe",
         },
         {
-            "name": "DynamicMesh",
+            "name": "pipeline/DynamicMesh",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/DynamicMesh.exe",
         },
         {
-            "name": "DepthBuffer",
+            "name": "3D/Camera",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/build/Debug/bin/Camera.exe",
+        },
+        {
+            "name": "3D/DepthBuffer",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/DepthBuffer.exe",
         },
         {
-            "name": "ImageLoader",
+            "name": "3D/ImageLoader",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -131,17 +127,14 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "-- Shading --"
-        },
-        {
-            "name": "LightingVertexADS",
+            "name": "3D/Shading/LightingVertexADS",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/LightingVertexADS.exe",
         },
         {
-            "name": "LightingPixelADS",
+            "name": "3D/Shading/LightingPixelADS",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -165,7 +158,7 @@
             "program": "${workspaceFolder}/build/Debug/bin/FontTexture.exe",
         },
         {
-            "name": "GltfLoader",
+            "name": "3D/GltfLoader",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -176,14 +169,14 @@
             "name": "-- App --"
         },
         {
-            "name": "MikkTSpace",
+            "name": "3D/Shading/MikkTSpace",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/MikkTSpace.exe",
         },
         {
-            "name": "GltfScene",
+            "name": "3D/GltfScene",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -196,21 +189,21 @@
             "name": "-- Gizmo --"
         },
         {
-            "name": "GizmoAABB",
+            "name": "3D/GizmoAABB",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/GizmoAABB.exe",
         },
         {
-            "name": "GizmoGrid",
+            "name": "3D/GizmoGrid",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/build/Debug/bin/GizmoGrid.exe",
         },
         {
-            "name": "TinyGizmo",
+            "name": "3D/TinyGizmo",
             "type": "cppvsdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",

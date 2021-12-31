@@ -8,14 +8,14 @@ Tangent 空間で法線(n)と光源方向(s)の内積をする。
 
 tangent は、頂点バッファ(position, normal, tex)から mikktspace アルゴリズムにより得る。
 
-```{literalinclude} ../../_external\MikkTSpace\mikktspace.h
+```{literalinclude} /../_external\MikkTSpace\mikktspace.h
 :language: hlsl
 :caption:
 ```
 
 ## vs
 
-```{literalinclude} ../../assets/lighting/tspace.hlsl
+```{literalinclude} /../assets/lighting/tspace.hlsl
 :language: hlsl
 :caption:
 ```

@@ -1,6 +1,6 @@
 # RTV from Texture
 
-Dockspace の中のはめ込むために、
+Dockspace の中にはめ込むために、
 Texture に対して描画できるようにする。
 
 以降の章では、RTV に対して如何に描画するかについて説明する。
