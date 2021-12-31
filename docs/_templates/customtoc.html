@@ -1,0 +1,7 @@
+<div id="toc" class="sidebarRow">
+    <style>
+        li.current > a {font-weight: bold;}
+    </style>
+    <h3><a href="{{ pathto(master_doc) }}">{{ _('Table of Contents') }}</a></h3>
+    {{ toctree (maxdepth=4, collapse=False, includehidden=False, titles_only=True) }}
+</div>

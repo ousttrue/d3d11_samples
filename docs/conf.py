@@ -49,6 +49,9 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = 'bizstyle'
 # html_theme = 'groundwork'
+html_sidebars = {
+    '**': ['customtoc.html', 'localtoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'],
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
