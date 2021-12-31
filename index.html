@@ -19,7 +19,7 @@
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
-    <link rel="next" title="Source" href="source.html" />
+    <link rel="next" title="basic" href="basic/index.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
@@ -32,7 +32,7 @@
           <a href="genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
         <li class="right" >
-          <a href="source.html" title="Source"
+          <a href="basic/index.html" title="basic"
              accesskey="N">次へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">d3d11 samples  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Root</a></li> 
@@ -46,164 +46,87 @@
             
   <section class="tex2jax_ignore mathjax_ignore" id="root">
 <h1>Root<a class="headerlink" href="#root" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p>d3d11 の備忘録。</p>
-<section id="id1">
-<h2>準備<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>ImGui + DockSpace をスタート地点にすることにした。</p>
+<p><a class="reference external" href="https://github.com/ousttrue/d3d11_samples">https://github.com/ousttrue/d3d11_samples</a></p>
+<p>ツールキット実装ノートになってしまった。</p>
+<p>🦍 lib/gorilla</p>
 <ul class="simple">
-<li><p>CreateWindow</p></li>
-<li><p>CreateDevice</p></li>
-<li><p>ImGui</p></li>
-<li><p>ImGui + DockSpace</p></li>
-<li><p>ImGui + RenderTarget</p></li>
+<li><p>window</p></li>
+<li><p>d3d11, device, resource</p></li>
 </ul>
+<p>🍌 lib/banana: 環境(windows, d3d11)に依存しない</p>
+<ul class="simple">
+<li><p>imgui</p></li>
+<li><p>camera</p></li>
+<li><p>scene</p></li>
+<li><p>glTF</p></li>
+</ul>
+<p>env</p>
+<ul class="simple">
+<li><p>Windows10</p></li>
+<li><p>vc2019</p></li>
+<li><p>CMake</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">c++17</span></code></p>
+<ul>
+<li><p>std::string_view</p></li>
+<li><p>std::filesystem</p></li>
+</ul>
+</li>
+<li><p>clang-format オプションなし</p></li>
+<li><p>class name: UpperCamel</p></li>
+<li><p>other: snake_case</p></li>
+</ul>
+<p>dependency</p>
+<ul class="simple">
+<li><p>catch2</p></li>
+<li><p>magic_enum</p></li>
+<li><p><a class="reference external" href="https://github.com/ocornut/imgui">imgui</a></p></li>
+<li><p><a class="reference external" href="https://github.com/nlohmann/json">nlohmann json</a> (glTFロードなど)</p></li>
+<li><p>DirectXMath</p></li>
+<li><p><a class="reference external" href="https://github.com/google/mathfu">mathfu</a> (後でシーンをプラットフォーム独立にする場合に、こちらの方が都合がよさそう)</p></li>
+<li><p>MiKKTSpace</p></li>
+<li><p>stb</p></li>
+<li><p>tinygizmo</p></li>
+</ul>
+<section id="basic">
+<h2>basic<a class="headerlink" href="#basic" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>CreateWindow ～ ImGui導入 ～ RenderTargetへの描画</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="source.html">Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="spec.html">仕様決め</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="spec.html#viewport">Viewport</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spec.html#uv">UV</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spec.html#world-space">World Space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spec.html#id2">三角形の表</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spec.html#constant-buffer">Constant Buffer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic/index.html">basic</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="basic/create_window.html">CreateWindow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic/create_device.html">CreateDevice</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic/create_device.html#createdevice-flag">CreateDevice flag</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic/create_device.html#microsoft-wrl-comptr-t">Microsoft::WRL::ComPtr<T></a></li>
+</div>
+</section>
+<section id="pipeline">
+<h2>pipeline<a class="headerlink" href="#pipeline" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ShaderPipeline 一般</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/index.html">Pipeline</a></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="basic/create_swapchain.html">CreateSwapChain</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic/render_target.html">RenderTarget</a></li>
+</div>
+</section>
+<section id="id1">
+<h2>二次元シーン<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="two_d/index.html">２次元</a></li>
 </ul>
 </div>
 </section>
 <section id="id2">
-<h2>パイプラインとバッファーの取り扱い<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h2>三次元シーン<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="basic/compile_shader.html">CompileShader</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basic/shader_reflection.html">Shader Reflection</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic/shader_reflection.html#id1">シェーダー変数</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic/shader_reflection.html#id2">インプットレイアウト</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="basic/basic_pipeline.html">Basic Pipeline</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic/basic_pipeline.html#id1">頂点バッファを省略</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic/basic_pipeline.html#geometryshader">GeometryShader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic/basic_pipeline.html#id2">ビューポート座標系</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="basic/constant_buffer.html">Constant Buffer</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic/constant_buffer.html#cpu">CPU側のメモリレイアウト</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="basic/texture.html">Texture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic/texture.html#srv">SRV</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic/texture.html#sampler">Sampler</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="basic/input_assembler.html">InputAssembler</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic/input_assembler.html#id1">頂点レイアウト</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic/input_assembler.html#indexbuffer">IndexBuffer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="basic/input_assembler.html#id2">ダイナミック</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="basic/blend_state.html">BlendState</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="basic/blend_state.html#id1">乗算済みアルファブレンド</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="basic/mip_map.html">MipMap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="three_d/index.html">３次元</a></li>
 </ul>
 </div>
 </section>
-<section id="dxsas">
-<h2>DXSAS<a class="headerlink" href="#dxsas" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="dxsas.html">DXSAS</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dxsas.html#implementations">Implementations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dxsas.html#bindings">Bindings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dxsas.html#technique-pass">technique と pass</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="projection">
-<h2>Projection の導入と三次元化<a class="headerlink" href="#projection" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="three_d/orbit_camera.html">Orbit Camera</a></li>
-<li class="toctree-l1"><a class="reference internal" href="three_d/depth_test.html">Depth Test</a></li>
-<li class="toctree-l1"><a class="reference internal" href="three_d/scene.html">SceneGraph</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="three_d/scene.html#constantbuffer">ConstantBuffer</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="shading">
-<h2>Shading<a class="headerlink" href="#shading" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="shading/ads.html">Phong reflection model: ADS(Ambient Diffuse Specular)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="shading/ads.html#vertexads-ambient-diffuse-specular">VertexADS(Ambient, Diffuse, Specular)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shading/ads.html#pixelads-ambient-diffuse-specular">PixelADS(Ambient, Diffuse, Specular)</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="shading/tangent_space.html">Tangent Space Lighting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="shading/tangent_space.html#tangent">tangent</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shading/tangent_space.html#vs">vs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shading/tangent_space.html#ps">ps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shading/tangent_space.html#normalmap">NormalMap を作る方法</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="shading/pbr.html">Physically Based Rendering</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="shading/pbr.html#diffuse">Diffuse</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shading/pbr.html#specular">Specular: 鏡面反射モデル</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="gltf">
-<h2>glTF<a class="headerlink" href="#gltf" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="gltf/gltf.html">glTF</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="gltf/gltf.html#khr-draco-mesh-compression">KHR_draco_mesh_compression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gltf/gltf.html#khr-texture-basisu">KHR_texture_basisu</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-</section>
-<section class="tex2jax_ignore mathjax_ignore" id="gizmo">
-<h1>Gizmo<a class="headerlink" href="#gizmo" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<ul class="simple">
-<li><p>grid</p></li>
-<li><p>aabb pick (ray intersection)</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tinygizmo.html">TinyGizmo</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#id1">仕組み</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#translation">Translation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#rotation">Rotation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#scale">Scale</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section class="tex2jax_ignore mathjax_ignore" id="tool">
-<h1>Tool<a class="headerlink" href="#tool" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<section id="tool">
+<h2>Tool<a class="headerlink" href="#tool" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://renderdoc.org/">https://renderdoc.org/</a></p></li>
 </ul>
+</section>
 <section id="id3">
 <h2>参考<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
@@ -211,8 +134,19 @@
 <li><p><a class="reference external" href="https://tositeru.github.io/ImasaraDX11/">いまさらDirect3D11入門</a></p></li>
 </ul>
 </section>
-<section id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="todo">
+<h2>todo<a class="headerlink" href="#todo" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">todo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="todo.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="index">
+<h2>index<a class="headerlink" href="#index" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">索引</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">モジュール索引</span></a></p></li>
@@ -228,35 +162,6 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">目次</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Root</a><ul>
-<li><a class="reference internal" href="#id1">準備</a></li>
-<li><a class="reference internal" href="#id2">パイプラインとバッファーの取り扱い</a></li>
-<li><a class="reference internal" href="#dxsas">DXSAS</a></li>
-<li><a class="reference internal" href="#projection">Projection の導入と三次元化</a></li>
-<li><a class="reference internal" href="#shading">Shading</a></li>
-<li><a class="reference internal" href="#gltf">glTF</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#gizmo">Gizmo</a></li>
-<li><a class="reference internal" href="#tool">Tool</a><ul>
-<li><a class="reference internal" href="#id3">参考</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>次のトピックへ</h4>
-  <p class="topless"><a href="source.html"
-                        title="次の章へ">Source</a></p>
-  <div role="note" aria-label="source link">
-    <h3>このページ</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/index.md.txt"
-            rel="nofollow">ソースコードを表示</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">クイック検索</h3>
     <div class="searchformwrapper">
@@ -267,6 +172,87 @@
     </div>
 </div>
 <script>$('#searchbox').show(0);</script>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="basic/index.html"
+                        title="次の章へ">basic</a></p><div id="toc" class="sidebarRow">
+    <style>
+        li.current > a {font-weight: bold;}
+    </style>
+    <h3><a href="#">目次</a></h3>
+    <ul>
+<li class="toctree-l1"><a class="reference internal" href="basic/index.html">basic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="basic/create_window.html">CreateWindow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/create_device.html">CreateDevice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/create_swapchain.html">CreateSwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/render_target_from_swapchain.html">RTV from SwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/imgui.html">Dear ImGui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/imgui_dockspace.html">ImGui + Dockspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/render_target_from_texture.html">RTV from Texture</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pipeline/index.html">Pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/compile_shader.html">CompileShader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/shader_reflection.html">Shader Reflection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/basic_pipeline.html">Basic Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/constant_buffer.html">Constant Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/texture.html">Texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/input_assembler.html">InputAssembler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/blend_state.html">BlendState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/mip_map.html">MipMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/dxsas.html">DXSAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline/post_effect.html">PostEffect</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="two_d/index.html">２次元</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="three_d/index.html">３次元</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="three_d/spec.html">仕様決め</a></li>
+<li class="toctree-l2"><a class="reference internal" href="three_d/orbit_camera.html">Orbit Camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="three_d/depth_test.html">Depth Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="three_d/scene.html">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="three_d/tinygizmo.html">TinyGizmo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="three_d/gltf.html">glTF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="three_d/shading/index.html">Shading</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="three_d/shading/ads.html">Phong reflection model: ADS(Ambient Diffuse Specular)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="three_d/shading/tangent_space.html">Tangent Space Lighting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="three_d/shading/pbr.html">Physically Based Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">todo</a></li>
+</ul>
+
+</div>
+  <h3><a href="#">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Root</a><ul>
+<li><a class="reference internal" href="#basic">basic</a></li>
+<li><a class="reference internal" href="#pipeline">pipeline</a></li>
+<li><a class="reference internal" href="#id1">二次元シーン</a></li>
+<li><a class="reference internal" href="#id2">三次元シーン</a></li>
+<li><a class="reference internal" href="#tool">Tool</a></li>
+<li><a class="reference internal" href="#id3">参考</a></li>
+<li><a class="reference internal" href="#todo">todo</a></li>
+<li><a class="reference internal" href="#index">index</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
         </div>
       </div>
       <div class="clearer"></div>
@@ -278,7 +264,7 @@
           <a href="genindex.html" title="総合索引"
              >索引</a></li>
         <li class="right" >
-          <a href="source.html" title="Source"
+          <a href="basic/index.html" title="basic"
              >次へ</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">d3d11 samples  ドキュメント</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Root</a></li> 

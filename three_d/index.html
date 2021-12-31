@@ -1,0 +1,226 @@
+
+
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>３次元 &#8212; d3d11 samples  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <script src="../_static/bizstyle.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="仕様決め" href="spec.html" />
+    <link rel="prev" title="２次元" href="../two_d/index.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="spec.html" title="仕様決め"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="../two_d/index.html" title="２次元"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">３次元</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>３次元<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="spec.html">仕様決め</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spec.html#viewport">Viewport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spec.html#uv">UV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spec.html#world-space">World Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spec.html#id2">三角形の表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spec.html#constant-buffer">Constant Buffer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="orbit_camera.html">Orbit Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="depth_test.html">Depth Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scene.html">SceneGraph</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="scene.html#constantbuffer">ConstantBuffer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="scene.html#world-vs-gs">World(VS|GS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scene.html#draw-ps">Draw(PS)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tinygizmo.html">TinyGizmo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#id1">仕組み</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#translation">Translation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#rotation">Rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html#scale">Scale</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gltf.html">glTF</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gltf.html#khr-draco-mesh-compression">KHR_draco_mesh_compression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gltf.html#khr-texture-basisu">KHR_texture_basisu</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="shading/index.html">Shading</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="shading/ads.html">Phong reflection model: ADS(Ambient Diffuse Specular)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="shading/ads.html#vertexads-ambient-diffuse-specular">VertexADS(Ambient, Diffuse, Specular)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="shading/ads.html#pixelads-ambient-diffuse-specular">PixelADS(Ambient, Diffuse, Specular)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="shading/tangent_space.html">Tangent Space Lighting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="shading/tangent_space.html#tangent">tangent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="shading/tangent_space.html#vs">vs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="shading/tangent_space.html#ps">ps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="shading/tangent_space.html#normalmap">NormalMap を作る方法</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="shading/pbr.html">Physically Based Rendering</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="shading/pbr.html#diffuse">Diffuse</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="shading/pbr.html#lambert">正規化Lambert</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="shading/pbr.html#albedo">Albedo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="shading/pbr.html#specular">Specular: 鏡面反射モデル</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="../two_d/index.html"
+                        title="前の章へ">２次元</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="spec.html"
+                        title="次の章へ">仕様決め</a></p><div id="toc" class="sidebarRow">
+    <style>
+        li.current > a {font-weight: bold;}
+    </style>
+    <h3><a href="../index.html">目次</a></h3>
+    <ul>
+<li class="toctree-l1"><a class="reference internal" href="../basic/index.html">basic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../basic/create_window.html">CreateWindow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/create_device.html">CreateDevice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/create_swapchain.html">CreateSwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/render_target_from_swapchain.html">RTV from SwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/imgui.html">Dear ImGui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/imgui_dockspace.html">ImGui + Dockspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/render_target_from_texture.html">RTV from Texture</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">Pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/compile_shader.html">CompileShader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/shader_reflection.html">Shader Reflection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/basic_pipeline.html">Basic Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/constant_buffer.html">Constant Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/texture.html">Texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/input_assembler.html">InputAssembler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/blend_state.html">BlendState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/mip_map.html">MipMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/dxsas.html">DXSAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/post_effect.html">PostEffect</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two_d/index.html">２次元</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">３次元</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spec.html">仕様決め</a></li>
+<li class="toctree-l2"><a class="reference internal" href="orbit_camera.html">Orbit Camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="depth_test.html">Depth Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scene.html">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tinygizmo.html">TinyGizmo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gltf.html">glTF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shading/index.html">Shading</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="shading/ads.html">Phong reflection model: ADS(Ambient Diffuse Specular)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="shading/tangent_space.html">Tangent Space Lighting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="shading/pbr.html">Physically Based Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../todo.html">todo</a></li>
+</ul>
+
+</div>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/three_d/index.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="spec.html" title="仕様決め"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="../two_d/index.html" title="２次元"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">３次元</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>

@@ -11,4 +11,22 @@
 
 ## Microsoft::WRL::ComPtr<T>
 
-`#include <wrl/client.h>`
+IUnknown を std::shared_ptr のように扱えるようにする。
+
+```c++
+#include <wrl/client.h>
+template <typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+```
+
+`->` 経由でポインタのように扱えばよいが、初期化、生ポインタへの変換、COM Interface の取得などで固有の操作がある。
+
+### 初期化
+
+```{todo} ComPtr init
+```
+
+### get
+
+### getaddresof
+
+### cast

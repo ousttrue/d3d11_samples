@@ -1,0 +1,240 @@
+
+
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Physically Based Rendering &#8212; d3d11 samples  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bizstyle.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/translations.js"></script>
+    <script src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" />
+    <link rel="next" title="todo" href="../../todo.html" />
+    <link rel="prev" title="Tangent Space Lighting" href="tangent_space.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../../todo.html" title="todo"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="tangent_space.html" title="Tangent Space Lighting"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >３次元</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Shading</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Physically Based Rendering</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="physically-based-rendering">
+<h1>Physically Based Rendering<a class="headerlink" href="#physically-based-rendering" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><a class="reference external" href="https://qiita.com/aa_debdeb/items/f813bdcbd8524a66a11b">GLSLで物理ベースシェーディング</a></p>
+<div class="highlight-hlsl notranslate"><div class="highlight"><pre><span></span><span class="kt">float3</span> <span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">metallic</span><span class="p">)</span> <span class="o">*</span> <span class="n">diffuse</span> <span class="o">+</span> <span class="n">metallic</span> <span class="o">*</span> <span class="n">specular</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>ということでよさそう。</p>
+<section id="diffuse">
+<h2>Diffuse<a class="headerlink" href="#diffuse" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="lambert">
+<h3>正規化Lambert<a class="headerlink" href="#lambert" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/glTF-WebGL-PBR/shaders/pbr-frag.glsl">https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/glTF-WebGL-PBR/shaders/pbr-frag.glsl</a></p>
+<div class="highlight-glsl notranslate"><div class="highlight"><pre><span></span><span class="c1">// Basic Lambertian diffuse</span>
+<span class="c1">// Implementation from Lambert&#39;s Photometria https://archive.org/details/lambertsphotome00lambgoog</span>
+<span class="c1">// See also [1], Equation 1</span>
+<span class="kt">vec3</span> <span class="n">diffuse</span><span class="p">(</span><span class="n">PBRInfo</span> <span class="n">pbrInputs</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">pbrInputs</span><span class="p">.</span><span class="n">diffuseColor</span> <span class="o">/</span> <span class="n">M_PI</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// irradiance x BRDF</span>
+<span class="n">dot</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">diffuse</span><span class="p">(</span><span class="n">pbrInputs</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>という具合にに <code class="docutils literal notranslate"><span class="pre">PI</span></code> で割る。
+<a class="reference external" href="http://www.project-asura.com/program/d3d11/d3d11_004.html">正規化Lambert</a>
+というらしい。</p>
+<section id="albedo">
+<h4>Albedo<a class="headerlink" href="#albedo" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>ここで <code class="docutils literal notranslate"><span class="pre">pbrInputs.diffuseColor</span></code> が <code class="docutils literal notranslate"><span class="pre">color</span></code> とちょっと違うので <code class="docutils literal notranslate"><span class="pre">Albedo</span></code> と名付けたぽい？</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sRGB</span></code> でなくて <code class="docutils literal notranslate"><span class="pre">linear</span></code> で扱う</p></li>
+<li><p>PI で割ることをあらかじめ加味しておく</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="specular">
+<h2>Specular: 鏡面反射モデル<a class="headerlink" href="#specular" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="http://www.slis.tsukuba.ac.jp/~fujisawa.makoto.fu/cgi-bin/wiki/index.php?GLSL%A4%CB%A4%E8%A4%EB%A5%D5%A5%A9%A5%F3%A5%B7%A5%A7%A1%BC%A5%C7%A5%A3%A5%F3%A5%B0">GLSLによるフォンシェーディング</a></p>
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>D</p></th>
+<th class="head"><p>G</p></th>
+<th class="head"><p>F</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="tangent_space.html"
+                        title="前の章へ">Tangent Space Lighting</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="../../todo.html"
+                        title="次の章へ">todo</a></p><div id="toc" class="sidebarRow">
+    <style>
+        li.current > a {font-weight: bold;}
+    </style>
+    <h3><a href="../../index.html">目次</a></h3>
+    <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../basic/index.html">basic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/create_window.html">CreateWindow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/create_device.html">CreateDevice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/create_swapchain.html">CreateSwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/render_target_from_swapchain.html">RTV from SwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/imgui.html">Dear ImGui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/imgui_dockspace.html">ImGui + Dockspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/render_target_from_texture.html">RTV from Texture</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pipeline/index.html">Pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/compile_shader.html">CompileShader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/shader_reflection.html">Shader Reflection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/basic_pipeline.html">Basic Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/constant_buffer.html">Constant Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/texture.html">Texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/input_assembler.html">InputAssembler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/blend_state.html">BlendState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/mip_map.html">MipMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/dxsas.html">DXSAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline/post_effect.html">PostEffect</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../two_d/index.html">２次元</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">３次元</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../spec.html">仕様決め</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../orbit_camera.html">Orbit Camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../depth_test.html">Depth Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../scene.html">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tinygizmo.html">TinyGizmo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gltf.html">glTF</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Shading</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ads.html">Phong reflection model: ADS(Ambient Diffuse Specular)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tangent_space.html">Tangent Space Lighting</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Physically Based Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../todo.html">todo</a></li>
+</ul>
+
+</div>
+  <h3><a href="../../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Physically Based Rendering</a><ul>
+<li><a class="reference internal" href="#diffuse">Diffuse</a><ul>
+<li><a class="reference internal" href="#lambert">正規化Lambert</a><ul>
+<li><a class="reference internal" href="#albedo">Albedo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#specular">Specular: 鏡面反射モデル</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/three_d/shading/pbr.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../../todo.html" title="todo"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="tangent_space.html" title="Tangent Space Lighting"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >３次元</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Shading</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Physically Based Rendering</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>

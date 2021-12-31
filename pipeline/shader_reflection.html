@@ -1,0 +1,377 @@
+
+
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Shader Reflection &#8212; d3d11 samples  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <script src="../_static/bizstyle.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="Basic Pipeline" href="basic_pipeline.html" />
+    <link rel="prev" title="CompileShader" href="compile_shader.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="basic_pipeline.html" title="Basic Pipeline"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="compile_shader.html" title="CompileShader"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Pipeline</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Shader Reflection</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="shader-reflection">
+<h1>Shader Reflection<a class="headerlink" href="#shader-reflection" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">../../lib/gorilla/shader_reflection.cpp</span><a class="headerlink" href="#id3" title="このコードへのパーマリンク">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;shader_reflection.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;d3d11shader.h&gt;</span><span class="cp"></span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">ComPtr</span> <span class="o">=</span> <span class="n">Microsoft</span><span class="o">::</span><span class="n">WRL</span><span class="o">::</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">namespace</span> <span class="n">gorilla</span> <span class="p">{</span>
+
+<span class="kt">void</span> <span class="n">ConstantBufferSlot</span><span class="o">::</span><span class="n">set_variable</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">name</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span>
+                                      <span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">offset</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">v</span> <span class="p">:</span> <span class="n">variables</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">==</span> <span class="n">v</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">assert</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">StartOffset</span> <span class="o">+</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="n">backing_store</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+      <span class="n">memcpy</span><span class="p">(</span><span class="n">backing_store</span><span class="p">.</span><span class="n">data</span><span class="p">()</span> <span class="o">+</span> <span class="n">v</span><span class="p">.</span><span class="n">StartOffset</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11ShaderReflection</span><span class="o">&gt;</span>
+<span class="n">get_reflection</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">compiled</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11ShaderReflection</span><span class="o">&gt;</span> <span class="n">reflection</span><span class="p">;</span>
+  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">D3DReflect</span><span class="p">(</span><span class="n">compiled</span><span class="o">-&gt;</span><span class="n">GetBufferPointer</span><span class="p">(),</span> <span class="n">compiled</span><span class="o">-&gt;</span><span class="n">GetBufferSize</span><span class="p">(),</span>
+                       <span class="n">IID_ID3D11ShaderReflection</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">reflection</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">reflection</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="n">DXGI_FORMAT</span> <span class="n">GetDxgiFormat</span><span class="p">(</span><span class="n">D3D10_REGISTER_COMPONENT_TYPE</span> <span class="n">type</span><span class="p">,</span>
+                                 <span class="n">BYTE</span> <span class="n">mask</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">((</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="mh">0x0F</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x0F</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// xyzw</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nl">D3D10_REGISTER_COMPONENT_FLOAT32</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">DXGI_FORMAT_R32G32B32A32_FLOAT</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">((</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="mh">0x07</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x07</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// xyz</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nl">D3D10_REGISTER_COMPONENT_FLOAT32</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">DXGI_FORMAT_R32G32B32_FLOAT</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">((</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="mh">0x03</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x03</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// xy</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nl">D3D10_REGISTER_COMPONENT_FLOAT32</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">DXGI_FORMAT_R32G32_FLOAT</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">((</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="mh">0x1</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// x</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nl">D3D10_REGISTER_COMPONENT_FLOAT32</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">DXGI_FORMAT_R32_FLOAT</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">DXGI_FORMAT_UNKNOWN</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">D3D11_INPUT_ELEMENT_DESC</span><span class="o">&gt;</span>
+<span class="n">get_elements</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">vblob</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="k">auto</span> <span class="n">pReflector</span> <span class="o">=</span> <span class="n">get_reflection</span><span class="p">(</span><span class="n">vblob</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pReflector</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+
+  <span class="c1">// OutputDebugPrintfA(&quot;#### VertexShader ####\n&quot;);</span>
+  <span class="c1">// if (!m_constant-&gt;Initialize(pDevice, SHADERSTAGE_VERTEX, pReflector)) {</span>
+  <span class="c1">//   return false;</span>
+  <span class="c1">// }</span>
+
+  <span class="n">D3D11_SHADER_DESC</span> <span class="n">shaderdesc</span><span class="p">;</span>
+  <span class="n">pReflector</span><span class="o">-&gt;</span><span class="n">GetDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">shaderdesc</span><span class="p">);</span>
+
+  <span class="c1">// Create InputLayout</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">D3D11_INPUT_ELEMENT_DESC</span><span class="o">&gt;</span> <span class="n">vbElement</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">UINT</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">shaderdesc</span><span class="p">.</span><span class="n">InputParameters</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">D3D11_SIGNATURE_PARAMETER_DESC</span> <span class="n">sigdesc</span><span class="p">;</span>
+    <span class="n">pReflector</span><span class="o">-&gt;</span><span class="n">GetInputParameterDesc</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sigdesc</span><span class="p">);</span>
+
+    <span class="k">auto</span> <span class="n">format</span> <span class="o">=</span> <span class="n">GetDxgiFormat</span><span class="p">(</span><span class="n">sigdesc</span><span class="p">.</span><span class="n">ComponentType</span><span class="p">,</span> <span class="n">sigdesc</span><span class="p">.</span><span class="n">Mask</span><span class="p">);</span>
+
+    <span class="n">D3D11_INPUT_ELEMENT_DESC</span> <span class="n">eledesc</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">sigdesc</span><span class="p">.</span><span class="n">SemanticName</span><span class="p">,</span>
+        <span class="n">sigdesc</span><span class="p">.</span><span class="n">SemanticIndex</span><span class="p">,</span>
+        <span class="n">format</span><span class="p">,</span>
+        <span class="mi">0</span> <span class="c1">// hardcoding</span>
+        <span class="p">,</span>
+        <span class="n">D3D11_APPEND_ALIGNED_ELEMENT</span> <span class="c1">// hardcoding</span>
+        <span class="p">,</span>
+        <span class="n">D3D11_INPUT_PER_VERTEX_DATA</span> <span class="c1">// hardcoding</span>
+        <span class="p">,</span>
+        <span class="mi">0</span> <span class="c1">// hardcoding</span>
+    <span class="p">};</span>
+    <span class="n">vbElement</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">eledesc</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">vbElement</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11InputLayout</span><span class="o">&gt;</span>
+<span class="n">create_input_layout</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Device</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">device</span><span class="p">,</span>
+                    <span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">compiled</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">auto</span> <span class="n">elements</span> <span class="o">=</span> <span class="n">gorilla</span><span class="o">::</span><span class="n">get_elements</span><span class="p">(</span><span class="n">compiled</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">elements</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+  <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11InputLayout</span><span class="o">&gt;</span> <span class="n">input_layout</span><span class="p">;</span>
+  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateInputLayout</span><span class="p">(</span>
+      <span class="n">elements</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">UINT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">elements</span><span class="p">.</span><span class="n">size</span><span class="p">()),</span>
+      <span class="n">compiled</span><span class="o">-&gt;</span><span class="n">GetBufferPointer</span><span class="p">(),</span> <span class="n">compiled</span><span class="o">-&gt;</span><span class="n">GetBufferSize</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">input_layout</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">input_layout</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">ShaderReflection</span><span class="o">::</span><span class="n">reflect</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">compiled</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="k">auto</span> <span class="n">pReflector</span> <span class="o">=</span> <span class="n">get_reflection</span><span class="p">(</span><span class="n">compiled</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pReflector</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">D3D11_SHADER_DESC</span> <span class="n">shaderdesc</span><span class="p">;</span>
+  <span class="n">pReflector</span><span class="o">-&gt;</span><span class="n">GetDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">shaderdesc</span><span class="p">);</span>
+
+  <span class="c1">// analyze constant buffer</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">UINT</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">shaderdesc</span><span class="p">.</span><span class="n">ConstantBuffers</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">cb</span> <span class="o">=</span> <span class="n">pReflector</span><span class="o">-&gt;</span><span class="n">GetConstantBufferByIndex</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+    <span class="n">D3D11_SHADER_BUFFER_DESC</span> <span class="n">desc</span><span class="p">;</span>
+    <span class="n">cb</span><span class="o">-&gt;</span><span class="n">GetDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">desc</span><span class="p">);</span>
+    <span class="c1">// OutputDebugPrintfA(&quot;[%d: %s]\n&quot;, i, desc.Name);</span>
+    <span class="n">cb_slots</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">desc</span><span class="p">});</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">UINT</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">desc</span><span class="p">.</span><span class="n">Variables</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">auto</span> <span class="n">v</span> <span class="o">=</span> <span class="n">cb</span><span class="o">-&gt;</span><span class="n">GetVariableByIndex</span><span class="p">(</span><span class="n">j</span><span class="p">);</span>
+      <span class="n">D3D11_SHADER_VARIABLE_DESC</span> <span class="n">vdesc</span><span class="p">;</span>
+      <span class="n">v</span><span class="o">-&gt;</span><span class="n">GetDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vdesc</span><span class="p">);</span>
+      <span class="n">vdesc</span><span class="p">.</span><span class="n">Name</span> <span class="o">=</span> <span class="n">cache_string</span><span class="p">(</span><span class="n">vdesc</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
+      <span class="c1">// OutputDebugPrintfA(&quot;(%d) %s %d\n&quot;, j, vdesc.Name, vdesc.StartOffset);</span>
+      <span class="n">cb_slots</span><span class="p">.</span><span class="n">back</span><span class="p">().</span><span class="n">variables</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">vdesc</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="n">UINT</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">shaderdesc</span><span class="p">.</span><span class="n">BoundResources</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">D3D11_SHADER_INPUT_BIND_DESC</span> <span class="n">desc</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="n">pReflector</span><span class="o">-&gt;</span><span class="n">GetResourceBindingDesc</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">desc</span><span class="p">);</span>
+    <span class="n">desc</span><span class="p">.</span><span class="n">Name</span> <span class="o">=</span> <span class="n">cache_string</span><span class="p">(</span><span class="n">desc</span><span class="p">.</span><span class="n">Name</span><span class="p">);</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">desc</span><span class="p">.</span><span class="n">Type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nl">D3D_SIT_TEXTURE</span><span class="p">:</span>
+      <span class="n">srv_slots</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">desc</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+
+    <span class="k">case</span> <span class="nl">D3D_SIT_SAMPLER</span><span class="p">:</span>
+      <span class="n">sampler_slots</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">desc</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">}</span> <span class="c1">// namespace gorilla</span>
+</pre></div>
+</div>
+</div>
+<section id="id1">
+<h2>シェーダー変数<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>変数のスロット番号とサイズを得る。
+vs, gs, ps 等ステージごとに管理する。</p>
+<section id="constantbuffer">
+<h3>ConstantBuffer<a class="headerlink" href="#constantbuffer" title="このヘッドラインへのパーマリンク">¶</a></h3>
+</section>
+<section id="textureslot">
+<h3>TextureSlot<a class="headerlink" href="#textureslot" title="このヘッドラインへのパーマリンク">¶</a></h3>
+</section>
+<section id="samplerslot">
+<h3>SamplerSlot<a class="headerlink" href="#samplerslot" title="このヘッドラインへのパーマリンク">¶</a></h3>
+</section>
+</section>
+<section id="id2">
+<h2>インプットレイアウト<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ID3D11InputLayout</span></code> を自動生成する。</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="compile_shader.html"
+                        title="前の章へ">CompileShader</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="basic_pipeline.html"
+                        title="次の章へ">Basic Pipeline</a></p><div id="toc" class="sidebarRow">
+    <style>
+        li.current > a {font-weight: bold;}
+    </style>
+    <h3><a href="../index.html">目次</a></h3>
+    <ul>
+<li class="toctree-l1"><a class="reference internal" href="../basic/index.html">basic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../basic/create_window.html">CreateWindow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/create_device.html">CreateDevice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/create_swapchain.html">CreateSwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/render_target_from_swapchain.html">RTV from SwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/imgui.html">Dear ImGui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/imgui_dockspace.html">ImGui + Dockspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/render_target_from_texture.html">RTV from Texture</a></li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Pipeline</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="compile_shader.html">CompileShader</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Shader Reflection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_pipeline.html">Basic Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constant_buffer.html">Constant Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="texture.html">Texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input_assembler.html">InputAssembler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blend_state.html">BlendState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mip_map.html">MipMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dxsas.html">DXSAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="post_effect.html">PostEffect</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two_d/index.html">２次元</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../three_d/index.html">３次元</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/spec.html">仕様決め</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/orbit_camera.html">Orbit Camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/depth_test.html">Depth Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/scene.html">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/tinygizmo.html">TinyGizmo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/gltf.html">glTF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/shading/index.html">Shading</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/ads.html">Phong reflection model: ADS(Ambient Diffuse Specular)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/tangent_space.html">Tangent Space Lighting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/pbr.html">Physically Based Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../todo.html">todo</a></li>
+</ul>
+
+</div>
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Shader Reflection</a><ul>
+<li><a class="reference internal" href="#id1">シェーダー変数</a><ul>
+<li><a class="reference internal" href="#constantbuffer">ConstantBuffer</a></li>
+<li><a class="reference internal" href="#textureslot">TextureSlot</a></li>
+<li><a class="reference internal" href="#samplerslot">SamplerSlot</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">インプットレイアウト</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/pipeline/shader_reflection.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="basic_pipeline.html" title="Basic Pipeline"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="compile_shader.html" title="CompileShader"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Pipeline</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Shader Reflection</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,282 @@
+
+
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>RTV from SwapChain &#8212; d3d11 samples  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <script src="../_static/bizstyle.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="Dear ImGui" href="imgui.html" />
+    <link rel="prev" title="CreateSwapChain" href="create_swapchain.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="imgui.html" title="Dear ImGui"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="create_swapchain.html" title="CreateSwapChain"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">basic</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">RTV from SwapChain</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="rtv-from-swapchain">
+<h1>RTV from SwapChain<a class="headerlink" href="#rtv-from-swapchain" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>swapchain から backbuffer(<code class="docutils literal notranslate"><span class="pre">ID3D11Texture2D</span></code>) を得てRTV を作る。
+RTV に対して操作する</p>
+<ul class="simple">
+<li><p>clear する</p></li>
+<li><p>pipeline にセットする</p></li>
+</ul>
+<p>ことで RTV の元になった ID3D11Texture2D を更新できる。</p>
+<table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>surface</p></th>
+<th class="head"><p>format</p></th>
+<th class="head"><p>bind</p></th>
+<th class="head"><p>target</p></th>
+<th class="head"><p>source</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p></p></td>
+<td><p>DXGI_FORMAT_R8G8B8A8_UNORM</p></td>
+<td><p>D3D11_BIND_RENDER_TARGET + D3D11_BIND_SHADER_RESOURCE</p></td>
+<td><p>ID3D11RenderTargetView(RTV)</p></td>
+<td><p>ID3D11ShaderResourceView(SRV)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">../../lib/gorilla/render_target.cpp</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;render_target.h&quot;</span><span class="cp"></span>
+
+<span class="k">namespace</span> <span class="n">gorilla</span> <span class="p">{</span>
+
+<span class="kt">bool</span> <span class="n">RenderTarget</span><span class="o">::</span><span class="n">create_rtv</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Device</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">device</span><span class="p">,</span>
+                              <span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Texture2D</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">texture</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateRenderTargetView</span><span class="p">(</span><span class="n">texture</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="k">nullptr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_rtv</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">texture</span><span class="o">-&gt;</span><span class="n">GetDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_desc</span><span class="p">);</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">RenderTarget</span><span class="o">::</span><span class="n">create_dsv</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Device</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">device</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="n">D3D11_TEXTURE2D_DESC</span> <span class="n">depthDesc</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">Width</span> <span class="o">=</span> <span class="n">_desc</span><span class="p">.</span><span class="n">Width</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">Height</span> <span class="o">=</span> <span class="n">_desc</span><span class="p">.</span><span class="n">Height</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">MipLevels</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">ArraySize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">Format</span> <span class="o">=</span> <span class="n">DXGI_FORMAT_D24_UNORM_S8_UINT</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Quality</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">Usage</span> <span class="o">=</span> <span class="n">D3D11_USAGE_DEFAULT</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">BindFlags</span> <span class="o">=</span> <span class="n">D3D11_BIND_DEPTH_STENCIL</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">CPUAccessFlags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">depthDesc</span><span class="p">.</span><span class="n">MiscFlags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateTexture2D</span><span class="p">(</span><span class="o">&amp;</span><span class="n">depthDesc</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_depthStencil</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">D3D11_DEPTH_STENCIL_VIEW_DESC</span> <span class="n">dsvDesc</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="n">dsvDesc</span><span class="p">.</span><span class="n">Format</span> <span class="o">=</span> <span class="n">depthDesc</span><span class="p">.</span><span class="n">Format</span><span class="p">;</span>
+  <span class="n">dsvDesc</span><span class="p">.</span><span class="n">ViewDimension</span> <span class="o">=</span> <span class="n">D3D11_DSV_DIMENSION_TEXTURE2DMS</span><span class="p">;</span>
+  <span class="n">dsvDesc</span><span class="p">.</span><span class="n">Texture2D</span><span class="p">.</span><span class="n">MipSlice</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">hr</span> <span class="o">=</span> <span class="n">device</span><span class="o">-&gt;</span><span class="n">CreateDepthStencilView</span><span class="p">(</span><span class="n">_depthStencil</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">dsvDesc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_dsv</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">D3D11_DEPTH_STENCIL_DESC</span> <span class="n">dssDesc</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+  <span class="n">dssDesc</span><span class="p">.</span><span class="n">DepthEnable</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="n">dssDesc</span><span class="p">.</span><span class="n">DepthFunc</span> <span class="o">=</span> <span class="n">D3D11_COMPARISON_LESS_EQUAL</span><span class="p">;</span>
+  <span class="n">dssDesc</span><span class="p">.</span><span class="n">DepthWriteMask</span> <span class="o">=</span> <span class="n">D3D11_DEPTH_WRITE_MASK_ALL</span><span class="p">;</span>
+  <span class="n">dssDesc</span><span class="p">.</span><span class="n">StencilEnable</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">RenderTarget</span><span class="o">::</span><span class="n">clear</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">,</span>
+                         <span class="k">const</span> <span class="kt">float</span> <span class="n">clear</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="p">{</span>
+  <span class="n">context</span><span class="o">-&gt;</span><span class="n">ClearRenderTargetView</span><span class="p">(</span><span class="n">_rtv</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="n">clear</span><span class="p">);</span>
+  <span class="n">clear_depth</span><span class="p">(</span><span class="n">context</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">RenderTarget</span><span class="o">::</span><span class="n">clear_depth</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">,</span>
+                               <span class="kt">float</span> <span class="n">depth</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">_dsv</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">context</span><span class="o">-&gt;</span><span class="n">ClearDepthStencilView</span><span class="p">(</span>
+        <span class="n">_dsv</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="n">D3D11_CLEAR_DEPTH</span> <span class="o">|</span> <span class="n">D3D11_CLEAR_STENCIL</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">RenderTarget</span><span class="o">::</span><span class="n">setup</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">,</span> <span class="kt">float</span> <span class="n">w</span><span class="p">,</span>
+                         <span class="kt">float</span> <span class="n">h</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// set backbuffer &amp; depthbuffer</span>
+  <span class="n">ID3D11RenderTargetView</span> <span class="o">*</span><span class="n">rtv_list</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="n">_rtv</span><span class="p">.</span><span class="n">Get</span><span class="p">()};</span>
+  <span class="n">context</span><span class="o">-&gt;</span><span class="n">OMSetRenderTargets</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rtv_list</span><span class="p">,</span> <span class="n">_dsv</span><span class="p">.</span><span class="n">Get</span><span class="p">());</span>
+  <span class="n">context</span><span class="o">-&gt;</span><span class="n">OMSetDepthStencilState</span><span class="p">(</span><span class="n">_dss</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+
+  <span class="n">D3D11_VIEWPORT</span> <span class="n">viewports</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{{</span><span class="mi">0</span><span class="p">}};</span>
+  <span class="n">viewports</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">TopLeftX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">viewports</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">TopLeftY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">viewports</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Width</span> <span class="o">=</span> <span class="n">w</span><span class="p">;</span>
+  <span class="n">viewports</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Height</span> <span class="o">=</span> <span class="n">h</span><span class="p">;</span>
+  <span class="n">viewports</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">MinDepth</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">viewports</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">MaxDepth</span> <span class="o">=</span> <span class="mf">1.0f</span><span class="p">;</span>
+  <span class="n">context</span><span class="o">-&gt;</span><span class="n">RSSetViewports</span><span class="p">(</span><span class="n">_countof</span><span class="p">(</span><span class="n">viewports</span><span class="p">),</span> <span class="n">viewports</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="p">}</span> <span class="c1">// namespace gorilla</span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="create_swapchain.html"
+                        title="前の章へ">CreateSwapChain</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="imgui.html"
+                        title="次の章へ">Dear ImGui</a></p><div id="toc" class="sidebarRow">
+    <style>
+        li.current > a {font-weight: bold;}
+    </style>
+    <h3><a href="../index.html">目次</a></h3>
+    <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">basic</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="create_window.html">CreateWindow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_device.html">CreateDevice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_swapchain.html">CreateSwapChain</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">RTV from SwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imgui.html">Dear ImGui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imgui_dockspace.html">ImGui + Dockspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="render_target_from_texture.html">RTV from Texture</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">Pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/compile_shader.html">CompileShader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/shader_reflection.html">Shader Reflection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/basic_pipeline.html">Basic Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/constant_buffer.html">Constant Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/texture.html">Texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/input_assembler.html">InputAssembler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/blend_state.html">BlendState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/mip_map.html">MipMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/dxsas.html">DXSAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/post_effect.html">PostEffect</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two_d/index.html">２次元</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../three_d/index.html">３次元</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/spec.html">仕様決め</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/orbit_camera.html">Orbit Camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/depth_test.html">Depth Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/scene.html">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/tinygizmo.html">TinyGizmo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/gltf.html">glTF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/shading/index.html">Shading</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/ads.html">Phong reflection model: ADS(Ambient Diffuse Specular)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/tangent_space.html">Tangent Space Lighting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/pbr.html">Physically Based Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../todo.html">todo</a></li>
+</ul>
+
+</div>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/basic/render_target_from_swapchain.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="imgui.html" title="Dear ImGui"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="create_swapchain.html" title="CreateSwapChain"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >basic</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">RTV from SwapChain</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>

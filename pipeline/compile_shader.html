@@ -1,0 +1,241 @@
+
+
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>CompileShader &#8212; d3d11 samples  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <script src="../_static/bizstyle.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="Shader Reflection" href="shader_reflection.html" />
+    <link rel="prev" title="Pipeline" href="index.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="shader_reflection.html" title="Shader Reflection"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Pipeline"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Pipeline</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CompileShader</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="compileshader">
+<h1>CompileShader<a class="headerlink" href="#compileshader" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">../../lib/gorilla/shader.cpp</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;shader.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;d3dcompiler.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;filesystem&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;sstream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;string_view&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;tuple&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;wrl/client.h&gt;</span><span class="cp"></span>
+
+<span class="k">namespace</span> <span class="n">gorilla</span> <span class="p">{</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">ComPtr</span> <span class="o">=</span> <span class="n">Microsoft</span><span class="o">::</span><span class="n">WRL</span><span class="o">::</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">AssetInclude</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ID3DInclude</span> <span class="p">{</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">banana</span><span class="o">::</span><span class="n">Asset</span><span class="o">&gt;</span> <span class="n">_asset</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">AssetInclude</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">banana</span><span class="o">::</span><span class="n">Asset</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">asset</span><span class="p">)</span> <span class="o">:</span> <span class="n">_asset</span><span class="p">(</span><span class="n">asset</span><span class="p">)</span> <span class="p">{}</span>
+
+  <span class="n">HRESULT</span> <span class="n">Open</span><span class="p">(</span><span class="n">D3D_INCLUDE_TYPE</span> <span class="n">IncludeType</span><span class="p">,</span> <span class="n">LPCSTR</span> <span class="n">pFileName</span><span class="p">,</span>
+               <span class="n">LPCVOID</span> <span class="n">pParentData</span><span class="p">,</span> <span class="n">LPCVOID</span> <span class="o">*</span><span class="n">ppData</span><span class="p">,</span> <span class="n">UINT</span> <span class="o">*</span><span class="n">pBytes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">nest</span> <span class="o">=</span> <span class="n">_asset</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span><span class="n">pFileName</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">bytes</span> <span class="o">=</span> <span class="n">nest</span><span class="o">-&gt;</span><span class="n">bytes</span><span class="p">();</span>
+    <span class="o">*</span><span class="n">ppData</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">.</span><span class="n">data</span><span class="p">();</span>
+    <span class="o">*</span><span class="n">pBytes</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">UINT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bytes</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+    <span class="k">return</span> <span class="n">S_OK</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">HRESULT</span> <span class="n">Close</span><span class="p">(</span><span class="n">LPCVOID</span> <span class="n">pData</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">S_OK</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">Microsoft</span><span class="o">::</span><span class="n">WRL</span><span class="o">::</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">Microsoft</span><span class="o">::</span><span class="n">WRL</span><span class="o">::</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;&gt;</span>
+<span class="n">compile_shader</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;::</span><span class="n">banana</span><span class="o">::</span><span class="n">Asset</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">asset</span><span class="p">,</span>
+               <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">entry_point</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span>
+               <span class="k">const</span> <span class="n">D3D_SHADER_MACRO</span> <span class="o">*</span><span class="n">define</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">UINT</span> <span class="n">flags</span> <span class="o">=</span> <span class="n">D3DCOMPILE_ENABLE_STRICTNESS</span><span class="p">;</span>
+  <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3DBlob</span><span class="o">&gt;</span> <span class="n">err</span><span class="p">;</span>
+  <span class="k">auto</span> <span class="n">source</span> <span class="o">=</span> <span class="n">asset</span><span class="o">-&gt;</span><span class="n">string_view</span><span class="p">();</span>
+  <span class="n">AssetInclude</span> <span class="nf">include</span><span class="p">(</span><span class="n">asset</span><span class="p">);</span>
+  <span class="k">auto</span> <span class="n">hr</span> <span class="o">=</span> <span class="n">D3DCompile</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">source</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">name</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">include</span><span class="p">,</span>
+                       <span class="n">entry_point</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">err</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">hr</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span><span class="k">nullptr</span><span class="p">,</span> <span class="n">err</span><span class="p">};</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="p">{</span><span class="n">ret</span><span class="p">,</span> <span class="n">err</span><span class="p">};</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">read_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">path</span> <span class="n">path</span> <span class="o">=</span> <span class="n">src</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">in</span><span class="p">((</span><span class="n">path</span><span class="p">),</span> <span class="n">std</span><span class="o">::</span><span class="n">ios_base</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">buffer</span><span class="p">;</span>
+  <span class="n">buffer</span> <span class="o">&lt;&lt;</span> <span class="n">in</span><span class="p">.</span><span class="n">rdbuf</span><span class="p">();</span>
+  <span class="k">return</span> <span class="n">buffer</span><span class="p">.</span><span class="n">str</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">read_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">dir</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string_view</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">ss</span><span class="p">;</span>
+  <span class="n">ss</span> <span class="o">&lt;&lt;</span> <span class="n">dir</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;/&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">src</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">ss</span><span class="p">.</span><span class="n">str</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="p">}</span> <span class="c1">// namespace gorilla</span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="index.html"
+                        title="前の章へ">Pipeline</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="shader_reflection.html"
+                        title="次の章へ">Shader Reflection</a></p><div id="toc" class="sidebarRow">
+    <style>
+        li.current > a {font-weight: bold;}
+    </style>
+    <h3><a href="../index.html">目次</a></h3>
+    <ul>
+<li class="toctree-l1"><a class="reference internal" href="../basic/index.html">basic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../basic/create_window.html">CreateWindow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/create_device.html">CreateDevice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/create_swapchain.html">CreateSwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/render_target_from_swapchain.html">RTV from SwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/imgui.html">Dear ImGui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/imgui_dockspace.html">ImGui + Dockspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/render_target_from_texture.html">RTV from Texture</a></li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Pipeline</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">CompileShader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shader_reflection.html">Shader Reflection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_pipeline.html">Basic Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constant_buffer.html">Constant Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="texture.html">Texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input_assembler.html">InputAssembler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blend_state.html">BlendState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mip_map.html">MipMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dxsas.html">DXSAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="post_effect.html">PostEffect</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two_d/index.html">２次元</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../three_d/index.html">３次元</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/spec.html">仕様決め</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/orbit_camera.html">Orbit Camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/depth_test.html">Depth Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/scene.html">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/tinygizmo.html">TinyGizmo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/gltf.html">glTF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/shading/index.html">Shading</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/ads.html">Phong reflection model: ADS(Ambient Diffuse Specular)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/tangent_space.html">Tangent Space Lighting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/pbr.html">Physically Based Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../todo.html">todo</a></li>
+</ul>
+
+</div>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/pipeline/compile_shader.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="shader_reflection.html" title="Shader Reflection"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Pipeline"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Pipeline</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CompileShader</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>

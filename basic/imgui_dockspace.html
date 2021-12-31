@@ -1,0 +1,383 @@
+
+
+<!doctype html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>ImGui + Dockspace &#8212; d3d11 samples  ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/bizstyle.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <script src="../_static/bizstyle.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="next" title="RTV from Texture" href="render_target_from_texture.html" />
+    <link rel="prev" title="Dear ImGui" href="imgui.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="render_target_from_texture.html" title="RTV from Texture"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="imgui.html" title="Dear ImGui"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">basic</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ImGui + Dockspace</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="imgui-dockspace">
+<h1>ImGui + Dockspace<a class="headerlink" href="#imgui-dockspace" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>imgui を dockspace branch に切り替えて dockspace を使う。</p>
+<a class="reference internal image-reference" href="../_images/imgui_dockspace.jpg"><img alt="../_images/imgui_dockspace.jpg" src="../_images/imgui_dockspace.jpg" style="width: 640px; height: 480px;" /></a>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">../../samples/_Basic//ImGuiDockspace/main.cpp</span><a class="headerlink" href="#id1" title="このコードへのパーマリンク">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;banana/dockspace.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;gorilla/device_and_target.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;gorilla/drawable.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;gorilla/texture_and_target.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;gorilla/window.h&gt;</span><span class="cp"></span>
+<span class="c1">//</span>
+<span class="cp">#include</span> <span class="cpf">&lt;imgui.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;imgui_impl_dx11.h&gt;</span><span class="cp"></span>
+<span class="c1">//</span>
+<span class="cp">#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;list&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;string_view&gt;</span><span class="cp"></span>
+
+<span class="k">auto</span> <span class="n">CLASS_NAME</span> <span class="o">=</span> <span class="s">&quot;CLASS_NAME&quot;</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">WINDOW_TITLE</span> <span class="o">=</span> <span class="s">&quot;ImGuiDockspace&quot;</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">WIDTH</span> <span class="o">=</span> <span class="mi">640</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">HEIGHT</span> <span class="o">=</span> <span class="mi">480</span><span class="p">;</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">using</span> <span class="n">ComPtr</span> <span class="o">=</span> <span class="n">Microsoft</span><span class="o">::</span><span class="n">WRL</span><span class="o">::</span><span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">DockSpace</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">time_point</span> <span class="n">last</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="n">banana</span><span class="o">::</span><span class="n">Dock</span><span class="o">&gt;</span> <span class="n">_docks</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+  <span class="n">ImVec4</span> <span class="n">clear_color</span> <span class="o">=</span> <span class="n">ImVec4</span><span class="p">(</span><span class="mf">0.45f</span><span class="p">,</span> <span class="mf">0.55f</span><span class="p">,</span> <span class="mf">0.60f</span><span class="p">,</span> <span class="mf">1.00f</span><span class="p">);</span>
+
+  <span class="n">banana</span><span class="o">::</span><span class="n">OrbitCamera</span> <span class="n">view_camera</span><span class="p">;</span>
+  <span class="n">gorilla</span><span class="o">::</span><span class="n">Drawable</span> <span class="n">view_drawable</span><span class="p">;</span>
+  <span class="n">gorilla</span><span class="o">::</span><span class="n">TextureAndTarget</span> <span class="n">view_rt</span><span class="p">;</span>
+  <span class="n">ImVec4</span> <span class="n">view_clear_color</span> <span class="o">=</span> <span class="n">ImVec4</span><span class="p">(</span><span class="mf">0.6f</span><span class="p">,</span> <span class="mf">0.35f</span><span class="p">,</span> <span class="mf">0.60f</span><span class="p">,</span> <span class="mf">1.00f</span><span class="p">);</span>
+
+  <span class="n">DockSpace</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11Device</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">device</span><span class="p">,</span>
+      <span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Setup Dear ImGui context</span>
+    <span class="n">IMGUI_CHECKVERSION</span><span class="p">();</span>
+    <span class="n">ImGui</span><span class="o">::</span><span class="n">CreateContext</span><span class="p">();</span>
+    <span class="n">ImGuiIO</span> <span class="o">&amp;</span><span class="n">io</span> <span class="o">=</span> <span class="n">ImGui</span><span class="o">::</span><span class="n">GetIO</span><span class="p">();</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">io</span><span class="p">;</span>
+    <span class="c1">// io.ConfigFlags |=</span>
+    <span class="c1">//     ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls</span>
+    <span class="c1">// io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable</span>
+    <span class="c1">// Gamepad Controls</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">ConfigFlags</span> <span class="o">|=</span> <span class="n">ImGuiConfigFlags_DockingEnable</span><span class="p">;</span>   <span class="c1">// Enable Docking</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">ConfigFlags</span> <span class="o">|=</span> <span class="n">ImGuiConfigFlags_ViewportsEnable</span><span class="p">;</span> <span class="c1">// Enable Multi-Viewport</span>
+                                                        <span class="c1">// / Platform Windows</span>
+    <span class="c1">// io.ConfigViewportsNoAutoMerge = true;</span>
+    <span class="c1">// io.ConfigViewportsNoTaskBarIcon = true;</span>
+    <span class="c1">// io.ConfigViewportsNoDefaultParent = true;</span>
+    <span class="c1">// io.ConfigDockingAlwaysTabBar = true;</span>
+    <span class="c1">// io.ConfigDockingTransparentPayload = true;</span>
+    <span class="c1">// io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;     // FIXME-DPI:</span>
+    <span class="c1">// Experimental. THIS CURRENTLY DOESN&#39;T WORK AS EXPECTED. DON&#39;T USE IN USER</span>
+    <span class="c1">// APP! io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports; //</span>
+    <span class="c1">// FIXME-DPI: Experimental.</span>
+
+    <span class="c1">// Setup Dear ImGui style</span>
+    <span class="n">ImGui</span><span class="o">::</span><span class="n">StyleColorsDark</span><span class="p">();</span>
+    <span class="c1">// ImGui::StyleColorsClassic();</span>
+
+    <span class="c1">// When viewports are enabled we tweak WindowRounding/WindowBg so platform</span>
+    <span class="c1">// windows can look identical to regular ones.</span>
+    <span class="n">ImGuiStyle</span> <span class="o">&amp;</span><span class="n">style</span> <span class="o">=</span> <span class="n">ImGui</span><span class="o">::</span><span class="n">GetStyle</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">ConfigFlags</span> <span class="o">&amp;</span> <span class="n">ImGuiConfigFlags_ViewportsEnable</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">style</span><span class="p">.</span><span class="n">WindowRounding</span> <span class="o">=</span> <span class="mf">0.0f</span><span class="p">;</span>
+      <span class="n">style</span><span class="p">.</span><span class="n">Colors</span><span class="p">[</span><span class="n">ImGuiCol_WindowBg</span><span class="p">].</span><span class="n">w</span> <span class="o">=</span> <span class="mf">1.0f</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Setup Platform/Renderer backends</span>
+    <span class="c1">// ImGui_ImplWin32_Init(hwnd);</span>
+    <span class="n">ImGui_ImplDX11_Init</span><span class="p">(</span><span class="n">device</span><span class="p">.</span><span class="n">Get</span><span class="p">(),</span> <span class="n">context</span><span class="p">.</span><span class="n">Get</span><span class="p">());</span>
+
+    <span class="c1">//</span>
+    <span class="c1">// initialize docks</span>
+    <span class="c1">//</span>
+    <span class="c1">// 1. Show the big demo window (Most of the sample code is in</span>
+    <span class="c1">// ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear</span>
+    <span class="c1">// ImGui!).</span>
+    <span class="k">auto</span> <span class="n">demo</span> <span class="o">=</span> <span class="n">_docks</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">banana</span><span class="o">::</span><span class="n">Dock</span><span class="p">{</span><span class="s">&quot;demo&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ImGui</span><span class="o">::</span><span class="n">ShowDemoWindow</span><span class="p">});</span>
+
+    <span class="c1">// 3. Show another simple window.</span>
+    <span class="k">auto</span> <span class="n">show_another</span> <span class="o">=</span> <span class="p">[](</span><span class="kt">bool</span> <span class="o">*</span><span class="n">p_open</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">Begin</span><span class="p">(</span><span class="s">&quot;Another Window&quot;</span><span class="p">,</span>
+                   <span class="n">p_open</span><span class="p">);</span> <span class="c1">// Pass a pointer to our bool variable (the</span>
+                            <span class="c1">// window will have a closing button that will</span>
+                            <span class="c1">// clear the bool when clicked)</span>
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">Text</span><span class="p">(</span><span class="s">&quot;Hello from another window!&quot;</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">ImGui</span><span class="o">::</span><span class="n">Button</span><span class="p">(</span><span class="s">&quot;Close Me&quot;</span><span class="p">))</span>
+        <span class="o">*</span><span class="n">p_open</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">End</span><span class="p">();</span>
+    <span class="p">};</span>
+    <span class="k">auto</span> <span class="n">another</span> <span class="o">=</span> <span class="n">_docks</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">banana</span><span class="o">::</span><span class="n">Dock</span><span class="p">{</span><span class="s">&quot;another&quot;</span><span class="p">,</span> <span class="n">show_another</span><span class="p">});</span>
+
+    <span class="c1">// 2. Show a simple window that we create ourselves. We use a Begin/End pair</span>
+    <span class="c1">// to created a named window.</span>
+    <span class="k">auto</span> <span class="n">show_hello</span> <span class="o">=</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">demo</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">another</span><span class="p">,</span>
+                       <span class="o">&amp;</span><span class="n">clear_color</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">clear_color</span><span class="p">](</span><span class="kt">bool</span> <span class="o">*</span><span class="n">p_open</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">static</span> <span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="mf">0.0f</span><span class="p">;</span>
+      <span class="k">static</span> <span class="kt">int</span> <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">Begin</span><span class="p">(</span><span class="s">&quot;Hello, world!&quot;</span><span class="p">);</span> <span class="c1">// Create a window called &quot;Hello, world!&quot;</span>
+                                     <span class="c1">// and append into it.</span>
+
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">Text</span><span class="p">(</span><span class="s">&quot;This is some useful text.&quot;</span><span class="p">);</span> <span class="c1">// Display some text (you can</span>
+                                                <span class="c1">// use a format strings too)</span>
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">Checkbox</span><span class="p">(</span>
+          <span class="s">&quot;Demo Window&quot;</span><span class="p">,</span>
+          <span class="o">&amp;</span><span class="n">demo</span><span class="p">.</span><span class="n">open</span><span class="p">);</span> <span class="c1">// Edit bools storing our window open/close state</span>
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">Checkbox</span><span class="p">(</span><span class="s">&quot;Another Window&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">another</span><span class="p">.</span><span class="n">open</span><span class="p">);</span>
+
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">SliderFloat</span><span class="p">(</span><span class="s">&quot;float&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">f</span><span class="p">,</span> <span class="mf">0.0f</span><span class="p">,</span>
+                         <span class="mf">1.0f</span><span class="p">);</span> <span class="c1">// Edit 1 float using a slider from 0.0f to 1.0f</span>
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">ColorEdit3</span><span class="p">(</span>
+          <span class="s">&quot;clear color&quot;</span><span class="p">,</span>
+          <span class="p">(</span><span class="kt">float</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">clear_color</span><span class="p">);</span> <span class="c1">// Edit 3 floats representing a color</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="n">ImGui</span><span class="o">::</span><span class="n">Button</span><span class="p">(</span><span class="s">&quot;Button&quot;</span><span class="p">))</span> <span class="c1">// Buttons return true when clicked (most</span>
+                                   <span class="c1">// widgets return true when edited/activated)</span>
+        <span class="n">counter</span><span class="o">++</span><span class="p">;</span>
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">SameLine</span><span class="p">();</span>
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">Text</span><span class="p">(</span><span class="s">&quot;counter = %d&quot;</span><span class="p">,</span> <span class="n">counter</span><span class="p">);</span>
+
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">Text</span><span class="p">(</span><span class="s">&quot;Application average %.3f ms/frame (%.1f FPS)&quot;</span><span class="p">,</span>
+                  <span class="mf">1000.0f</span> <span class="o">/</span> <span class="n">ImGui</span><span class="o">::</span><span class="n">GetIO</span><span class="p">().</span><span class="n">Framerate</span><span class="p">,</span> <span class="n">ImGui</span><span class="o">::</span><span class="n">GetIO</span><span class="p">().</span><span class="n">Framerate</span><span class="p">);</span>
+      <span class="n">ImGui</span><span class="o">::</span><span class="n">End</span><span class="p">();</span>
+    <span class="p">};</span>
+    <span class="n">_docks</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="s">&quot;hello&quot;</span><span class="p">,</span> <span class="n">show_hello</span><span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="o">~</span><span class="n">DockSpace</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Cleanup</span>
+    <span class="n">ImGui_ImplDX11_Shutdown</span><span class="p">();</span>
+    <span class="c1">// ImGui_ImplWin32_Shutdown();</span>
+    <span class="n">ImGui</span><span class="o">::</span><span class="n">DestroyContext</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="kt">void</span> <span class="n">update</span><span class="p">(</span><span class="k">const</span> <span class="n">ComPtr</span><span class="o">&lt;</span><span class="n">ID3D11DeviceContext</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">context</span><span class="p">,</span>
+              <span class="k">const</span> <span class="n">gorilla</span><span class="o">::</span><span class="n">ScreenState</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//</span>
+    <span class="c1">// update custom backend</span>
+    <span class="c1">//</span>
+    <span class="n">ImGuiIO</span> <span class="o">&amp;</span><span class="n">io</span> <span class="o">=</span> <span class="n">ImGui</span><span class="o">::</span><span class="n">GetIO</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">last</span> <span class="o">==</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">system_clock</span><span class="o">::</span><span class="n">time_point</span><span class="p">{})</span> <span class="p">{</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">io</span><span class="p">.</span><span class="n">DeltaTime</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span><span class="o">&gt;</span><span class="p">(</span>
+                         <span class="n">state</span><span class="p">.</span><span class="n">time</span> <span class="o">-</span> <span class="n">last</span><span class="p">)</span>
+                         <span class="p">.</span><span class="n">count</span><span class="p">()</span> <span class="o">*</span>
+                     <span class="mf">0.001f</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">DeltaTime</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">io</span><span class="p">.</span><span class="n">DeltaTime</span> <span class="o">=</span> <span class="mf">0.016f</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">last</span> <span class="o">=</span> <span class="n">state</span><span class="p">.</span><span class="n">time</span><span class="p">;</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">DisplaySize</span> <span class="o">=</span> <span class="p">{</span><span class="n">state</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="n">state</span><span class="p">.</span><span class="n">height</span><span class="p">};</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">MousePos</span> <span class="o">=</span> <span class="p">{</span><span class="n">state</span><span class="p">.</span><span class="n">mouse_x</span><span class="p">,</span> <span class="n">state</span><span class="p">.</span><span class="n">mouse_y</span><span class="p">};</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">MouseDown</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span><span class="p">.</span><span class="n">mouse_button_flag</span> <span class="o">&amp;</span> <span class="n">gorilla</span><span class="o">::</span><span class="n">MouseButtonLeftDown</span><span class="p">;</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">MouseDown</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span><span class="p">.</span><span class="n">mouse_button_flag</span> <span class="o">&amp;</span> <span class="n">gorilla</span><span class="o">::</span><span class="n">MouseButtonRightDown</span><span class="p">;</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">MouseDown</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span><span class="p">.</span><span class="n">mouse_button_flag</span> <span class="o">&amp;</span> <span class="n">gorilla</span><span class="o">::</span><span class="n">MouseButtonMiddleDown</span><span class="p">;</span>
+    <span class="n">io</span><span class="p">.</span><span class="n">MouseWheel</span> <span class="o">=</span> <span class="n">state</span><span class="p">.</span><span class="n">wheel</span><span class="p">;</span>
+
+    <span class="c1">// Start the Dear ImGui frame</span>
+    <span class="n">ImGui_ImplDX11_NewFrame</span><span class="p">();</span>
+    <span class="c1">// ImGui_ImplWin32_NewFrame();</span>
+    <span class="n">ImGui</span><span class="o">::</span><span class="n">NewFrame</span><span class="p">();</span>
+    <span class="n">dockspace</span><span class="p">(</span><span class="n">_docks</span><span class="p">);</span>
+    <span class="c1">// Rendering</span>
+    <span class="n">ImGui</span><span class="o">::</span><span class="n">Render</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="kt">void</span> <span class="n">render</span><span class="p">()</span> <span class="p">{</span> <span class="n">ImGui_ImplDX11_RenderDrawData</span><span class="p">(</span><span class="n">ImGui</span><span class="o">::</span><span class="n">GetDrawData</span><span class="p">());</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="n">WINAPI</span> <span class="nf">WinMain</span><span class="p">(</span><span class="n">HINSTANCE</span> <span class="n">hInstance</span><span class="p">,</span> <span class="n">HINSTANCE</span> <span class="n">hPrevInstance</span><span class="p">,</span>
+                   <span class="n">LPSTR</span> <span class="n">lpCmdLine</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nCmdShow</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">UNREFERENCED_PARAMETER</span><span class="p">(</span><span class="n">hPrevInstance</span><span class="p">);</span>
+  <span class="n">UNREFERENCED_PARAMETER</span><span class="p">(</span><span class="n">lpCmdLine</span><span class="p">);</span>
+
+  <span class="n">gorilla</span><span class="o">::</span><span class="n">Window</span> <span class="n">window</span><span class="p">;</span>
+  <span class="k">auto</span> <span class="n">hwnd</span> <span class="o">=</span> <span class="n">window</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">hInstance</span><span class="p">,</span> <span class="n">CLASS_NAME</span><span class="p">,</span> <span class="n">WINDOW_TITLE</span><span class="p">,</span> <span class="n">WIDTH</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">hwnd</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">ShowWindow</span><span class="p">(</span><span class="n">hwnd</span><span class="p">,</span> <span class="n">nCmdShow</span><span class="p">);</span>
+  <span class="n">UpdateWindow</span><span class="p">(</span><span class="n">hwnd</span><span class="p">);</span>
+
+  <span class="n">gorilla</span><span class="o">::</span><span class="n">DeviceAndTarget</span> <span class="n">renderer</span><span class="p">;</span>
+  <span class="k">auto</span> <span class="p">[</span><span class="n">device</span><span class="p">,</span> <span class="n">context</span><span class="p">]</span> <span class="o">=</span> <span class="n">renderer</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">hwnd</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">device</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">2</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">//</span>
+  <span class="c1">// main loop</span>
+  <span class="c1">//</span>
+  <span class="n">DockSpace</span> <span class="n">gui</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">context</span><span class="p">);</span>
+  <span class="n">gorilla</span><span class="o">::</span><span class="n">ScreenState</span> <span class="n">state</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">UINT</span> <span class="n">frame_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">window</span><span class="p">.</span><span class="n">process_messages</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">);</span> <span class="o">++</span><span class="n">frame_count</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">gui</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">state</span><span class="p">);</span>
+    <span class="c1">// draw</span>
+    <span class="n">renderer</span><span class="p">.</span><span class="n">begin_frame</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">gui</span><span class="p">.</span><span class="n">clear_color</span><span class="p">.</span><span class="n">x</span><span class="p">);</span>
+    <span class="n">gui</span><span class="p">.</span><span class="n">render</span><span class="p">();</span>
+    <span class="n">renderer</span><span class="p">.</span><span class="n">end_frame</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="imgui.html"
+                        title="前の章へ">Dear ImGui</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="render_target_from_texture.html"
+                        title="次の章へ">RTV from Texture</a></p><div id="toc" class="sidebarRow">
+    <style>
+        li.current > a {font-weight: bold;}
+    </style>
+    <h3><a href="../index.html">目次</a></h3>
+    <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">basic</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="create_window.html">CreateWindow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_device.html">CreateDevice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_swapchain.html">CreateSwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="render_target_from_swapchain.html">RTV from SwapChain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imgui.html">Dear ImGui</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ImGui + Dockspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="render_target_from_texture.html">RTV from Texture</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../pipeline/index.html">Pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/compile_shader.html">CompileShader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/shader_reflection.html">Shader Reflection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/basic_pipeline.html">Basic Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/constant_buffer.html">Constant Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/texture.html">Texture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/input_assembler.html">InputAssembler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/blend_state.html">BlendState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/mip_map.html">MipMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/dxsas.html">DXSAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/post_effect.html">PostEffect</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../two_d/index.html">２次元</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../three_d/index.html">３次元</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/spec.html">仕様決め</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/orbit_camera.html">Orbit Camera</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/depth_test.html">Depth Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/scene.html">SceneGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/tinygizmo.html">TinyGizmo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/gltf.html">glTF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../three_d/shading/index.html">Shading</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/ads.html">Phong reflection model: ADS(Ambient Diffuse Specular)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/tangent_space.html">Tangent Space Lighting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../three_d/shading/pbr.html">Physically Based Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../todo.html">todo</a></li>
+</ul>
+
+</div>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/basic/imgui_dockspace.md.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="render_target_from_texture.html" title="RTV from Texture"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="imgui.html" title="Dear ImGui"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">d3d11 samples  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >basic</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ImGui + Dockspace</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, ousttrue.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>
