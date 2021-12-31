@@ -1,101 +1,89 @@
 # Root
 
-d3d11 の備忘録。
+<https://github.com/ousttrue/d3d11_samples>
 
-## 準備
+ツールキット実装ノートになってしまった。
 
-ImGui + DockSpace をスタート地点にすることにした。
+🦍 lib/gorilla
 
-* CreateWindow
-* CreateDevice
-* ImGui
-* ImGui + DockSpace
-* ImGui + RenderTarget
+-   window
+-   d3d11, device, resource
+-   imgui
+
+🍌 lib/banana
+
+-   camera
+-   scene
+-   glTF
+
+env
+
+-   Windows10
+-   vc2019
+-   CMake
+-   `c++17`
+    -   std::string_view
+    -   std::filesystem
+-   clang-format オプションなし
+-   class name: UpperCamel
+-   other: snake_case
+
+dependency
+
+-   imgui
+-   mathfu
 
 ```{toctree}
-:maxdepth: 2
-
-source
-spec
-basic/create_window
-basic/create_device
-basic/create_swapchain
-basic/render_target
+todo
 ```
 
-## パイプラインとバッファーの取り扱い
+## basic
+
+CreateWindow ～ ImGui導入 ～ RenderTargetへの描画
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 1
+basic/index
+```
 
-basic/compile_shader
-basic/shader_reflection
-basic/basic_pipeline
-basic/constant_buffer
-basic/texture
-basic/input_assembler
-basic/rasterizer_state
-basic/blend_state
-basic/mip_map
+## pipeline
+
+ShaderPipeline 一般
+
+```{toctree}
+pipeline/index
 ```
 
 ## DXSAS
 
-```{toctree}
-:maxdepth: 2
-
-dxsas
-```
-
-## Projection の導入と三次元化
+DXSAS
 
 ```{toctree}
-:maxdepth: 2
-
-three_d/orbit_camera
-three_d/depth_test
-three_d/scene
+dxsas/index
 ```
 
-## Shading
+## 二次元シーン
+
+## 三次元シーン
 
 ```{toctree}
-:maxdepth: 2
-
-shading/ads
-shading/tangent_space
-shading/pbr
+three_d/index
+gltf/index
+gizmo/tinygizmo
 ```
 
-## glTF
+## Tool
 
-```{toctree}
-:maxdepth: 2
-
-gltf/gltf
-```
-
-# Gizmo
-
-* grid
-* aabb pick (ray intersection)
-
-```{toctree}
-:maxdepth: 2
-
-tinygizmo
-```
-
-# Tool
-
-* <https://renderdoc.org/>
+-   <https://renderdoc.org/>
 
 ## 参考
-* <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>
-* [いまさらDirect3D11入門](https://tositeru.github.io/ImasaraDX11/)
 
-## Indices and tables
+-   <https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d11-graphics-reference-d3d11-core-interfaces>
 
-* {ref}`genindex`
-* {ref}`modindex`
-* {ref}`search`
+-   [いまさらDirect3D11入門](https://tositeru.github.io/ImasaraDX11/)
+
+-   {ref}`genindex`
+
+-   {ref}`modindex`
+
+-   {ref}`search`

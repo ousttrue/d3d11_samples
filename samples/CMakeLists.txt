@@ -1,8 +1,5 @@
 subdirs(
-  CreateWindow
-  CreateDevice
-  CreateSwapChain
-  RenderTarget
+  _Basic
   CompileShader
   BasicPipeline
   ConstantBuffer
@@ -27,6 +24,4 @@ subdirs(
   GltfLoader
   MikkTSpace
   GltfScene
-  ImGui
-  ImGuiDockspace
   )

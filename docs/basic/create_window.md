@@ -1,7 +1,7 @@
 # CreateWindow
 
 
-```{literalinclude} ../../samples/CreateWindow/main.cpp
+```{literalinclude} ../../samples/_Basic/CreateWindow/main.cpp
 :caption:
 :language: cpp
 ```

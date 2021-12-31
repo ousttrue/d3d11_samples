@@ -33,11 +33,12 @@ add_library(
   gorilla/window.cpp
   gorilla/device_and_target.cpp
   gorilla/texture_and_target.cpp
+  gorilla/dockspace.cpp
   gorilla/drawable.cpp
   gorilla/gizmo.cpp)
 target_include_directories(${TARGET_NAME} PUBLIC .)
 target_link_libraries(${TARGET_NAME} PUBLIC d3d11.lib d3dcompiler.lib
-                                            dxguid.lib Shlwapi.lib banana json)
+                                            dxguid.lib Shlwapi.lib banana json imgui)
 
 # app
 set(TARGET_NAME app)
