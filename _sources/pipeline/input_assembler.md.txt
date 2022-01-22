@@ -15,4 +15,4 @@
 
 ## ダイナミック
 
-MorphTarget や Skinning(CPU) で使う。また、 [TinyGizmo](../tinygizmo) でも使う。
+MorphTarget や Skinning(CPU) で使う。また、 [TinyGizmo](../three_d/tinygizmo) でも使う。
