@@ -1,5 +1,6 @@
 /build/
-/public/
+/_build/
 imgui.ini
 sample.ini
 /.cache/
+/.venv/

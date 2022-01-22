@@ -53,4 +53,4 @@ rs_desc.FrontCounterClockwise = true;
 
 ## Constant Buffer
 
-{doc}`DXSAS </dxsas>` のセマンティクス経由で実装する予定。
+{doc}`DXSAS </pipeline/dxsas>` のセマンティクス経由で実装する予定。

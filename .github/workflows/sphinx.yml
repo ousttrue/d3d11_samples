@@ -12,14 +12,11 @@ jobs:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true          
     steps:
       - uses: actions/checkout@v1
-      - run: pip install sphinx
-      - run: pip install --upgrade myst-parser
-      # - run: pip install groundwork-sphinx-theme
+      - run: pip install -r requirements.txt
       - name: sphinx build
-        working-directory: ./docs
-        run: sphinx-build . ../public
+        run: sphinx-build docs _build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./_build
